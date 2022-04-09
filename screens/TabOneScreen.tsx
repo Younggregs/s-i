@@ -1,15 +1,26 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Touchable, TouchableOpacity } from 'react-native';
 
 import EditScreenInfo from '../components/EditScreenInfo';
+import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
+      <View style={styles.contentContainer}>
+        <ScrollView>
+          <TouchableOpacity style={styles.interestContainer} onPress={() => navigation.navigate('CategoryModal')} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+          <View style={styles.interestContainer} />
+        </ScrollView>
+      </View>
+      <InterestCategorySwitch path="/screens/TabOneScreen.tsx" />
     </View>
   );
 }
@@ -17,8 +28,9 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  contentContainer: {
+      flex: 1 // pushes the footer to the end of the screen
   },
   title: {
     fontSize: 20,
@@ -29,4 +41,12 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
+  interestContainer: {
+    borderColor: '#fff',
+    borderWidth: 2,
+    borderStyle: 'solid',
+    height: 100,
+    width: '100%',
+    marginTop: 10
+  }
 });
