@@ -7,7 +7,7 @@ import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
-export default function SearchHeader() {
+export default function ContactSearchHeader() {
 
     const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
@@ -18,7 +18,7 @@ export default function SearchHeader() {
             <View style={styles.search}>
                 <TextInput
                     style={styles.textInputContainer}
-                    placeholder="Search"
+                    placeholder="Search Friend"
                     placeholderTextColor={'#fff'}
                     autoFocus={true}
                     returnKeyType="search"

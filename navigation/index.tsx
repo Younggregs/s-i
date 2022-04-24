@@ -4,6 +4,7 @@
  *
  */
 import { FontAwesome } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -16,14 +17,15 @@ import useColorScheme from '../hooks/useColorScheme';
 
 // Modals
 import ModalScreen from '../screens/ModalScreen';
-import CategoryModalScreen from '../screens/CategoryModalScreen';
+import ContactModalScreen from '../screens/ContactModalScreen';
 import SearchModalScreen from '../screens/SearchModalScreen';
 import ProfileModalScreen from '../screens/ProfileModalScreen';
 import SettingsModalScreen from '../screens/SettingsModalScreen';
+import LoginScreen from '../screens/LoginScreen';
 
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import InterestsScreen from '../screens/InterestsScreen';
+import FriendsScreen from '../screens/FriendsScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import { Text, View } from '../components/Themed';
@@ -31,13 +33,18 @@ import { Text, View } from '../components/Themed';
 // Components
 import HeaderComponent from '../components/HeaderComponent';
 import SearchHeader from '../components/SearchHeader';
+import ContactSearchHeader from '../components/ContactSearchHeader';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+  const isAuth = useSelector(state => !!state.auth.token);
+  const didTryAutoLogin = useSelector(state => state.auth.didTryAutoLogin);
+
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootNavigator />
+      {!isAuth && <LoginNavigator />}
+      {isAuth && <RootNavigator />}
     </NavigationContainer>
   );
 }
@@ -48,6 +55,19 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
  */
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function LoginNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Root"
+        component={LoginScreen}
+        options={{
+          headerShown: false,
+        }} />
+    </Stack.Navigator>
+  );
+}
 
 function RootNavigator() {
   return (
@@ -60,6 +80,7 @@ function RootNavigator() {
           headerTitle: (props) => <HeaderComponent {...props} />
         }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen
@@ -74,8 +95,7 @@ function RootNavigator() {
           name="ProfileModal"
           component={ProfileModalScreen}
           options={{
-              headerShown: true,
-              title: 'Profile'
+            headerShown: false
           }}
         />
         <Stack.Screen 
@@ -86,7 +106,14 @@ function RootNavigator() {
               title: 'Settings'
           }}
         />
-        <Stack.Screen name="CategoryModal" component={CategoryModalScreen} options={{ headerShown: false}} />
+        <Stack.Screen 
+          name="CategoryModal" 
+          component={ContactModalScreen} 
+          options={{ 
+            headerShown: true, 
+            headerTitle: (props) => <ContactSearchHeader {...props} />
+            }} 
+        />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -148,20 +175,20 @@ function TopTabNavigator() {
 
   return (
     <TopTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="Interests"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <TopTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
+        name="Interests"
+        component={InterestsScreen}
+        options={({ navigation }: RootTabScreenProps<'Interests'>) => ({
           title: 'Interests',
         })}
       />
       <TopTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
+        name="Friends"
+        component={FriendsScreen}
         options={{
           title: 'Friends',
         }}
