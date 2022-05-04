@@ -66,6 +66,7 @@ export default function HeaderComponent() {
                 </View>
                 <View style={styles.iconContainer}>
                     <Menu
+                        style={styles.menu}
                         visible={visible}
                         anchor={
                         <TouchableOpacity onPress={showMenu} style={styles.icon}>
@@ -77,9 +78,9 @@ export default function HeaderComponent() {
                         </TouchableOpacity>}
                         onRequestClose={hideMenu}
                     >
-                        <MenuItem  onPress={() => navigation.navigate('ProfileModal')}>My Profile</MenuItem>
+                        <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('ProfileModal')}>My Profile</MenuItem>
                         <MenuDivider />
-                        <MenuItem onPress={() => navigation.navigate('SettingsModal')}>Settings</MenuItem>
+                        <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('SettingsModal')}>Settings</MenuItem>
                     </Menu>
                 </View>
             </View>
@@ -96,6 +97,12 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         backgroundColor: 'transparent',
         alignItems: 'center'
+    },
+    menuText: {
+      color: '#fff'
+    },
+    menu: {
+      backgroundColor: '#000'
     },
     title: {
         flex: 8,

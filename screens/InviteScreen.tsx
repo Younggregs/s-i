@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, } from "react";
 import {
   Platform,
   StyleSheet,
@@ -16,6 +16,7 @@ import { Text, View } from "../components/Themed";
 import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
+import { useNavigation } from '@react-navigation/native';
 
 const testActiveContacts = [
   {
@@ -81,8 +82,9 @@ const testActiveContacts = [
   },
 ];
 
-export default function ContactModalScreen() {
+export default function InviteModalScreen() {
   const [contact, setContact] = useState();
+  const [validInvite, setInvite] = useState(false);
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
@@ -103,9 +105,10 @@ export default function ContactModalScreen() {
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const invite = (item) => {
-    let redirectUrl = Linking.createURL("invite", {
+    let redirectUrl = Linking.createURL("login", {
       queryParams: { invite: "dlrow" },
     });
     const message = `Hello ${item.name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
@@ -140,16 +143,32 @@ export default function ContactModalScreen() {
     [dispatch, setIsLoading, setError]
   );
 
+  const _handleUrl = async () => {
+    const link = await Linking.getInitialURL()
+    if(link !== null){
+        let { hostname, path, queryParams } = Linking.parse(link);
+        if(queryParams.invite === 'dlrow'){
+          navigation.navigate('Login')
+        }
+        console.log(`Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(queryParams)}`)
+    }
+  };
+
+  useEffect(() => {
+      if(Linking.getInitialURL() !== null){
+          _handleUrl()
+      }
+  });
+
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.PhoneNumbers],
+          fields: [Contacts.Fields.Emails],
         });
 
         if (data.length > 0) {
-          console.log('data', data)
           loadContact(data);
         }
       }
@@ -163,37 +182,19 @@ export default function ContactModalScreen() {
         lightColor='#eee'
         darkColor='rgba(255,255,255,0.1)'
       />
-      <View style={styles.contactView}>
-        <FlatList
-          data={tempList}
-          renderItem={({ item }) => (
-            <View
-              style={styles.contact}
-              lightColor='#eee'
-              darkColor='rgba(255,255,255,0.1)'
-            >
-              <View style={styles.contactImage}>
-                <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
-              </View>
-              <Text style={styles.item}>{item.name}</Text>
-              {item.active ? (
-                <TouchableOpacity
-                  onPress={() => add(item)}
-                  style={styles.tagView}
-                >
-                  <Text style={styles.buttonText}>Tag</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={() => invite(item)}
-                  style={styles.tagView}
-                >
-                  <Text style={styles.buttonText}>Invite</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-        />
+      <View style={styles.textView}>
+        <Text style={styles.title}>Share Interest</Text>
+        <Text style={styles.text}>Hey dear, you need a valid invite link to continue... sorry.</Text>
+        <Text>You can request invite from your contacts, 
+          click the button below to see if any 
+          your contacts is on Share Interest. 
+        </Text>
+      </View>
+      
+      <View style={styles.requestView}>
+        <TouchableOpacity onPress={() => navigation.navigate('RequestInviteModal')} style={styles.buttonView}>
+          <Text style={styles.buttonText}>Request Invite</Text>
+        </TouchableOpacity>
       </View>
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
@@ -207,6 +208,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  textView: {
+    marginHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  requestView:{
+    marginVertical: 20
+  },
   contact: {
     flexDirection: "row",
     alignItems: "center",
@@ -216,10 +225,6 @@ const styles = StyleSheet.create({
   contactView: {
     height: "100%",
     width: "100%",
-  },
-  contactText: {
-    fontWeight: 'bold',
-    fontSize: 20
   },
   tagView: {
     padding: 10,
@@ -236,15 +241,19 @@ const styles = StyleSheet.create({
     borderColor: "#ffffff",
     borderWidth: 1,
     borderStyle: "solid",
-    justifyContent: "center",
-    alignItems: 'center'
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    color: '#fff'
+  },
+  text: {
+    textAlign: 'center',
+    color: '#fff'
   },
   buttonText: {
     fontWeight: "bold",
+    color: '#000'
   },
   separator: {
     marginVertical: 30,
@@ -259,4 +268,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     flex: 8,
   },
+  buttonView: {
+    backgroundColor: '#fff',
+    height: 40, 
+    width: 150,
+    alignItems: "center",
+    justifyContent: "center",
+  }
 });

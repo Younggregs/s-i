@@ -22,6 +22,12 @@ import SearchModalScreen from '../screens/SearchModalScreen';
 import ProfileModalScreen from '../screens/ProfileModalScreen';
 import SettingsModalScreen from '../screens/SettingsModalScreen';
 import LoginScreen from '../screens/LoginScreen';
+import PasswordScreen from '../screens/PasswordScreen';
+import LoginContactScreen from '../screens/LoginContactScreen';
+import InviteScreen from '../screens/InviteScreen';
+import RequestInviteModalScreen from '../screens/RequestInviteModalScreen';
+import AboutScreen from '../screens/AboutScreen';
+import ContactScreen from '../screens/ContactScreen';
 
 import NotFoundScreen from '../screens/NotFoundScreen';
 import InterestsScreen from '../screens/InterestsScreen';
@@ -34,17 +40,20 @@ import { Text, View } from '../components/Themed';
 import HeaderComponent from '../components/HeaderComponent';
 import SearchHeader from '../components/SearchHeader';
 import ContactSearchHeader from '../components/ContactSearchHeader';
+import LoginContactSearchHeader from '../components/LoginContactSearchHeader';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   const isAuth = useSelector(state => !!state.auth.token);
   const didTryAutoLogin = useSelector(state => state.auth.didTryAutoLogin);
 
+  
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       {!isAuth && <LoginNavigator />}
       {isAuth && <RootNavigator />}
+      {/* <RootNavigator /> */}
     </NavigationContainer>
   );
 }
@@ -62,9 +71,35 @@ function LoginNavigator() {
       <Stack.Screen
         name="Root"
         component={LoginScreen}
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+          name="Invite" 
+          component={InviteScreen} 
+          options={{ headerShown: false}} 
+      />
+      <Stack.Screen 
+        name="RequestInviteModal"
+        component={RequestInviteModalScreen}
         options={{
-          headerShown: false,
-        }} />
+          headerShown: true,
+          headerTitle: (props) => <ContactSearchHeader {...props} />
+        }}
+      />
+      <Stack.Screen 
+        name="Password" 
+        component={PasswordScreen} 
+        options={{ headerShown: false }} />
+      <Stack.Screen 
+        name="LoginContacts" 
+        component={LoginContactScreen} 
+        options={{ 
+          headerShown: true, 
+          headerTitle: (props) => <LoginContactSearchHeader {...props} />,
+          headerBackVisible:false
+          }} 
+      />
+      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
     </Stack.Navigator>
   );
 }
@@ -79,8 +114,29 @@ function RootNavigator() {
           headerShown: true,
           headerTitle: (props) => <HeaderComponent {...props} />
         }} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="Password" 
+        component={PasswordScreen} 
+        options={{ headerShown: false }} />
+      <Stack.Screen 
+          name="Invite" 
+          component={InviteScreen} 
+          options={{ headerShown: false}} 
+      />
+      <Stack.Screen 
+          name="RequestInviteModal"
+          component={RequestInviteModalScreen}
+          options={{
+            headerShown: true,
+            headerTitle: (props) => <ContactSearchHeader {...props} />
+          }}
+      />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen
@@ -107,7 +163,23 @@ function RootNavigator() {
           }}
         />
         <Stack.Screen 
-          name="CategoryModal" 
+          name="About"
+          component={AboutScreen}
+          options={{
+              headerShown: true,
+              title: 'About us'
+          }}
+        />
+        <Stack.Screen 
+          name="Message"
+          component={ContactScreen}
+          options={{
+              headerShown: true,
+              title: 'Message us'
+          }}
+        />
+        <Stack.Screen 
+          name="ContactModal" 
           component={ContactModalScreen} 
           options={{ 
             headerShown: true, 

@@ -6,6 +6,7 @@ export const SELECT_TOGGLE_CATEGORY = "SELECT_TOGGLE_CATEGORY";
 export const ADD_INTEREST = "ADD_INTEREST"
 export const FETCH_INTERESTS = "FETCH_INTERESTS"
 export const TOGGLE_INTEREST = "TOGGLE_INTEREST"
+export const DELETE_INTEREST = "DELETE_INTEREST"
 
 export const fetchCategories = () => {
     return async (dispatch, getState) => {
@@ -76,7 +77,9 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana'
+                    name: 'Tony Montana',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category: {
                     id: 'ro3JDndad3903', 
@@ -93,14 +96,16 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39035',
                     profileImage: '',
-                    name: 'T.I Blaze'
+                    name: 'T.I Blaze',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category:  {
                     id: '3iendad3903', 
                     name: 'YouTube', 
                     active: false
                 },
-                type: '',
+                type: 'url',
                 interesting: true
             },
             {  
@@ -110,14 +115,16 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana'
+                    name: 'Tony Montana',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category:  {
                     id: '3iendad3903', 
                     name: 'YouTube', 
                     active: false
                 },
-                type: '',
+                type: 'url',
                 interesting: false
             },
             {  
@@ -127,14 +134,16 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana'
+                    name: 'Tony Montana',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category:  {
                     id: '3iendad3903', 
                     name: 'YouTube', 
                     active: false
                 },
-                type: '',
+                type: 'url',
                 interesting: true
             },
             {  
@@ -144,7 +153,9 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana'
+                    name: 'Tony Montana',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category:  {
                     id: '300ndad3903', 
@@ -161,7 +172,9 @@ export const fetchInterests = () => {
                 user: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana'
+                    name: 'Tony Montana',
+                    phone: '08109090890',
+                    countryCode: '91'
                 },
                 category:  {
                     id: '23JDnd333903', 
@@ -176,6 +189,16 @@ export const fetchInterests = () => {
         dispatch({
             type: FETCH_INTERESTS,
             interests: resData
+        })
+    }
+};
+
+export const deleteInterest = (id) => {
+    console.log('control', id)
+    return async (dispatch, getState) => {
+        dispatch({
+            type: DELETE_INTEREST,
+            id: id
         })
     }
 };

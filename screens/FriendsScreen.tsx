@@ -42,18 +42,20 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
         <ScrollView>
           {friendList.map(item => 
             <TouchableOpacity 
-              onPress={() => navigation.navigate('ProfileModal')}
+              onPress={() => navigation.navigate('ProfileModal', {item})}
                key={item.id} 
                style={styles.interestContainer} 
                lightColor="#eee" 
                darkColor="rgba(255,255,255,0.1)">
-              <View style={styles.contactImage}/>
+              <View style={styles.contactImage}>
+                <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
+              </View>
               <Text style={styles.item}>{item.name}</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
           )}
         </ScrollView>
       </View>
-      <TouchableOpacity style={styles.newFriendContainer} onPress={() => navigation.navigate('CategoryModal')}>
+      <TouchableOpacity style={styles.newFriendContainer} onPress={() => navigation.navigate('ContactModal')}>
         <Text style={styles.newFriendText}>Tag Friend</Text>
       </TouchableOpacity>
     </View>
@@ -81,6 +83,12 @@ const styles = StyleSheet.create({
     borderColor: '#ffffff',
     borderWidth: 1,
     borderStyle: 'solid',
+    justifyContent: "center",
+    alignItems: 'center'
+  },
+  contactText: {
+    fontWeight: 'bold',
+    fontSize: 20
   },
   title: {
     fontSize: 20,

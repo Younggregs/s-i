@@ -14,7 +14,8 @@ import * as interests from '../store/actions/interests';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
 
-export default function ProfileModalScreen() {
+export default function ProfileModalScreen(props: any) {
+  const { navigation } = props;
   const offset = useRef(new Animated.Value(0)).current;
 
   const categories = useSelector(state => state.interest.allCategories);
@@ -27,7 +28,7 @@ export default function ProfileModalScreen() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} forceInset={{ top: 'always' }}>
-        <AnimatedHeader animatedValue={offset} />
+        <AnimatedHeader animatedValue={offset} friend={props.route.params.item}/>
         <ScrollView
           style={styles.contentContainer}
           contentContainerStyle={{

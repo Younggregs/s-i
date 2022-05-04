@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState, useCallback } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { StyleSheet, Animated, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Animated, View, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
@@ -13,9 +14,12 @@ import { Text } from './Themed';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
+import * as friends from '../store/actions/friends';
+import onShare from './Share';
+
 const HEADER_HEIGHT = 200;
 
-const AnimatedHeader = ({animatedValue}) => {
+const AnimatedHeader = ({animatedValue, friend}) => {
     const colorScheme = useColorScheme();
 
     const insets = useSafeAreaInsets();
@@ -30,6 +34,28 @@ const AnimatedHeader = ({animatedValue}) => {
     const showMenu = () => setVisible(true);
     const navigation = useNavigation();
 
+    const [toggle, setToggle] = useState(friend.notification);
+
+    const dispatch = useDispatch();
+
+    const untag = async () => {
+        try {
+            dispatch(friends.untagFriend(friend.id));
+            navigation.goBack();
+        } catch (err) {
+           
+        }
+      }
+
+    const toggleNotification = async () => {
+        try {
+            dispatch(friends.toggleNotification(friend.id));
+            setToggle(!toggle)
+        } catch (err) {
+            
+        }
+    }
+
     return (
         <Animated.View
             style={{
@@ -39,7 +65,7 @@ const AnimatedHeader = ({animatedValue}) => {
             right: 0,
             zIndex: 10,
             height: headerHeight,
-            backgroundColor: '#373737'
+            backgroundColor: 'rgb(40,44,53)'
             }}
         >
             <SafeAreaProvider>
@@ -53,22 +79,24 @@ const AnimatedHeader = ({animatedValue}) => {
                             />
                         </TouchableOpacity>
                         <View style={styles.nameView}>
-                            <Text style={styles.titleText}>Retzam Danladi</Text>
+                            <Text style={styles.titleText}>{friend.name}</Text>
                         </View>
-                        <TouchableOpacity style={styles.tag}>
-                            <Text style={styles.text}>Tag</Text>
+                        <TouchableOpacity onPress={() => untag()} style={styles.tag}>
+                            <Text style={styles.text}>Untag</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.notification}>
+                        <TouchableOpacity onPress={() => toggleNotification()} style={styles.notification}>
                             <FontAwesome
                                 name="bell"
                                 size={20}
-                                color={Colors[colorScheme].text}
+                                color={`${toggle ? '#4169E1' : '#fff'}`}
                             />
                         </TouchableOpacity>
-                        <View style={styles.menu}>
+                        <View style={styles.menuContainer}>
                             <Menu
+                                style={styles.menu}
                                 visible={visible}
-                                anchor={<TouchableOpacity onPress={showMenu} style={styles.icon}>
+                                anchor={
+                                <TouchableOpacity onPress={showMenu} style={styles.icon}>
                                     <FontAwesome
                                         name="ellipsis-v"
                                         size={20}
@@ -77,14 +105,28 @@ const AnimatedHeader = ({animatedValue}) => {
                                 </TouchableOpacity>}
                                 onRequestClose={hideMenu}
                             >
-                                <MenuItem  onPress={() => navigation.navigate('ProfileModal')}>View in address book</MenuItem>
+                                <MenuItem 
+                                    textStyle={styles.menuText} 
+                                    onPress={() => onShare(`${friend.name}\n${friend.phone}`)}>
+                                    Share
+                                </MenuItem>
+                                <MenuDivider />
+                                <MenuItem 
+                                    textStyle={styles.menuText} 
+                                    onPress={() => Linking.openURL('content://com.android.contacts/contacts')}>
+                                    View in address book
+                                </MenuItem>
                                 <MenuDivider />
                             </Menu>
                         </View>
                     </View>
                     <View style={styles.contentContainer}>
-                        <View style={styles.imageView} />
-                        <Text style={styles.titleText}>0810 959 9597</Text>
+                        <View style={styles.imageView}>
+                            <Text style={styles.imageAlphabet}>{friend.name.substring(0, 1)}</Text>
+                        </View> 
+                        <Text style={styles.titleText}>
+                            {`${friend.countryCode ? friend.countryCode : ''} ${friend.phone ? friend.phone : friend.phoneNumbers[0].number}`}
+                        </Text>
                     </View>
                 </SafeAreaView>
             </SafeAreaProvider>
@@ -106,14 +148,31 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         alignItems: 'center'
     },
+    menuText: {
+      color: '#fff'
+    },
+    menu: {
+        backgroundColor: '#000'
+    },
+    menuContainer: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
     imageView: {
         borderColor: '#fff',
         borderStyle: "solid",
         borderWidth: 1,
         borderRadius: 5,
+        backgroundColor: '#000',
         height: 100,
         width: 100,
-        marginVertical: 5
+        marginVertical: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    imageAlphabet: {
+        fontSize: 35,
+        fontWeight: 'bold'
     },
     backIcon: {
         alignItems: 'center',
@@ -124,6 +183,7 @@ const styles = StyleSheet.create({
     icon: {
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'transparent',
     },
     titleText: {
         fontSize: 18,
@@ -136,15 +196,13 @@ const styles = StyleSheet.create({
     text: {
         color: '#fff'
     },
-    menu: {
-        flex: 1,
-    },
     tag: {
         flex: 2,
         borderColor: '#fff',
         borderStyle: "solid",
         borderWidth: 1,
         borderRadius: 5,
+        backgroundColor: '#4169E1',
         marginHorizontal: 5,
         alignItems: 'center',
         justifyContent: 'center',

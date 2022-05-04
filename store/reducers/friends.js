@@ -1,4 +1,4 @@
-import { SET_FRIENDS, ADD_FRIENDS, SET_CONTACTS } from "../actions/friends";
+import { SET_FRIENDS, TAG_FRIEND, UNTAG_FRIEND, SET_CONTACTS, TOGGLE_NOTIFICATION } from "../actions/friends";
 
 const initialState = {
     allFriends: [],
@@ -15,16 +15,31 @@ export default (state=initialState, action) => {
                 allFriends: action.friends
             }
         
-        case ADD_FRIENDS:
+        case TAG_FRIEND:
             return {
                 ...state,
                 allFriends: [action.friend, ...state.allFriends]
             }
 
-         case SET_CONTACTS:
+        case UNTAG_FRIEND:
+            const updatedFriendList = tempFriends.filter(friend => friend.id !== action.id)
+            return{
+                ...state,
+                allFriends: updatedFriendList
+            }
+
+        case SET_CONTACTS:
             return {
                 ...state,
                 allContacts: action.contacts
+            }
+        
+        case TOGGLE_NOTIFICATION:
+            const friend = tempFriends.findIndex(item => item.id === action.id)
+            tempFriends[friend].notification = !tempFriends[friend].notification
+            return {
+                ...state,
+                allFriends: tempFriends
             }
             
         default:

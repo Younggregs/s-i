@@ -76,6 +76,9 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
           {interestsBucket.map(item => 
             <InterestComponent key={item.id} item={item} />
           )}
+          <View style={styles.footerContainer}>
+            <Text style={styles.linkText}>shareinterest.app</Text>
+          </View>
         </ScrollView>
       </View>
       <View style={styles.fab}>
@@ -105,6 +108,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  linkText: {
+    fontSize: 14,
+    color: '#2e78b7',
+  },
   separator: {
     marginVertical: 30,
     height: 1,
@@ -115,6 +122,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     margin:5
+  },
+  footerContainer: {
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 0.5,
+    borderStyle: 'solid',
+    height: 150,
+    width: '100%',
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   interestContainer: {
     borderColor: 'rgba(255,255,255,0.1)',

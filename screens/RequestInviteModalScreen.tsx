@@ -81,19 +81,13 @@ const testActiveContacts = [
   },
 ];
 
-export default function ContactModalScreen() {
+export default function RequestInviteModalScreen() {
   const [contact, setContact] = useState();
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
-    const isFriend = friendList.find((friend) => friend.id === item.id);
-    if (isFriend === undefined) {
-      const activeContact = testActiveContacts.find(
-        (contact) => contact.id === item.id
-      );
-      if (activeContact !== undefined) {
-        Object.assign(item, { active: true });
-      }
+    const isFriend = testActiveContacts.find((friend) => friend.id === item.id);
+    if (isFriend !== undefined) {
       return item;
     }
   });
@@ -108,23 +102,9 @@ export default function ContactModalScreen() {
     let redirectUrl = Linking.createURL("invite", {
       queryParams: { invite: "dlrow" },
     });
-    const message = `Hello ${item.name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
+    const message = `Hello ${item.name}, can you send me an invite to Share Interest please? \n\n https://shareinterest.app`;
     onShare(message);
   };
-
-  const add = useCallback(
-    async (item) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.tagFriend(item));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setIsLoading, setError]
-  );
 
   const loadContact = useCallback(
     async (data) => {
@@ -145,11 +125,10 @@ export default function ContactModalScreen() {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.PhoneNumbers],
+          fields: [Contacts.Fields.Emails],
         });
 
         if (data.length > 0) {
-          console.log('data', data)
           loadContact(data);
         }
       }
@@ -176,21 +155,14 @@ export default function ContactModalScreen() {
                 <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
               </View>
               <Text style={styles.item}>{item.name}</Text>
-              {item.active ? (
-                <TouchableOpacity
-                  onPress={() => add(item)}
-                  style={styles.tagView}
-                >
-                  <Text style={styles.buttonText}>Tag</Text>
-                </TouchableOpacity>
-              ) : (
+              
                 <TouchableOpacity
                   onPress={() => invite(item)}
                   style={styles.tagView}
                 >
-                  <Text style={styles.buttonText}>Invite</Text>
+                  <Text style={styles.buttonText}>Request Invite</Text>
                 </TouchableOpacity>
-              )}
+            
             </View>
           )}
         />
@@ -217,10 +189,6 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
-  contactText: {
-    fontWeight: 'bold',
-    fontSize: 20
-  },
   tagView: {
     padding: 10,
     borderRadius: 5,
@@ -239,12 +207,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: 'center'
   },
+  contactText: {
+    fontWeight: 'bold',
+    fontSize: 20
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
   },
   buttonText: {
     fontWeight: "bold",
+    textAlign: 'center'
   },
   separator: {
     marginVertical: 30,

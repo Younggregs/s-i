@@ -1,4 +1,4 @@
-import { SET_CATEGORIES, SELECT_CATEGORY, SELECT_TOGGLE_CATEGORY, ADD_INTEREST, FETCH_INTERESTS, TOGGLE_INTEREST } from "../actions/interests";
+import { SET_CATEGORIES, SELECT_CATEGORY, SELECT_TOGGLE_CATEGORY, ADD_INTEREST, FETCH_INTERESTS, TOGGLE_INTEREST, DELETE_INTEREST } from "../actions/interests";
 
 const initialState = {
     allCategories: [],
@@ -65,6 +65,13 @@ export default (state=initialState, action) => {
             return {
                 ...state,
                 allInterests: tempInterest
+            }
+        
+        case DELETE_INTEREST:
+            const updatedInterestList = tempInterest.filter(interest => interest.id !== action.id)
+            return{
+                ...state,
+                allInterests: updatedInterestList
             }
             
         default:

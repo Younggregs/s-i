@@ -79,7 +79,7 @@ export default function AddInterest({ path }: { path: string }) {
         setType('url')
         if(res){
           setCategory('YouTube')
-          setType('')
+          // setType('')
           setYoutubeId(res)
         }
         else if(tiktokRegex(link)){
@@ -166,16 +166,22 @@ export default function AddInterest({ path }: { path: string }) {
               <View style={styles.previewBody}>
 
                 {category === 'YouTube' && (
+                <>
+                  {!loaded && (
+                    <View style={styles.itemView}>
+                        <Text style={styles.loadingText}>Loading...</Text>
+                    </View>
+                  )}
                   <YoutubePlayer
                     height={150}
                     play={playing}
                     videoId={youtubeId}
                     onChangeState={onStateChange}
                   />
+                </>
                 )}
 
                 {category.length > 0 && type === 'url' && (
-
                   <>
                   <RNUrlPreview 
                     text={link}
@@ -191,7 +197,7 @@ export default function AddInterest({ path }: { path: string }) {
                   />
                   {!loaded && (
                     <View style={styles.itemView}>
-                      <Text style={styles.categoryText}>Loading...</Text>
+                      <Text style={styles.loadingText}>Loading...</Text>
                     </View>
                   )}
                   </>
@@ -214,6 +220,13 @@ export default function AddInterest({ path }: { path: string }) {
               onPress={() => add()}
           >
               <Text style={styles.textStyle}>Share</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+              style={[styles.button, styles.buttonClose, styles.buttonCancel]}
+              onPress={() => setModalVisible(false)}
+          >
+              <Text style={styles.textStyle}>Cancel</Text>
           </TouchableOpacity>
       </View>
     </View>
@@ -294,6 +307,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     margin:5
   },
+  loadingText: {
+    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: 'bold',
+    margin:5
+  },
   bottomContainer: {
     width: '100%',
     borderTopColor: '#fff',
@@ -352,7 +371,12 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 20,
     borderRadius: 10,
-
+  },
+  buttonCancel: {
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#fff',
   },
   textStyle: {
     color: "white",

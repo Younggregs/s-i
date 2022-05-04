@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage } from '@react-native-async-storage/async-storage';
 
 export const AUTHENTICATE = 'AUTHENTICATE';
 export const LOGOUT = 'LOGOUT';
@@ -26,20 +26,19 @@ export const signup = (name, email, password, expoPushToken) => {
     };
 };
 
-export const signin = (email, password, expoPushToken) => {
+export const signin = (phone, password, expoPushToken) => {
     return async dispatch => {
-
         const resData = {
             'user': {
                 id: '3iendad39036',
                 profileImage: '',
-                name: 'Tony Montana'
+                name: 'Tony Montana',
+                phone: '08109599597'
             },
             'token': '3iendad390363iendad390363iendad39036'
         }
 
         dispatch(authenticate(resData.user, resData.token));
-
         saveDataToStorage(resData.token, resData.user);
     };
 };

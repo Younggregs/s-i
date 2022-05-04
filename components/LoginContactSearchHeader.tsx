@@ -1,24 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
-export default function ContactSearchHeader() {
+import * as auth from '../store/actions/auth';
+
+export default function LoginContactSearchHeader() {
 
     const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
     const navigation = useNavigation();
-    
+
+    const dispatch = useDispatch();
+
+    const finish = () => {
+        const phone = '03003039'
+        const password = 'password'
+        const expoPushToken = 'khadjadjkkaldjfkd'
+
+        try {
+            dispatch(auth.signin(phone, password, expoPushToken));
+        } catch (err) {
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.search}>
                 <TextInput
-                    style={styles.textInputContainer}
-                    placeholder="Search Contact"
+                    style={styles.input}
+                    placeholder="Tag Friends"
                     placeholderTextColor={'#fff'}
                     autoFocus={true}
                     returnKeyType="search"
@@ -28,29 +44,32 @@ export default function ContactSearchHeader() {
                     defaultValue={text}
                 />
             </View>
-            
+            <View style={styles.buttonView}>
+                <TouchableOpacity style={styles.button} onPress={() => finish()}>
+                    <Text style={styles.buttonText}> Done </Text>
+                </TouchableOpacity> 
+            </View>    
         </View>
   );
 }
 
 const styles = StyleSheet.create({
-    container: { 
+    container: {
         flexDirection: 'row',
         backgroundColor: 'transparent'
     },
     search: {
-        width: '100%',
+        flex: 8,
         borderRadius: 10,
-        paddingHorizontal: 10,
         paddingVertical: 5,
         backgroundColor: 'transparent'
     },
-    searchText: {
-        fontSize: 20,
+    buttonText: {
+        fontSize: 18,
         fontWeight: 'bold',
+        color: '#fff'
     },
-    textInputContainer: {
-        flex: 1,
+    input: {
         color: '#fff'
     },
     icon: {
@@ -63,4 +82,17 @@ const styles = StyleSheet.create({
         height: 1,
         width: '80%',
     },
+    buttonView: {
+        flex: 3,
+        backgroundColor: 'transparent'
+    },
+    button: {
+        height: 40,
+        width: 100,
+        padding: 5,
+        borderRadius: 5,
+        backgroundColor: "#2196F3",
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });
