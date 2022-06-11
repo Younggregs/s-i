@@ -165,21 +165,21 @@ export default function AddInterest({ path }: { path: string }) {
               </View>
               <View style={styles.previewBody}>
 
-                {category === 'YouTube' && (
-                <>
-                  {!loaded && (
-                    <View style={styles.itemView}>
-                        <Text style={styles.loadingText}>Loading...</Text>
-                    </View>
-                  )}
-                  <YoutubePlayer
-                    height={150}
-                    play={playing}
-                    videoId={youtubeId}
-                    onChangeState={onStateChange}
-                  />
-                </>
-                )}
+                {/* {category === 'YouTube' && (
+                  <>
+                    {!loaded && (
+                      <View style={styles.itemView}>
+                          <Text style={styles.loadingText}>Loading...</Text>
+                      </View>
+                    )}
+                    <YoutubePlayer
+                      height={150}
+                      play={playing}
+                      videoId={youtubeId}
+                      onChangeState={onStateChange}
+                    />
+                  </>
+                )} */}
 
                 {category.length > 0 && type === 'url' && (
                   <>
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   input: {
-    height: 60,
+    height: 50,
     width: '100%',
     marginTop: 20,
     borderRadius: 10,

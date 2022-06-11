@@ -28,6 +28,11 @@ export type RootStackParamList = {
   ProfileModal: undefined;
   SettingsModal: undefined;
   ContactModal: undefined;
+  Message: undefined;
+  ChangePassword: undefined;
+  RecoveryEmail: undefined;
+  ChangeRecoveryEmail: undefined;
+  ForgotPassword: undefined;
   NotFound: undefined;
 };
 

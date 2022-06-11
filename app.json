@@ -30,6 +30,21 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "description": ""
+    "description": "",
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "Share Interest",
+            "project": "Share Interest",
+            "authToken": "870eb6e194394670ad7c46986f9884e279f8d34e395e4e54bf8457b25e4a8e1b"
+          }
+        }
+      ]
+    },
+    "plugins": [
+      "sentry-expo"
+    ]
   }
 }

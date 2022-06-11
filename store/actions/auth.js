@@ -50,6 +50,7 @@ export const forgotPassword = (email) => {
 }
 
 export const logout = () => {
+    console.log('ii--')
     AsyncStorage.removeItem('userData');
     return {
         type: LOGOUT

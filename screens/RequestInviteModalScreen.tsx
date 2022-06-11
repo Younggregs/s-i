@@ -5,17 +5,23 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacityBase,
+  TextInput,
   TouchableOpacity,
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
 import * as Linking from "expo-linking";
+import { FontAwesome } from '@expo/vector-icons';
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
 import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
+import { useNavigation } from '@react-navigation/native';
+
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 const testActiveContacts = [
   {
@@ -83,6 +89,11 @@ const testActiveContacts = [
 
 export default function RequestInviteModalScreen() {
   const [contact, setContact] = useState();
+  const [text, setText] = useState('');
+
+  const navigation = useNavigation();
+  const colorScheme = useColorScheme();
+
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
@@ -91,6 +102,8 @@ export default function RequestInviteModalScreen() {
       return item;
     }
   });
+
+  const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -141,10 +154,32 @@ export default function RequestInviteModalScreen() {
         style={styles.separator}
         lightColor='#eee'
         darkColor='rgba(255,255,255,0.1)'
-      />
+      /> 
+      <View style={styles.searchContainer}>
+          <TouchableOpacity style={styles.backIcon} onPress={() => navigation.goBack()}>
+              <FontAwesome
+                  name="arrow-left"
+                  size={20}
+                  color={Colors[colorScheme].text}
+              />
+          </TouchableOpacity>
+          <View style={styles.search}>
+              <TextInput
+                  style={styles.textInputContainer}
+                  placeholder="Search Contact"
+                  placeholderTextColor={'#fff'}
+                  autoFocus={true}
+                  returnKeyType="search"
+                  clearButtonMode="always"
+                  enablesReturnKeyAutomatically={true}
+                  onChangeText={newText => setText(newText)}
+                  defaultValue={text}
+              />
+          </View>
+      </View>
       <View style={styles.contactView}>
         <FlatList
-          data={tempList}
+          data={searchList}
           renderItem={({ item }) => (
             <View
               style={styles.contact}
@@ -220,7 +255,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 60,
     height: 1,
     width: "80%",
   },
@@ -232,4 +267,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
     flex: 8,
   },
+  searchContainer: { 
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    width: '100%',
+    paddingVertical: 5,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  search: {
+      width: '100%',
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      backgroundColor: 'transparent'
+  },
+  searchText: {
+      fontSize: 20,
+      fontWeight: 'bold',
+  },
+  textInputContainer: {
+      flex: 1,
+      color: '#fff',
+      fontSize: 18,
+      fontWeight: "bold"
+  },
+  icon: {
+      width: 30,
+      height: 30,
+      backgroundColor: '#fff'
+  },
+  backIcon: {
+    width: 40,
+    height: 30,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
+    marginVertical: 10,
+    backgroundColor: 'transparent',
+},
 });

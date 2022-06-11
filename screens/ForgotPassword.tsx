@@ -8,6 +8,8 @@ import { RootStackScreenProps } from '../types';
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
+import PasswordInputText from 'react-native-hide-show-password-input';
+
 import {
     CodeField,
     Cursor,
@@ -15,17 +17,17 @@ import {
     useClearByFocusCell,
   } from 'react-native-confirmation-code-field';
 
-
 const CELL_COUNT = 6;
 
-export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
-    const [text, setText] = useState('');
+export default function ForgotPasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
+    const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
+    const [password, setPassword] = useState('');
 
     const [value, setValue] = useState("");
     const [formattedValue, setFormattedValue] = useState("");
-    const [valid, setValid] = useState(false);
+    const [valid, setValid] = useState(true);
     const [invalidCode, setInvalid] = useState(false);
     const [countryCode, setCountryCode] = useState('')
     const [showMessage, setShowMessage] = useState(false);
@@ -59,7 +61,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
 
     const isValid = () => {
         if(code === '012345'){
-            navigation.navigate('Password')
+            setValid(false)
         }
         else{setInvalid(true)}
     }
@@ -84,7 +86,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
-                    <Text style={styles.hint}>A verification code was sent to: {value}</Text>
+                    <Text style={styles.hint}>A verification code was sent to your recovery email: dummy@email.com</Text>
                 </View>
                 {/* <SMSVerifyCode
                     onInputCompleted={onInputCompleted}
@@ -126,62 +128,24 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             </SafeAreaView>
         ) : (
         <SafeAreaView style={styles.wrapper}>
-          <View style={styles.labelView}>
-              <Text style={styles.label}>Enter Phone number</Text>
-          </View>
-          <PhoneInput
-            ref={phoneInput}
-            defaultValue={value}
-            defaultCode="NG"
-            layout="first"
-            onChangeText={(text) => {
-              setValue(text);
-            }}
-            onChangeFormattedText={(text) => {
-              setFormattedValue(text);
-              setShowMessage(false);
-            }}
-            containerStyle={{ borderRadius: 10, borderColor: '#fff', borderWidth: 0.5, borderStyle: 'solid'}}
-            textContainerStyle={{ backgroundColor: '#000', borderRadius: 10}}
-            textInputStyle={{ color: '#fff'}}
-            textInputProps={{
-                selectionColor: '#fff',
-                placeholderTextColor: '#fff'
-            }}
-            codeTextStyle={{ color: '#fff'}}
-            withDarkTheme
-            withShadow
-            autoFocus
-          />
-          <View style={styles.labelView}>
-              <Text style={styles.hint}>A verification code would be sent to your inbox</Text>
-          </View>
-          {showMessage && (
-            <View style={styles.message}>
-                <Text style={styles.errorText}>Invalid phone number</Text>
-            </View>
-          )}
-          <TouchableOpacity
+         <View style={styles.inputContainer}>
+            <PasswordInputText
+                value={password}
+                autoFocus={true}
+                placeholder="Create new password"
+                placeholderTextColor={'#fff'}
+                onChangeText={(password: React.SetStateAction<string>) => setPassword(password)}
+                iconColor="#fff"
+                textColor="#fff"
+            />
+        </View>
+
+        <TouchableOpacity
             style={styles.button}
-            onPress={() => {
-                const checkValid = phoneInput.current?.isValidNumber(value);
-                const checkCountryCode = phoneInput.current?.getCountryCode();
-                setShowMessage(true);
-                checkValid ? isInvited() : setValid(false)
-                setCountryCode(checkCountryCode);
-            }}
-          >
+            onPress={() => navigation.replace('LoginContacts')}
+        >
             <Text style={styles.buttonText}>Continue</Text>
-          </TouchableOpacity>
-          {/* {showMessage && (
-            <View style={styles.message}>
-                <Text style={styles.errorText}>Invalid phone number</Text>
-                <Text>CountryCode: {countryCode}</Text>
-                <Text>Value : {value}</Text>
-                <Text>Formatted Value : {formattedValue}</Text>
-                <Text>Valid : {valid ? "true" : "false"}</Text>
-            </View>
-          )} */}
+        </TouchableOpacity>
         </SafeAreaView>
         )}
         
@@ -204,9 +168,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginVertical: 20
     },
-    input: {
-        color: '#fff'
-    },
     inputContainer: {
         width: '100%',
         borderRadius: 10,
@@ -225,6 +186,15 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#2e78b7',
     },
+    input: {
+        width: '100%',
+        marginTop: 20,
+        borderRadius: 10,
+        backgroundColor: '#373737',
+        color: '#fff',
+        paddingHorizontal: 20,
+        paddingVertical: 5
+      },
     button: {
         height: 30,
         width: '100%',

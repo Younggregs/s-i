@@ -28,6 +28,10 @@ import InviteScreen from '../screens/InviteScreen';
 import RequestInviteModalScreen from '../screens/RequestInviteModalScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ContactScreen from '../screens/ContactScreen';
+import ChangePasswordScreen from '../screens/ChangePassword';
+import RecoveryEmailScreen from '../screens/RecoveryEmail';
+import ForgotPasswordScreen from '../screens/ForgotPassword';
+import ChangeRecoveryEmailScreen from '../screens/ChangeRecoveryEmail';
 
 import NotFoundScreen from '../screens/NotFoundScreen';
 import InterestsScreen from '../screens/InterestsScreen';
@@ -82,7 +86,7 @@ function LoginNavigator() {
         name="RequestInviteModal"
         component={RequestInviteModalScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           headerTitle: (props) => <ContactSearchHeader {...props} />
         }}
       />
@@ -91,12 +95,20 @@ function LoginNavigator() {
         component={PasswordScreen} 
         options={{ headerShown: false }} />
       <Stack.Screen 
+        name="RecoveryEmail" 
+        component={RecoveryEmailScreen} 
+        options={{ headerShown: false }} />
+      <Stack.Screen 
+        name="ForgotPassword" 
+        component={ForgotPasswordScreen} 
+        options={{ headerShown: false }} />
+      <Stack.Screen 
         name="LoginContacts" 
         component={LoginContactScreen} 
         options={{ 
-          headerShown: true, 
-          headerTitle: (props) => <LoginContactSearchHeader {...props} />,
-          headerBackVisible:false
+          headerShown: false, 
+          // headerTitle: (props) => <LoginContactSearchHeader {...props} />,
+          // headerBackVisible:false
           }} 
       />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
@@ -179,11 +191,27 @@ function RootNavigator() {
           }}
         />
         <Stack.Screen 
+          name="ChangePassword"
+          component={ChangePasswordScreen}
+          options={{
+              headerShown: true,
+              title: 'Change Password'
+          }}
+        />
+        <Stack.Screen 
+          name="ChangeRecoveryEmail" 
+          component={ChangeRecoveryEmailScreen} 
+          options={{
+              headerShown: true, 
+              title: 'Change recovery email' 
+            }} 
+        />
+        <Stack.Screen 
           name="ContactModal" 
           component={ContactModalScreen} 
           options={{ 
-            headerShown: true, 
-            headerTitle: (props) => <ContactSearchHeader {...props} />
+            headerShown: false, 
+            // headerTitle: (props) => <ContactSearchHeader {...props} />
             }} 
         />
       </Stack.Group>

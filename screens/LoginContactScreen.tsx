@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, StyleSheet, FlatList, ScrollViewBase, ScrollView, TouchableOpacityBase, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, FlatList, TextInput, ScrollView, TouchableOpacityBase, TouchableOpacity } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
@@ -8,8 +8,13 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';
 
 import * as friends from '../store/actions/friends';
+import * as auth from '../store/actions/auth';
 import onShare from "../components/Share";
 
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
+
+import { useNavigation } from '@react-navigation/native';
 
 const testActiveContacts = [
   {
@@ -77,6 +82,8 @@ const testActiveContacts = [
 
 export default function LoginContactsScreen() {
   const [contact, setContact] = useState()
+  const [text, setText] = useState('');
+
   const friendList = useSelector(state => state.friend.allFriends);
   const contactList = useSelector(state => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
@@ -91,6 +98,8 @@ export default function LoginContactsScreen() {
       return item;
     }
   });
+
+  const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -144,12 +153,44 @@ export default function LoginContactsScreen() {
   }, []);
 
 
+  const finish = () => {
+    const phone = '03003039'
+    const password = 'password'
+    const expoPushToken = 'khadjadjkkaldjfkd'
+
+    try {
+        dispatch(auth.signin(phone, password, expoPushToken));
+    } catch (err) {
+    }
+}
+
+
   return (
     <View style={styles.container}>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <View style={styles.searchContainer}>
+            <View style={styles.search}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Click to search contact"
+                    placeholderTextColor={'#fff'}
+                    autoFocus={true}
+                    returnKeyType="search"
+                    clearButtonMode="always"
+                    enablesReturnKeyAutomatically={true}
+                    onChangeText={newText => setText(newText)}
+                    defaultValue={text}
+                />
+            </View>
+            <View style={styles.buttonView}>
+                <TouchableOpacity style={styles.button} onPress={() => finish()}>
+                    <Text style={styles.buttonText}> Done </Text>
+                </TouchableOpacity> 
+            </View>    
+        </View>
       <View style={styles.contactView}>
         <FlatList
-          data={tempList}
+          data={searchList}
           renderItem={({item}) => 
           <View style={styles.contact} lightColor="#eee" darkColor="rgba(255,255,255,0.1)">
             <View style={styles.contactImage}>
@@ -187,7 +228,38 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-   
+  },
+  input: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: "bold"
+  },
+  search: {
+    flex: 8,
+    borderRadius: 10,
+    paddingVertical: 5,
+    backgroundColor: 'transparent'
+  },
+  searchContainer: { 
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    width: '100%',
+    paddingVertical: 5,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  buttonView: {
+    flex: 3,
+    backgroundColor: 'transparent'
+  },
+  button: {
+    height: 40,
+    width: 100,
+    padding: 5,
+    borderRadius: 5,
+    backgroundColor: "#2196F3",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contact: {
     flexDirection: 'row',
@@ -196,7 +268,7 @@ const styles = StyleSheet.create({
     flex: 2
   },
   contactView: {
-    height: '100%',
+    height: '90%',
     width: '100%',
   },
   tagView: {
@@ -229,7 +301,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 40,
     height: 1,
     width: '80%',
   },

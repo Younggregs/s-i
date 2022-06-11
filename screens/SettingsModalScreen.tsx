@@ -2,19 +2,32 @@ import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, Linking, Touchable, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 
-import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
+import * as auth from '../store/actions/auth';
+
 export default function SettingsModalScreen() {
   const colorScheme = useColorScheme();
   const terms = 'https://shareinterest.app/terms-conditions'
   const privacy = 'https://shareinterest.app/privacy'
-
+  const faq = 'https://shareinterest.app/faq'
+  
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const logout = () => {
+    try {
+        dispatch(auth.logout());
+        navigation.navigate('Password')
+    } catch (err) {
+    }
+  }
+
 
   return (
     <View style={styles.container}>
@@ -33,12 +46,34 @@ export default function SettingsModalScreen() {
       <TouchableOpacity onPress={() => navigation.navigate('Message')} style={styles.view}>  
         <View style={styles.iconView}>
           <FontAwesome
-                name="envelope"
+                name="comment-o"
                 size={20}
                 color={Colors[colorScheme].text}
             />
         </View>
         <Text style={styles.title}>Message us</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangePassword')}>  
+        <View style={styles.iconView}>
+          <FontAwesome
+            name="key"
+            size={20}
+            color={Colors[colorScheme].text}
+          />
+        </View>
+        <Text style={styles.title}>Change password</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangeRecoveryEmail')}>  
+        <View style={styles.iconView}>
+          <FontAwesome
+            name="envelope-o"
+            size={20}
+            color={Colors[colorScheme].text}
+          />
+        </View>
+        <Text style={styles.title}>Change Recovery Email</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(terms)}>  
@@ -55,12 +90,40 @@ export default function SettingsModalScreen() {
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(privacy)}>  
         <View style={styles.iconView}>
           <FontAwesome
-            name="key"
+            name='unlock-alt'
             size={20}
             color={Colors[colorScheme].text}
           />
         </View>
         <Text style={styles.title}>Privacy Policy</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(faq)}>  
+        <View style={styles.iconView}>
+          <FontAwesome
+            name='question-circle-o'
+            size={20}
+            color={Colors[colorScheme].text}
+          />
+        </View>
+        <Text style={styles.title}>Frequently Asked Questions</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.view} 
+        onPress={() => 
+        {
+          navigation.navigate('Login'),
+          logout()
+        }}>  
+        <View style={styles.iconView}>
+          <FontAwesome
+            name="sign-out"
+            size={20}
+            color={Colors[colorScheme].text}
+          />
+        </View>
+        <Text style={styles.title}>Log out</Text>
       </TouchableOpacity>
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

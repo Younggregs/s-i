@@ -1,9 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
@@ -11,28 +8,13 @@ import { RootStackScreenProps } from '../types';
 import PhoneInput from "react-native-phone-number-input";
 import PasswordInputText from 'react-native-hide-show-password-input';
 
-export default function PasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
-    const [text, setText] = useState('');
-    const [text2, setText2] = useState('');
+export default function ChangePasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [password, setPassword] = useState('');
-    const [token, setToken] = useState();
-
-    const [value, setValue] = useState("");
-    const [formattedValue, setFormattedValue] = useState("");
-    const [valid, setValid] = useState(false);
-    const [countryCode, setCountryCode] = useState('')
-    const [showMessage, setShowMessage] = useState(false);
-    const phoneInput = useRef<PhoneInput>(null);
-    let verifycode = useRef(null);
-
-    useEffect(() => {
-        registerForPushNotificationsAsync().then(token => setToken(token));
-        // let token = registerForPushNotificationsAsync();
-      },[])
+    const [newPassword, setNewPassword] = useState('');
     
     return (
     <View style={styles.container}>
-        <Text style={styles.title}>Share Interest</Text>
+        <Text style={styles.title}>Enter your current password and new password to update</Text>
         {/* <View style={styles.labelView}>
             <Text style={styles.label}>Enter password</Text>
         </View> */}
@@ -41,7 +23,7 @@ export default function PasswordScreen({ navigation }: RootStackScreenProps<'Not
             <PasswordInputText
                 value={password}
                 autoFocus={true}
-                placeholder="Create password"
+                placeholder="Current password"
                 placeholderTextColor={'#fff'}
                 onChangeText={(password: React.SetStateAction<string>) => setPassword(password)}
                 iconColor="#fff"
@@ -49,15 +31,22 @@ export default function PasswordScreen({ navigation }: RootStackScreenProps<'Not
             />
         </View>
 
-        <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')} style={styles.link}>
-            <Text style={styles.linkText}>Forgot password</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+            <PasswordInputText
+                value={newPassword}
+                placeholder="New password"
+                placeholderTextColor={'#fff'}
+                onChangeText={(password: React.SetStateAction<string>) => setNewPassword(password)}
+                iconColor="#fff"
+                textColor="#fff"
+            />
+        </View>
 
         <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.replace('RecoveryEmail')}
+            onPress={() => navigation.goBack()}
         >
-            <Text style={styles.buttonText}>Continue</Text>
+            <Text style={styles.buttonText}>Update password</Text>
         </TouchableOpacity>
         
         <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
@@ -75,7 +64,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     title: {
-        fontSize: 25,
+        fontSize: 15,
         fontWeight: 'bold',
         marginVertical: 20
     },
@@ -90,6 +79,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderStyle: 'solid',
         borderColor: '#fff',
+        marginVertical: 10
     },
     link: {
         marginTop: 15,
@@ -145,36 +135,3 @@ const styles = StyleSheet.create({
         width: '100%'
     }
 });
-
-
-
-async function registerForPushNotificationsAsync() {
-    let token;
-    if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
-  
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-  
-    return token;
-  }
