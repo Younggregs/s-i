@@ -196,7 +196,7 @@ export default function LoginContactsScreen() {
             <View style={styles.contactImage}>
               <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
             </View>
-            <Text style={styles.item}>{item.name}</Text>
+            <Text style={styles.item}>{`${item.name}`}</Text>
             {item.active ? (
               <TouchableOpacity
                 onPress={() => add(item)}
