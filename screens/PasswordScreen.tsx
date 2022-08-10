@@ -1,34 +1,71 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
 
 import PhoneInput from "react-native-phone-number-input";
 import PasswordInputText from 'react-native-hide-show-password-input';
 
-export default function PasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
+export default function PasswordScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
+    const { phone_id } = route.params;
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
     const [password, setPassword] = useState('');
     const [token, setToken] = useState();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
 
     const [value, setValue] = useState("");
     const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(false);
     const [countryCode, setCountryCode] = useState('')
     const [showMessage, setShowMessage] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('false');
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => setToken(token));
         // let token = registerForPushNotificationsAsync();
       },[])
+
+    const submit = useCallback(async (password) => {
+        setShowMessage(false)
+        setError('');
+        setIsRefreshing(true);
+        try {
+            const message = await dispatch(auth.verify_password(phone_id, password, token));
+            if(message.code){
+                await dispatch(auth.auth(phone_id, password));
+                if(message.code === 1){
+                    navigation.navigate('LoginContacts')
+                }else{
+                    navigation.replace('RecoveryEmail', {phone_id: phone_id})
+                }
+            }else if(message.error_message){
+                setShowMessage(true)
+                setErrorMessage(message.error_message)
+            }else{
+                setShowMessage(true)
+                setErrorMessage('Sorry something went wrong')
+            }
+            
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsRefreshing(false);
+    }, [dispatch, setIsLoading, setError])
     
     return (
     <View style={styles.container}>
@@ -49,13 +86,19 @@ export default function PasswordScreen({ navigation }: RootStackScreenProps<'Not
             />
         </View>
 
+        {showMessage && (
+            <View style={styles.message}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+        )}
+
         <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')} style={styles.link}>
             <Text style={styles.linkText}>Forgot password</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.replace('RecoveryEmail')}
+            onPress={() => submit(password)}
         >
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>

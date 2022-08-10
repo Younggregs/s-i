@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
@@ -17,7 +19,8 @@ import {
 
 const CELL_COUNT = 6;
 
-export default function RecoveryEmailScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
+export default function RecoveryEmailScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
+    const { phone_id } = route.params;
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
@@ -36,6 +39,46 @@ export default function RecoveryEmailScreen({ navigation }: RootStackScreenProps
         value,
         setValue,
     });
+
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
+
+    const verifyEmail = useCallback(async () => {
+        setError('');
+        setIsRefreshing(true);
+        try {
+            const message = await dispatch(auth.verify_email(phone_id, email));
+            if(message.code){
+                setValid(true)
+            }else{
+               
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsRefreshing(false);
+    }, [dispatch, setIsLoading, setError])
+
+    const verifyEmailToken = useCallback(async (token) => {
+        setError('');
+        setIsRefreshing(true);
+        try {
+            console.log('control reached here', value)
+            const message = await dispatch(auth.verify_email_token(token));
+            console.log('message', message)
+            if(message.code){
+                setValid(true)
+                // dispatch(auth.verify_phone(phone_id));
+            }else{
+                navigation.navigate('Invite')
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsRefreshing(false);
+    }, [dispatch, setIsLoading, setError])
 
     
 
@@ -57,6 +100,7 @@ export default function RecoveryEmailScreen({ navigation }: RootStackScreenProps
     }
 
     const isValid = () => {
+        // verifyEmailToken(code)
         if(code === '012345'){
             navigation.navigate('LoginContacts')
         }
@@ -147,7 +191,8 @@ export default function RecoveryEmailScreen({ navigation }: RootStackScreenProps
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-                setValid(true)
+                verifyEmail()
+                // setValid(true)
             }}
           >
             <Text style={styles.buttonText}>Continue</Text>

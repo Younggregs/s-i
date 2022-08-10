@@ -24,7 +24,7 @@ export default function LoginContactSearchHeader() {
         const expoPushToken = 'khadjadjkkaldjfkd'
 
         try {
-            dispatch(auth.signin(phone, password, expoPushToken));
+            dispatch(auth.signin());
         } catch (err) {
         }
     }

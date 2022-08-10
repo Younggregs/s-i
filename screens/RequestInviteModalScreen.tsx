@@ -93,6 +93,24 @@ export default function RequestInviteModalScreen() {
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
+  const dispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState("");
+
+  const requestInvite = useCallback(async (contact_list) => {
+    setError('');
+    setIsRefreshing(true);
+    try {
+        console.log('control reached here', contact_list)
+        const message = await dispatch(friends.request_invite(contact_list));
+        
+    } catch (err) {
+        setError(err.message);
+    }
+    setIsRefreshing(false);
+}, [dispatch, setIsLoading, setError])
 
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
@@ -105,17 +123,13 @@ export default function RequestInviteModalScreen() {
 
   const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
-
-  const dispatch = useDispatch();
+  
 
   const invite = (item) => {
     let redirectUrl = Linking.createURL("invite", {
       queryParams: { invite: "dlrow" },
     });
-    const message = `Hello ${item.name}, can you send me an invite to Share Interest please? \n\n https://shareinterest.app`;
+    const message = `Hello ${item.name}, can you send me an invite to join Share Interest please? \n\n https://shareinterest.app`;
     onShare(message);
   };
 

@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, Linking, Touchable, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
@@ -124,6 +125,23 @@ export default function SettingsModalScreen() {
           />
         </View>
         <Text style={styles.title}>Log out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.view} 
+        onPress={() => 
+        {
+          navigation.navigate('Login'),
+          logout()
+        }}>  
+        <View style={styles.iconView}>
+          <FontAwesome
+            name="trash-o"
+            size={20}
+            color={Colors[colorScheme].text}
+          />
+        </View>
+        <Text style={styles.title}>Delete Account</Text>
       </TouchableOpacity>
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

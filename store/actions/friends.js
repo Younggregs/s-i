@@ -1,4 +1,5 @@
-
+import {SERVER_URL} from '@env'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export const SET_FRIENDS = "SET_FRIENDS";
 export const TAG_FRIEND = "TAG_FRIEND";
 export const UNTAG_FRIEND = "UNTAG_FRIEND"
@@ -6,9 +7,68 @@ export const SET_CONTACTS = "SET_CONTACTS";
 export const TOGGLE_NOTIFICATION = "TOGGLE_NOTIFICATION";
 
 
+export const request_invite = (contact_list) => {
+    return async dispatch => {
+        const formData = new FormData();
+        formData.append("contact_list", contact_list);
+
+        const response = await fetch(`${SERVER_URL}/request_invite/`, {
+            method: 'POST',
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData;
+    };
+};
+
+export const create_invite = (phone_id) => {
+    return async dispatch => {
+        const token = getState().auth.token;
+        const response = await fetch(`${SERVER_URL}/create_invite/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                phone_id
+            })
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData.message;
+    };
+};
+
 export const fetchFriends = () => {
     return async (dispatch, getState) => {
-        const resData = [
+
+        const token = getState().auth.token;
+        const response = await fetch(`${SERVER_URL}/tag/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        // return resData.message;
+
+        const res = [
             {
                 id: '3iendad3903', 
                 name: 'Jesse', 
@@ -76,13 +136,33 @@ export const fetchFriends = () => {
 
         dispatch({
             type: SET_FRIENDS,
-            friends: resData
+            friends: res
         })
     }
 };
 
 export const tagFriend = (friend) => {
     return async (dispatch, getState) => {
+        const token = getState().auth.token;
+        const response = await fetch(`${SERVER_URL}/tag/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                phone: friend.phone_id,
+                name: friend.name
+            })
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        // return resData.message;
+
         dispatch({
             type: TAG_FRIEND,
             friend: friend
@@ -91,8 +171,28 @@ export const tagFriend = (friend) => {
 };
 
 
-export const untagFriend = (id) => {
+export const untagFriend = (friend) => {
     return async (dispatch, getState) => {
+        const token = getState().auth.token;
+        const response = await fetch(`${SERVER_URL}/tag/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                phone: friend.phone_id,
+                name: friend.name
+            })
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        // return resData.message;
+
         dispatch({
             type: UNTAG_FRIEND,
             id: id
@@ -100,8 +200,29 @@ export const untagFriend = (id) => {
     }
 };
 
-export const toggleNotification = (id) => {
+export const toggleNotification = (phone_id, toggle) => {
     return async (dispatch, getState) => {
+        const token = getState().auth.token;
+        const response = await fetch(`${SERVER_URL}/toggle_notification/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                phone_id,
+                toggle
+            })
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        // return resData.message;
+
+    
         dispatch({
             type: TOGGLE_NOTIFICATION,
             id: id

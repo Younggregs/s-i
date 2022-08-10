@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
@@ -27,7 +29,8 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(false);
     const [invalidCode, setInvalid] = useState(false);
-    const [countryCode, setCountryCode] = useState('')
+    const [countryCode, setCountryCode] = useState('');
+    const [callingCode, setCallingCode] = useState('');
     const [showMessage, setShowMessage] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
@@ -38,7 +41,11 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         setValue,
     });
 
-    
+    const dispatch = useDispatch();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
 
     const onInputCompleted = (text) => {
         Alert.alert(
@@ -52,14 +59,40 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         )
     }
 
-    const isInvited = () => {
+    const verifyPhone = useCallback(async (phone, phone_id, callingCode, countryCode) => {
+        setError('');
+        setIsRefreshing(true);
+        try {
+            console.log('control reached here', value)
+            const message = await dispatch(auth.verify_invite_phone(phone, phone_id, callingCode, countryCode));
+            console.log('message', message)
+            if(message.token){
+                setValid(true)
+                // dispatch(auth.verify_phone(phone_id));
+            }else{
+                navigation.navigate('Invite')
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsRefreshing(false);
+    }, [dispatch, setIsLoading, setError])
+
+    const isInvited = async () => {
+        // verifyPhone(value, formattedValue, callingCode, countryCode)
         if(value === '08109599597' || value === '08109599598'){setValid(true)}
         else{navigation.navigate('Invite')}
     }
 
-    const isValid = () => {
+    const isValid = async () => {
+        // const response = await dispatch(auth.verify_phone_token(code));
+        // if(response.code === 'approved'){
+        //     navigation.navigate('Password')
+        // }else{
+        //     setInvalid(true)
+        // }
         if(code === '012345'){
-            navigation.navigate('Password')
+            navigation.navigate('Password', {phone_id: formattedValue})
         }
         else{setInvalid(true)}
     }
@@ -166,9 +199,11 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             onPress={() => {
                 const checkValid = phoneInput.current?.isValidNumber(value);
                 const checkCountryCode = phoneInput.current?.getCountryCode();
+                const checkCountryPrefix = phoneInput.current?.getCallingCode();
                 setShowMessage(true);
                 checkValid ? isInvited() : setValid(false)
-                setCountryCode(checkCountryCode);
+                setCountryCode(checkCountryCode !== undefined ? checkCountryCode : '');
+                setCallingCode(checkCountryPrefix !== undefined ? checkCountryPrefix : '');
             }}
           >
             <Text style={styles.buttonText}>Continue</Text>

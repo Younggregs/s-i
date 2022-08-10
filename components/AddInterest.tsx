@@ -1,8 +1,9 @@
 import * as WebBrowser from 'expo-web-browser';
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, TouchableOpacity, Modal, TextInput, Pressable, ScrollView, Alert } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import RNUrlPreview from 'react-native-url-preview';
 import YoutubePlayer from "react-native-youtube-iframe";
@@ -24,7 +25,10 @@ import * as interests from '../store/actions/interests';
 
 var linkify = require('linkifyjs');
 
+
+
 export default function AddInterest({ path }: { path: string }) {
+  const [user, setUser] = useState({})
   const [modalVisible, setModalVisible] = useState(false);
   const [link, onChangeLink] = useState('');
   const [caption, onChangeCaption] = useState('');
@@ -42,6 +46,21 @@ export default function AddInterest({ path }: { path: string }) {
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const user = await AsyncStorage.getItem('user')
+        if(user !== null) {
+          setUser(user)
+        }
+      } catch(e) {
+        // error reading value
+      }
+      
+    }
+    getData()
+  }, [dispatch])
+
   const add = async () => {
     try {
         const interestCategory = categories.find((item: { name: any; }) => item.name === category);
@@ -56,6 +75,7 @@ export default function AddInterest({ path }: { path: string }) {
           'category':  {
               id: interestCategory.id,
               name: interestCategory.name, 
+              slug: interestCategory.slug,
               active: false
           },
           'type': type,
