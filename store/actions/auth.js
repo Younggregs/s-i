@@ -34,7 +34,7 @@ export const verify_invite_token = (token) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-        return resData.message;
+        return resData;
     };
 };
 
@@ -76,14 +76,15 @@ export const verify_phone = (phone, phone_id, callingCode, countryCode) => {
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     };
 };
 
-export const verify_phone_token = (token) => {
+export const verify_phone_token = (phone_id, token) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("token", token);
+        formData.append("phone_id", phone_id);
 
         const response = await fetch(`${SERVER_URL}/verify_phone_token/`, {
             method: 'POST',
@@ -95,7 +96,7 @@ export const verify_phone_token = (token) => {
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     };
 };
 
@@ -145,7 +146,8 @@ export const verify_email = (phone_id, email_id) => {
 export const verify_email_token = (token) => {
     return async dispatch => {
         const formData = new FormData();
-        formData.append("token", verify_phone_token);
+        formData.append("token", token);
+        
         const response = await fetch(`${SERVER_URL}/verify_email_token/`, {
             method: 'POST',
             body: formData
@@ -177,7 +179,7 @@ export const verify_email_forgot_password = (phone_id) => {
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     };
 };
 
@@ -199,7 +201,7 @@ export const forgot_password = (phone_id, password) => {
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     };
 };
 
@@ -237,7 +239,7 @@ export const change_password = (old_password, new_password) => {
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     }
 }
 

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacityBase,
   TouchableOpacity,
+  ActivityIndicator,
   TextInput
 } from "react-native";
 import * as Contacts from "expo-contacts";
@@ -78,12 +79,12 @@ const testActiveContacts = [
     name: "Abdulrasaq",
   },
   {
-    contactType: "person",
-    firstName: "Abdulsalam",
+    contactType: "Person",
+    firstName: "Retzam MTN",
     id: "23181",
     imageAvailable: false,
     lookupKey: "3789r21671-2A2C3052404E2A402A42.1724i36227f9109c197f7",
-    name: "Abdulsalam",
+    name: "Retzam",
   },
 ];
 
@@ -118,24 +119,53 @@ export default function ContactModalScreen() {
 
   const dispatch = useDispatch();
 
-  const invite = (item) => {
+  const requestInvite = useCallback(async (contact_list) => {
+    setError('');
+    setIsRefreshing(true);
+    try {
+        console.log('control reached here', contact_list)
+        const message = await dispatch(friends.request_invite(contact_list));
+        console.log('control reached here', contact_list)
+    } catch (err) {
+        setError(err.message);
+    }
+    setIsRefreshing(false);
+}, [dispatch, setIsLoading, setError])
+
+  const create_invite = useCallback(async (item) => {
+    setError('');
+    setIsRefreshing(true);
+    console.log('item:', item.phoneNumbers[0].number)
+    try {
+        const message = await dispatch(friends.create_invite(item.phoneNumbers[0].number));
+        console.log('message', message)
+        if (message.token){
+          invite(message.token, item.name)
+        }
+    } catch (err) {
+        setError(err.message);
+    }
+    setIsRefreshing(false);
+  }, [dispatch, setIsLoading, setError])
+
+  const invite = (invite, name) => {
     let redirectUrl = Linking.createURL("invite", {
-      queryParams: { invite: "dlrow" },
+      queryParams: { invite: invite },
     });
-    const message = `Hello ${item.name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
+    const message = `Hello ${name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
     onShare(message);
   };
 
   const add = useCallback(
     async (item) => {
       setError("");
-      setIsRefreshing(true);
+      setIsLoading(true);
       try {
         await dispatch(friends.tagFriend(item));
       } catch (err) {
         setError(err.message);
       }
-      setIsRefreshing(false);
+      setIsLoading(false);
     },
     [dispatch, setIsLoading, setError]
   );
@@ -168,6 +198,8 @@ export default function ContactModalScreen() {
       }
     })();
   }, []);
+
+
 
   return (
     <View style={styles.container}>
@@ -225,7 +257,7 @@ export default function ContactModalScreen() {
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  onPress={() => invite(item)}
+                  onPress={() => create_invite(item)}
                   style={styles.tagView}
                 >
                   <Text style={styles.buttonText}>Invite</Text>

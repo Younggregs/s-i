@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Alert, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -7,6 +7,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
 import { Text, View } from '../components/Themed';
+import logo from '../assets/images/logo.png'
 import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
 
@@ -27,7 +28,6 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
     const [value, setValue] = useState("");
     const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(false);
-    const [countryCode, setCountryCode] = useState('')
     const [showMessage, setShowMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState('false');
     const phoneInput = useRef<PhoneInput>(null);
@@ -43,7 +43,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
     const submit = useCallback(async (password) => {
         setShowMessage(false)
         setError('');
-        setIsRefreshing(true);
+        setIsLoading(true);
         try {
             const message = await dispatch(auth.verify_password(phone_id, password, token));
             if(message.code){
@@ -64,11 +64,12 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
         } catch (err) {
             setError(err.message);
         }
-        setIsRefreshing(false);
+        setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
     
     return (
     <View style={styles.container}>
+        <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
         {/* <View style={styles.labelView}>
             <Text style={styles.label}>Enter password</Text>
@@ -96,12 +97,20 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             <Text style={styles.linkText}>Forgot password</Text>
         </TouchableOpacity>
 
+        {isLoading ? (
+            <TouchableOpacity
+            style={styles.button}
+        >
+            <ActivityIndicator color="#fff" />
+        </TouchableOpacity>
+        ) : (
         <TouchableOpacity
             style={styles.button}
             onPress={() => submit(password)}
         >
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
+        )}
         
         <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
@@ -119,7 +128,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 25,
-        fontWeight: 'bold',
         marginVertical: 20
     },
     input: {

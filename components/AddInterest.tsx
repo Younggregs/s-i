@@ -1,7 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, TouchableOpacity, Modal, TextInput, Pressable, ScrollView, Alert } from 'react-native';  
+import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, ScrollView, Alert } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -62,15 +62,17 @@ export default function AddInterest({ path }: { path: string }) {
   }, [dispatch])
 
   const add = async () => {
+    setIsLoading(true)
     try {
         const interestCategory = categories.find((item: { name: any; }) => item.name === category);
         const interestObject = {
           'id': Math.random().toString(36).substring(2, 15),
-          'link': link,
+          'link_text': link,
           'caption': caption,
-          'user':  {
+          'account':  {
             profileImage: '',
-            name: 'T.I Blaze'
+            phone: '',
+            name: 'Me'
           },
           'category':  {
               id: interestCategory.id,
@@ -79,15 +81,19 @@ export default function AddInterest({ path }: { path: string }) {
               active: false
           },
           'type': type,
-          'interesting': false
+          'interesting': false,
+          'created_at': new Date()
         }
-        dispatch(interests.addInterest(interestObject));
-        setModalVisible(false)
+        await dispatch(interests.addInterest(interestObject));
+        
         onChangeCaption('')
         onChangeLink('')
       } catch (err) {
           setError(err.message);
       }
+
+      setIsLoading(false)
+      setModalVisible(false)
    
   }
 
@@ -234,6 +240,14 @@ export default function AddInterest({ path }: { path: string }) {
           ): (
             <View />
           )}
+
+          {isLoading ? (
+                <TouchableOpacity
+                style={styles.button}
+            >
+              <ActivityIndicator color="#fff" />
+          </TouchableOpacity>
+          ) : (
           
           <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
@@ -241,6 +255,7 @@ export default function AddInterest({ path }: { path: string }) {
           >
               <Text style={styles.textStyle}>Share</Text>
           </TouchableOpacity>
+          )}
 
           <TouchableOpacity
               style={[styles.button, styles.buttonClose, styles.buttonCancel]}

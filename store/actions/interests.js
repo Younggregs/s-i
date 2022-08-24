@@ -11,15 +11,15 @@ export const DELETE_INTEREST = "DELETE_INTEREST"
 export const fetchCategories = () => {
     return async (dispatch, getState) => {
         const resData = [
-            {id: '3iendad3903', name: 'YouTube', slug:'youtube', active: false},
-            {id: '33JDndad3903', name: 'Spotify', slug:'spotify', active: true},
-            {id: 'ro3JDndad3903', name: 'Twitter', slug:'twitter', active: false},
-            {id: '300ndad3903', name: 'Instagram', slug:'instagram', active: false},
-            {id: '23JDndad3903', name: 'Tiktok', slug:'tiktok', active: false},
-            {id: '300nda23903', name: 'Snapchat', slug:'snapchat', active: false},
-            {id: '23JDn342d3903', name: 'Facebook', slug:'facebook', active: false},
-            {id: '23JDn3ntf42d3903', name: 'Netflix', slug:'netflix', active: false},
-            {id: '23JDnd333903', name: 'Others', slug:'others', active: false}
+            {id: '1', name: 'YouTube', slug:'youtube', active: false},
+            {id: '2', name: 'Spotify', slug:'spotify', active: true},
+            {id: '3', name: 'Twitter', slug:'twitter', active: false},
+            {id: '4', name: 'Instagram', slug:'instagram', active: false},
+            {id: '5', name: 'Tiktok', slug:'tiktok', active: false},
+            {id: '6', name: 'Snapchat', slug:'snapchat', active: false},
+            {id: '7', name: 'Facebook', slug:'facebook', active: false},
+            {id: '8', name: 'Netflix', slug:'netflix', active: false},
+            {id: '9', name: 'Others', slug:'others', active: false}
         ]
 
         dispatch({
@@ -56,13 +56,13 @@ export const addInterest = (interest) => {
         const formData = new FormData();
         formData.append("category", interest.category.slug);
         formData.append("caption", interest.caption);
-        formData.append("link_text", interest.link);
+        formData.append("link_text", interest.link_text);
         formData.append("type", interest.type);
 
         const response = await fetch(`${SERVER_URL}/interest/`, {
             method: 'POST',
             headers: {
-                'Authorization': `Token c9e4ea24e19a33e72c1b34dafe3e87cee62c3c2f`
+                'Authorization': `Token ${user.token}`
             },
             body: formData
         });
@@ -82,15 +82,18 @@ export const addInterest = (interest) => {
 export const toggleInterest = (id) => {
     return async (dispatch, getState) => {
 
-        const token = getState().auth.token;
-        const response = await fetch(`${SERVER_URL}/interesting_view/${id}`, {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        console.log('id', id.toString(), user.token)
+
+        const response = await fetch(`${SERVER_URL}/interesting_view/${id}/`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             }
         });
         const resData = await response.json();
+        console.log('resData', resData)
 
         if(resData.error){
             throw new Error(resData.error);
@@ -120,14 +123,36 @@ export const fetchInterests = () => {
             throw new Error(resData.error);
         }
 
-        console.log('resData', resData)
+        const resP = []
+        await resData.map(interest => {
+            const bucket = {  
+                id: interest.id, 
+                caption: interest.caption, 
+                link_text: interest.link_text,
+                account: {
+                    id: interest.account.id,
+                    phone: interest.account.phone_id,
+                    name: interest.friends_name
+                },
+                category:  {
+                    id: interest.category.id.toString(),
+                    name: interest.category.name, 
+                    active: false
+                },
+                type: interest.type,
+                interesting: interest.interesting,
+                created_at: interest.created_at
+            }
+
+            resP.unshift(bucket)
+        })
 
         const res = [
             {  
                 id: '3iendad39036', 
                 caption: 'Some mad new jam', 
-                link: 'https://youtu.be/tA-FZeeET_M',
-                user: {
+                link_text: 'https://youtu.be/tA-FZeeET_M',
+                account: {
                     id: '3iendad39036',
                     profileImage: '',
                     name: 'Tony Montana',
@@ -145,16 +170,16 @@ export const fetchInterests = () => {
             {  
                 id: '3iendad39035', 
                 caption: 'Some mad new jam', 
-                link: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
-                user: {
-                    id: '3iendad39035',
+                link_text: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
+                account: {
+                    id: '1',
                     profileImage: '',
                     name: 'T.I Blaze',
                     phone: '08109090890',
                     countryCode: '91'
                 },
                 category:  {
-                    id: '3iendad3903', 
+                    id: '1', 
                     name: 'YouTube', 
                     active: false
                 },
@@ -164,16 +189,16 @@ export const fetchInterests = () => {
             {  
                 id: '3iendad39034', 
                 caption: 'Some mad new jam', 
-                link: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
-                user: {
-                    id: '3iendad39036',
+                link_text: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
+                account: {
+                    id: '1',
                     profileImage: '',
                     name: 'Tony Montana',
                     phone: '08109090890',
                     countryCode: '91'
                 },
                 category:  {
-                    id: '3iendad3903', 
+                    id: '1', 
                     name: 'YouTube', 
                     active: false
                 },
@@ -183,8 +208,8 @@ export const fetchInterests = () => {
             {  
                 id: '3iendad39033', 
                 caption: 'Some mad new jam', 
-                link: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
-                user: {
+                link_text: 'https://www.youtube.com/watch?v=ABxbnIPXYls',
+                account: {
                     id: '3iendad39036',
                     profileImage: '',
                     name: 'Tony Montana',
@@ -192,7 +217,7 @@ export const fetchInterests = () => {
                     countryCode: '91'
                 },
                 category:  {
-                    id: '3iendad3903', 
+                    id: '1', 
                     name: 'YouTube', 
                     active: false
                 },
@@ -202,8 +227,8 @@ export const fetchInterests = () => {
             {  
                 id: '3iendad39032', 
                 caption: 'Some mad new jam', 
-                link: 'https://www.instagram.com/p/CckZ0FqMLZX/?utm_source=ig_web_copy_link',
-                user: {
+                link_text: 'https://www.instagram.com/p/CckZ0FqMLZX/?utm_source=ig_web_copy_link',
+                account: {
                     id: '3iendad39036',
                     profileImage: '',
                     name: 'Tony Montana',
@@ -220,17 +245,17 @@ export const fetchInterests = () => {
             },
             {  
                 id: '3iendad39032', 
-                caption: 'Some mad new jam', 
-                link: 'When we walk...',
-                user: {
+                caption: 'Some mad new jam 6', 
+                link_text: 'When we walk...',
+                account: {
                     id: '3iendad39036',
                     profileImage: '',
-                    name: 'Tony Montana',
                     phone: '08109090890',
-                    countryCode: '91'
+                    countryCode: '91',
+                    name: 'Tony Montana',
                 },
                 category:  {
-                    id: '23JDnd333903', 
+                    id: '9', 
                     name: 'Others', 
                     active: false
                 },
@@ -241,14 +266,29 @@ export const fetchInterests = () => {
 
         dispatch({
             type: FETCH_INTERESTS,
-            interests: res
+            interests: resP
         })
     }
 };
 
 export const deleteInterest = (id) => {
-    console.log('control', id)
     return async (dispatch, getState) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/delete_interest/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
         dispatch({
             type: DELETE_INTEREST,
             id: id
@@ -259,18 +299,22 @@ export const deleteInterest = (id) => {
 export const feedback = (message) => {
     return async (dispatch, getState) => {
 
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("message", message);
+
         const response = await fetch(`${SERVER_URL}/feedback/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                message
-            })
+            body: formData
         });
         const resData = await response.json();
+
+        console.log('resData', resData)
 
         if(resData.error){
             throw new Error(resData.error);

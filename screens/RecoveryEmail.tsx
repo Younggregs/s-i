@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
@@ -17,7 +17,7 @@ import {
     useClearByFocusCell,
   } from 'react-native-confirmation-code-field';
 
-const CELL_COUNT = 6;
+const CELL_COUNT = 5;
 
 export default function RecoveryEmailScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
     const { phone_id } = route.params;
@@ -29,7 +29,6 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
     const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(false);
     const [invalidCode, setInvalid] = useState(false);
-    const [countryCode, setCountryCode] = useState('')
     const [showMessage, setShowMessage] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
@@ -45,11 +44,13 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
-    const verifyEmail = useCallback(async () => {
+    const verifyEmail = useCallback(async (email) => {
         setError('');
-        setIsRefreshing(true);
+        setIsLoading(true);
         try {
+            console.log('email', email)
             const message = await dispatch(auth.verify_email(phone_id, email));
+            console.log('message', message)
             if(message.code){
                 setValid(true)
             }else{
@@ -58,26 +59,25 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
         } catch (err) {
             setError(err.message);
         }
-        setIsRefreshing(false);
+        setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
 
     const verifyEmailToken = useCallback(async (token) => {
-        setError('');
-        setIsRefreshing(true);
+        setInvalid(false)
+        setIsLoading(true);
         try {
             console.log('control reached here', value)
             const message = await dispatch(auth.verify_email_token(token));
             console.log('message', message)
             if(message.code){
-                setValid(true)
-                // dispatch(auth.verify_phone(phone_id));
+                navigation.navigate('LoginContacts')
             }else{
-                navigation.navigate('Invite')
+                setInvalid(true)
             }
         } catch (err) {
             setError(err.message);
         }
-        setIsRefreshing(false);
+        setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
 
     
@@ -94,48 +94,25 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
         )
     }
 
-    const isInvited = () => {
-        if(value === '08109599597' || value === '08109599598'){setValid(true)}
-        else{navigation.navigate('Invite')}
-    }
-
-    const isValid = () => {
-        // verifyEmailToken(code)
-        if(code === '012345'){
-            navigation.navigate('LoginContacts')
-        }
-        else{setInvalid(true)}
+    const isValid = async () => {
+        await verifyEmailToken(code)
+        // if(code === '01234'){
+        //    navigation.navigate('LoginContacts')
+        // }
+        // else{setInvalid(true)}
     }
 
     return (
     <View style={styles.container}>
         <Text style={styles.title}>Share Interest</Text>
-        {/* <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.input}
-                placeholder="Phone number"
-                placeholderTextColor={'#fff'}
-                autoFocus={true}
-                returnKeyType="next"
-                clearButtonMode="always"
-                enablesReturnKeyAutomatically={true}
-                onChangeText={newText => setText(newText)}
-                defaultValue={text}
-            />
-        </View> */}
+     
         {valid ? (
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
                     <Text style={styles.hint}>A verification code was sent to: {email}</Text>
                 </View>
-                {/* <SMSVerifyCode
-                    onInputCompleted={onInputCompleted}
-                    containerPaddingHorizontal={30}
-                    containerBackgroundColor="transparent"
-                    codeColor="#fff"
-                    initialCodes={[1, 2, 3, 4, 5]}
-                /> */}
+              
                 <CodeField
                     // ref={ref}
                     // {...props}
@@ -160,12 +137,20 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
                         <Text style={styles.errorText}>Incorrect code</Text>
                     </View>
                 )}
+
+                {isLoading ? (
+                    <TouchableOpacity
+                    style={styles.button}
+                >
+                    <ActivityIndicator color="#fff" />
+                </TouchableOpacity>
+                ) : (
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => isValid()}
                 >
                     <Text style={styles.buttonText}>Verify</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>)}
             </SafeAreaView>
         ) : (
         <SafeAreaView style={styles.wrapper}>
@@ -188,15 +173,24 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
                 <Text style={styles.errorText}>Invalid phone number</Text>
             </View>
           )}
+
+        {isLoading ? (
+            <TouchableOpacity
+            style={styles.button}
+        >
+            <ActivityIndicator color="#fff" />
+        </TouchableOpacity>
+        ) : (
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-                verifyEmail()
+                verifyEmail(email)
                 // setValid(true)
             }}
           >
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
+        )}
         </SafeAreaView>
         )}
         

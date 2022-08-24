@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, } from "react";
 import {
   Platform,
   StyleSheet,
-  FlatList,
+  Image,
   ScrollView,
   TouchableOpacityBase,
   TouchableOpacity,
@@ -13,6 +13,7 @@ import * as Linking from "expo-linking";
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
+import logo from '../assets/images/logo.png'
 import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
@@ -177,6 +178,7 @@ export default function InviteModalScreen() {
 
   return (
     <View style={styles.container}>
+      <Image source={logo} style={{ width: 50, height: 50 }} />
       <View
         style={styles.separator}
         lightColor='#eee'
@@ -245,6 +247,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 10,
     color: '#fff'
   },
   text: {

@@ -28,36 +28,42 @@ export const request_invite = (contact_list) => {
 
 export const create_invite = (phone_id) => {
     return async dispatch => {
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", phone_id);
+        console.log('control reached', phone_id, user.token)
+
         const response = await fetch(`${SERVER_URL}/create_invite/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                phone_id
-            })
+            body: formData
         });
         const resData = await response.json();
+
+        console.log('control completed')
 
         if(resData.error){
             throw new Error(resData.error);
         }
 
-        return resData.message;
+        return resData;
     };
 };
 
-export const fetchFriends = () => {
+export const fetch_friends = () => {
     return async (dispatch, getState) => {
 
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
         const response = await fetch(`${SERVER_URL}/tag/`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             }
         });
         const resData = await response.json();
@@ -66,7 +72,7 @@ export const fetchFriends = () => {
             throw new Error(resData.error);
         }
 
-        // return resData.message;
+        // return resData;
 
         const res = [
             {
@@ -136,24 +142,26 @@ export const fetchFriends = () => {
 
         dispatch({
             type: SET_FRIENDS,
-            friends: res
+            friends: resData
         })
     }
 };
 
 export const tagFriend = (friend) => {
     return async (dispatch, getState) => {
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", friend.phone_id);
+        formData.append("name", friend.name);
+
         const response = await fetch(`${SERVER_URL}/tag/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                phone: friend.phone_id,
-                name: friend.name
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -161,7 +169,9 @@ export const tagFriend = (friend) => {
             throw new Error(resData.error);
         }
 
-        // return resData.message;
+        console.log('res', resData)
+
+        // return resData;
 
         dispatch({
             type: TAG_FRIEND,
@@ -173,17 +183,19 @@ export const tagFriend = (friend) => {
 
 export const untagFriend = (friend) => {
     return async (dispatch, getState) => {
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", friend.phone_id);
+        formData.append("name", friend.name);
+
         const response = await fetch(`${SERVER_URL}/tag/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                phone: friend.phone_id,
-                name: friend.name
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -191,28 +203,32 @@ export const untagFriend = (friend) => {
             throw new Error(resData.error);
         }
 
-        // return resData.message;
+        console.log('res', resData)
+
+        // return resData;
 
         dispatch({
             type: UNTAG_FRIEND,
-            id: id
+            id: friend.id
         })
     }
 };
 
-export const toggleNotification = (phone_id, toggle) => {
+export const toggleNotification = (friend, toggle) => {
     return async (dispatch, getState) => {
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", friend.phone_id);
+        formData.append("toggle", toggle);
+
         const response = await fetch(`${SERVER_URL}/toggle_notification/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                phone_id,
-                toggle
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -220,12 +236,14 @@ export const toggleNotification = (phone_id, toggle) => {
             throw new Error(resData.error);
         }
 
-        // return resData.message;
+        console.log('res', resData)
+
+        // return resData;
 
     
         dispatch({
             type: TOGGLE_NOTIFICATION,
-            id: id
+            id: friend.id
         })
     }
 };

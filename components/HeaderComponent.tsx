@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { Platform, ColorSchemeName, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { Platform, ColorSchemeName, Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 
 import { Text, View } from '../components/Themed';
+import logo from '../assets/images/logo.png'
 import { useNavigation } from '@react-navigation/native';
 
 import Colors from '../constants/Colors';
@@ -48,6 +49,7 @@ export default function HeaderComponent() {
             ) : ( 
             <View style={styles.container}>
                 <View style={styles.title}>
+                <Image source={logo} style={{ width: 35, height: 35 }} />
                     <Text style={styles.titleText}>
                         Share Interest
                     </Text>
@@ -78,7 +80,7 @@ export default function HeaderComponent() {
                         </TouchableOpacity>}
                         onRequestClose={hideMenu}
                     >
-                        <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('ProfileModal')}>My Profile</MenuItem>
+                        <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('ProfileModal', {friend: {'phone': '+12444', 'notification': false}})}>My Profile</MenuItem>
                         <MenuDivider />
                         <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('SettingsModal')}>Settings</MenuItem>
                     </Menu>
@@ -106,6 +108,8 @@ const styles = StyleSheet.create({
     },
     title: {
         flex: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: 'transparent'
     },
     titleText: {

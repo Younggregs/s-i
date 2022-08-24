@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, Modal, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import RNUrlPreview from 'react-native-url-preview';
@@ -41,17 +41,16 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
 
   const loadInterest = useCallback(async () => {
     setError('');
-    setIsRefreshing(true);
+    setIsLoading(true);
     try {
         await dispatch(interests.fetchInterests());
     } catch (err) {
         setError(err.message);
     }
-    setIsRefreshing(false);
+    setIsLoading(false);
   }, [dispatch, setIsLoading, setError])
 
   useEffect(() => {
-    setIsLoading(true);
     loadInterest()
     .then(() => {
         setIsLoading(false);
@@ -72,7 +71,12 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <ScrollView>
+        {isLoading ? (
+          <View style={styles.loading}>
+            <ActivityIndicator color="#fff" size='large'/>
+          </View>
+        ) : (
+      <ScrollView>
           {interestsBucket.map(item => 
             <InterestComponent key={item.id} item={item} />
           )}
@@ -80,6 +84,8 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
             <Text style={styles.linkText}>shareinterest.app</Text>
           </View>
         </ScrollView>
+        )}
+        
       </View>
       <View style={styles.fab}>
         <AddInterest path="/screens/InterestsScreen.tsx"/>
@@ -103,6 +109,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
       flex: 1, // pushes the footer to the end of the screen
+  },
+  loading: {
+    margin: 100
   },
   title: {
     fontSize: 20,

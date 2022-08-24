@@ -40,7 +40,8 @@ const AnimatedHeader = ({animatedValue, friend}) => {
 
     const untag = async () => {
         try {
-            dispatch(friends.untagFriend(friend.id));
+            console.log('res')
+            await dispatch(friends.untagFriend(friend));
             navigation.goBack();
         } catch (err) {
            
@@ -49,7 +50,7 @@ const AnimatedHeader = ({animatedValue, friend}) => {
 
     const toggleNotification = async () => {
         try {
-            dispatch(friends.toggleNotification(friend.id));
+            await dispatch(friends.toggleNotification(friend));
             setToggle(!toggle)
         } catch (err) {
             
@@ -125,7 +126,7 @@ const AnimatedHeader = ({animatedValue, friend}) => {
                             <Text style={styles.imageAlphabet}>{friend.name.substring(0, 1)}</Text>
                         </View> 
                         <Text style={styles.titleText}>
-                            {`${friend.countryCode ? friend.countryCode : ''} ${friend.phone ? friend.phone : friend.phoneNumbers[0].number}`}
+                            {friend.phone ? friend.phone : friend.phoneNumbers[0].number}
                         </Text>
                     </View>
                 </SafeAreaView>

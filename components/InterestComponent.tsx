@@ -6,6 +6,7 @@ import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
+import TimeAgo from 'react-native-timeago';
 
 import RNUrlPreview from 'react-native-url-preview';
 import YoutubePlayer from "react-native-youtube-iframe";
@@ -23,6 +24,7 @@ import * as interests from '../store/actions/interests';
 
 import whatsapp from '../assets/images/category-icons/whatsapp.png'
 
+
 export default function InterestComponent(props: any) {
     const colorScheme = useColorScheme();
     const [playing, setPlaying] = useState(false);
@@ -34,10 +36,12 @@ export default function InterestComponent(props: any) {
     const navigation = useNavigation();
 
     const dispatch = useDispatch();
+    const time = props.item.created_at
+    console.log('date', time)
 
     const toggleInterest = useCallback(async (id) => {
       try {
-          await dispatch(interests.toggleInterest(id));
+          const res = await dispatch(interests.toggleInterest(id));
       } catch (err) {
       }
     }, [dispatch])
@@ -56,8 +60,8 @@ export default function InterestComponent(props: any) {
     const openWhatsApp = () => {
       let msg = 'Caption: ' + 
         props.item.caption + '\n\n' + 
-        props.item.link + '\n\n My Comment:';
-      let mobile = props.item.user.countryCode + props.item.user.phone;
+        props.item.link_text + '\n\n My Comment:';
+      let mobile = props.item.account.phone;
      
       let url =
         "whatsapp://send?text=" +
@@ -74,7 +78,7 @@ export default function InterestComponent(props: any) {
     };
 
     const copyToClipboard = () => {
-      Clipboard.setString(props.item.link);
+      Clipboard.setString(props.item.link_text);
       let toast = Toast.show('Copied to clipboard', {
         duration: Toast.durations.LONG,
       });
@@ -91,12 +95,14 @@ export default function InterestComponent(props: any) {
       } catch (err) {
       }
     }, [dispatch])
-  
     
     return (
         <View key={props.item.id} style={styles.interestContainer} lightColor="#eee" darkColor="rgba(255,255,255,0.1)">
         <View style={styles.captionView}>
             <Text style={styles.caption}>{props.item.caption}</Text>
+            <Text style={styles.timer}>
+               <TimeAgo time={time} interval={20000} hideAgo={true} />
+            </Text>
         </View>
         <View style={styles.bodyView}>
           
@@ -110,7 +116,7 @@ export default function InterestComponent(props: any) {
               <YoutubePlayer
                 height={150}
                 play={playing}
-                videoId={youtubeRegex(props.item.link)}
+                videoId={youtubeRegex(props.item.link_text)}
                 onChangeState={onStateChange}
                 onReady={() => setLoaded(true)}
               />
@@ -120,7 +126,7 @@ export default function InterestComponent(props: any) {
           {props.item.category.name.length > 0 && props.item.type === 'url' && (
             <>
             <RNUrlPreview 
-              text={props.item.link}
+              text={props.item.link_text}
               containerStyle={styles.itemView}
               titleStyle={{color: '#fff', fontWeight: 'bold', fontSize: 15}}
               descriptionStyle={{color: '#fff'}}
@@ -137,19 +143,19 @@ export default function InterestComponent(props: any) {
 
           {props.item.category.name.length > 0 && props.item.type === 'text' && (
             <View style={styles.itemView}>
-              <Text style={styles.categoryText}>{props.item.link && props.item.link}</Text>
+              <Text style={styles.categoryText}>{props.item.link_text && props.item.link_text}</Text>
             </View>
             
           )}
         </View>
         <View style={styles.footerView}>
             <TouchableOpacity 
-              onPress={() => navigation.navigate('ProfileModal', {item: props.item.user})} 
+              onPress={() => navigation.navigate('ProfileModal', {item: props.item.account})} 
               style={styles.nameView}>
               <View style={styles.profileImageView}>
-                <Text style={styles.profileText}>{props.item.user.name.substring(0, 1)}</Text>
+                <Text style={styles.profileText}>{props.item.account.name.substring(0, 1)}</Text>
               </View>
-              <Text style={styles.nameText}>{props.item.user.name}</Text>
+              <Text style={styles.nameText}>{props.item.account.name}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => toggleInterest(props.item.id)} 
@@ -161,7 +167,7 @@ export default function InterestComponent(props: any) {
                 <TouchableOpacity 
                   onPress={() => 
                     onShare(
-                    `${props.item.link} \n\n${props.item.caption}`
+                    `${props.item.link_text} \n\n${props.item.caption}`
                     )
                   } 
                 >
@@ -266,10 +272,17 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 10,
         backgroundColor: 'transparent',
+        flexDirection: 'row'
     },
     caption: {
         color: '#fff',
         fontSize: 15,
+        flex: 10
+    },
+    timer: {
+      color: '#fff',
+      fontSize: 15,
+      flex: 3
     },
     bodyView: {
         borderColor: 'rgba(255,255,255,0.1)',

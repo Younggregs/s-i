@@ -21,14 +21,17 @@ export default function ProfileModalScreen(props: any) {
   const categories = useSelector(state => state.interest.allCategories);
   const activeCategory = categories.find(category => category.active === true);
 
+  const friend = props.route.params.item
   const interestsList = useSelector(state => state.interest.allInterests);
+  let contactsInterests = []
+  contactsInterests = interestsList.filter(interest => interest.account.id === friend.id)
   let interestsBucket = []
-  interestsBucket = interestsList.filter(interest => interest.category.id === activeCategory.id)
+  interestsBucket = contactsInterests.filter(interest => interest.category.id === activeCategory.id)
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} forceInset={{ top: 'always' }}>
-        <AnimatedHeader animatedValue={offset} friend={props.route.params.item}/>
+        <AnimatedHeader animatedValue={offset} friend={friend}/>
         <ScrollView
           style={styles.contentContainer}
           contentContainerStyle={{

@@ -107,25 +107,44 @@ export default function LoginContactsScreen() {
 
   const dispatch = useDispatch();
 
-  const add = useCallback(async (item) => {
+  const create_invite = useCallback(async (item) => {
     setError('');
     setIsRefreshing(true);
+    console.log('item:', item.phoneNumbers[0].number)
     try {
-        await dispatch(friends.tagFriend(item));
+        const message = await dispatch(friends.create_invite(item.phoneNumbers[0].number));
+        console.log('message', message)
+        if (message.token){
+          invite(message.token, item.name)
+        }
     } catch (err) {
         setError(err.message);
     }
     setIsRefreshing(false);
   }, [dispatch, setIsLoading, setError])
 
-  const invite = (item) => {
+  const invite = (invite, name) => {
     let redirectUrl = Linking.createURL("invite", {
-      queryParams: { invite: "dlrow" },
+      queryParams: { invite: invite },
     });
-    const message = `Hello ${item.name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
+    const message = `Hello ${name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
     onShare(message);
   };
 
+  const add = useCallback(
+    async (item) => {
+      setError("");
+      setIsRefreshing(true);
+      try {
+        await dispatch(friends.tagFriend(item));
+      } catch (err) {
+        setError(err.message);
+      }
+      setIsRefreshing(false);
+    },
+    [dispatch, setIsLoading, setError]
+  );
+  
   const loadContact = useCallback(async (data) => {
     setError('');
     setIsRefreshing(true);
@@ -206,7 +225,7 @@ export default function LoginContactsScreen() {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                onPress={() => invite(item)}
+                onPress={() => create_invite(item)}
                 style={styles.tagView}
               >
                 <Text style={styles.buttonText}>Invite</Text>

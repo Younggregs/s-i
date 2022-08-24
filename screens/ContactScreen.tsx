@@ -1,11 +1,43 @@
-import { useState } from 'react';
-import { StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import * as interests from '../store/actions/interests';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 
 export default function ContactScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [message, setMessage] = useState('')
+    const [success, setSuccess] = useState(false)
+    const [failed, setFailed] = useState(false)
+    const dispatch = useDispatch()
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
+
+    const submit = useCallback(
+      async (message) => {
+        setError("");
+        setIsLoading(true);
+        setSuccess(false);
+        setFailed(false)
+        try {
+          const res = await dispatch(interests.feedback(message));
+          if(res.error_message){
+            setFailed(true)
+          }else{
+            setSuccess(true)
+          }
+        } catch (err) {
+          setError(err.message);
+        }
+        setIsLoading(false);
+      },
+      [dispatch, setIsLoading, setError]
+    );
+
+
   return (
     <View style={styles.container}>
         <Text style={styles.title}>Send us a message</Text>
@@ -17,9 +49,21 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
                 placeholder="Message"
                 value={message}
         />
-        <TouchableOpacity style={styles.button}>
+        {success && <Text> Received successfully</Text>}
+        {failed && <Text> Sorry something went wrong, please retry</Text>}
+        {isLoading ? (
+          <TouchableOpacity
+          style={styles.button}
+        >
+          <ActivityIndicator color="#fff" />
+        </TouchableOpacity>
+        ) : (
+        <TouchableOpacity style={styles.button} onPress={() => submit(message)}>
             <Text style={styles.textStyle}>Share</Text>
         </TouchableOpacity>
+        )}
+
+        
         <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>

@@ -19,6 +19,7 @@ import interestReducer from './store/reducers/interests'
 import friendReducer from './store/reducers/friends'
 import * as Sentry from 'sentry-expo';
 
+
 Sentry.init({
   dsn: 'https://2c14dd6a04894fa88d8687a2a46b79c4@o1276554.ingest.sentry.io/6471962',
   enableInExpoDevelopment: true,

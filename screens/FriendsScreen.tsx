@@ -20,7 +20,7 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
     setError('');
     setIsRefreshing(true);
     try {
-        await dispatch(friends.fetchFriends());
+        await dispatch(friends.fetch_friends());
     } catch (err) {
         setError(err.message);
     }

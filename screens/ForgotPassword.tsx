@@ -17,7 +17,7 @@ import {
     useClearByFocusCell,
   } from 'react-native-confirmation-code-field';
 
-const CELL_COUNT = 6;
+const CELL_COUNT = 5;
 
 export default function ForgotPasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [email, setEmail] = useState('');
@@ -29,7 +29,6 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
     const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(true);
     const [invalidCode, setInvalid] = useState(false);
-    const [countryCode, setCountryCode] = useState('')
     const [showMessage, setShowMessage] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);

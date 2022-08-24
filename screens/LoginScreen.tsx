@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
 
 import { Text, View } from '../components/Themed';
+import logo from '../assets/images/logo.png'
 import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
 
@@ -18,7 +19,7 @@ import {
   } from 'react-native-confirmation-code-field';
 
 
-const CELL_COUNT = 6;
+const CELL_COUNT = 5;
 
 export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [text, setText] = useState('');
@@ -61,44 +62,47 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
 
     const verifyPhone = useCallback(async (phone, phone_id, callingCode, countryCode) => {
         setError('');
-        setIsRefreshing(true);
+        setShowMessage(false)
+        setIsLoading(true);
         try {
-            console.log('control reached here', value)
-            const message = await dispatch(auth.verify_invite_phone(phone, phone_id, callingCode, countryCode));
-            console.log('message', message)
+            const message = await dispatch(auth.verify_invite_phone(phone_id));
             if(message.token){
                 setValid(true)
-                // dispatch(auth.verify_phone(phone_id));
+                dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
             }else{
                 navigation.navigate('Invite')
             }
         } catch (err) {
             setError(err.message);
         }
-        setIsRefreshing(false);
+        setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
 
     const isInvited = async () => {
-        // verifyPhone(value, formattedValue, callingCode, countryCode)
-        if(value === '08109599597' || value === '08109599598'){setValid(true)}
-        else{navigation.navigate('Invite')}
+         verifyPhone(value, formattedValue, callingCode, countryCode)
+        //  if(value === '08109599597' || value === '08109599598'){setValid(true)}
+        //  else{navigation.navigate('Invite')}
     }
 
     const isValid = async () => {
-        // const response = await dispatch(auth.verify_phone_token(code));
-        // if(response.code === 'approved'){
-        //     navigation.navigate('Password')
-        // }else{
-        //     setInvalid(true)
-        // }
-        if(code === '012345'){
-            navigation.navigate('Password', {phone_id: formattedValue})
+        setIsLoading(true)
+        const response = await dispatch(auth.verify_phone_token(formattedValue, code));
+        if(response.code === 'approved'){
+          navigation.navigate('Password', {phone_id: formattedValue})
+        }else{
+          setInvalid(true)
         }
-        else{setInvalid(true)}
+        // if(code === '01234'){
+        //    navigation.navigate('Password', {phone_id: formattedValue})
+        // }
+        // else{setInvalid(true)}
+
+        setIsLoading(false)
     }
 
     return (
     <View style={styles.container}>
+        <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
         {/* <View style={styles.inputContainer}>
             <TextInput
@@ -150,12 +154,22 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
                         <Text style={styles.errorText}>Incorrect code</Text>
                     </View>
                 )}
-                <TouchableOpacity
+
+                {isLoading ? (
+                    <TouchableOpacity
+                    style={styles.button}
+                >
+                    <ActivityIndicator color="#fff" />
+                </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
                     style={styles.button}
                     onPress={() => isValid()}
                 >
                     <Text style={styles.buttonText}>Verify</Text>
                 </TouchableOpacity>
+                )}
+                
             </SafeAreaView>
         ) : (
         <SafeAreaView style={styles.wrapper}>
@@ -194,6 +208,15 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
                 <Text style={styles.errorText}>Invalid phone number</Text>
             </View>
           )}
+
+            {isLoading ? (
+                    <TouchableOpacity
+                    style={styles.button}
+                >
+                    <ActivityIndicator color="#fff" />
+                </TouchableOpacity>
+            ) : (
+
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -208,6 +231,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
           >
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
+        )}
           {/* {showMessage && (
             <View style={styles.message}>
                 <Text style={styles.errorText}>Invalid phone number</Text>
@@ -236,7 +260,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 25,
-        fontWeight: 'bold',
         marginVertical: 20
     },
     input: {
