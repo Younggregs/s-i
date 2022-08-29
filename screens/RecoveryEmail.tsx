@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
@@ -7,6 +7,7 @@ import * as Linking from "expo-linking";
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
+import logo from '../assets/images/logo.png'
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
@@ -48,9 +49,7 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
         setError('');
         setIsLoading(true);
         try {
-            console.log('email', email)
             const message = await dispatch(auth.verify_email(phone_id, email));
-            console.log('message', message)
             if(message.code){
                 setValid(true)
             }else{
@@ -66,9 +65,7 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
         setInvalid(false)
         setIsLoading(true);
         try {
-            console.log('control reached here', value)
             const message = await dispatch(auth.verify_email_token(token));
-            console.log('message', message)
             if(message.code){
                 navigation.navigate('LoginContacts')
             }else{
@@ -104,6 +101,7 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
 
     return (
     <View style={styles.container}>
+        <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
      
         {valid ? (

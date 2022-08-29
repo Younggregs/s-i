@@ -5,6 +5,7 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacityBase,
+  ActivityIndicator,
   TextInput,
   TouchableOpacity,
 } from "react-native";
@@ -88,7 +89,7 @@ const testActiveContacts = [
 ];
 
 export default function RequestInviteModalScreen() {
-  const [contact, setContact] = useState();
+  const [contact, setContact] = useState([]);
   const [text, setText] = useState('');
 
   const navigation = useNavigation();
@@ -99,30 +100,52 @@ export default function RequestInviteModalScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
-  const requestInvite = useCallback(async (contact_list) => {
+  const processContacts = async (data) => {
+    const contact_list = []
+    
+    data.forEach(contact => {
+      if(contact.phoneNumbers){
+        let phone_id = contact.phoneNumbers[0].number;
+        phone_id = phone_id.replace(/\s/g, '');
+        contact_list.push(phone_id)
+      }
+    });
+
+    return contact_list;
+  }
+
+  const requestInvite = useCallback(async (data) => {
     setError('');
-    setIsRefreshing(true);
+    setIsLoading(true);
     try {
-        console.log('control reached here', contact_list)
+        const contact_list = await processContacts(data)
         const message = await dispatch(friends.request_invite(contact_list));
+        setContact(message)
         
     } catch (err) {
         setError(err.message);
     }
-    setIsRefreshing(false);
+    setIsLoading(false);
 }, [dispatch, setIsLoading, setError])
 
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
+
   const tempList = contactList.filter((item) => {
-    const isFriend = testActiveContacts.find((friend) => friend.id === item.id);
-    if (isFriend !== undefined) {
-      return item;
+    let isActive = false
+    contact.find((friend) => {
+      if(item.phoneNumbers){
+        const phone = item.phoneNumbers[0].number
+        if(phone.replace(/\s/g, '') === friend.phone_id){
+          isActive = true
+        }
+      }
+    })
+    if(isActive){
+      return item
     }
-  });
-
+  })
   const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
-
   
 
   const invite = (item) => {
@@ -149,20 +172,29 @@ export default function RequestInviteModalScreen() {
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true)
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.Emails],
+          fields: [Contacts.Fields.PhoneNumbers],
         });
 
         if (data.length > 0) {
           loadContact(data);
+          requestInvite(data)
         }
       }
     })();
   }, []);
 
   return (
+    <>
+    {isLoading ? (
+      <View style={styles.container} >
+        <ActivityIndicator color="#fff" size='large' />
+      </View>
+    ) : (
+
     <View style={styles.container}>
       <View
         style={styles.separator}
@@ -218,6 +250,8 @@ export default function RequestInviteModalScreen() {
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
+    )}
+  </>
   );
 }
 

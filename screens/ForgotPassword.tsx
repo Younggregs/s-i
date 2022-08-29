@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Linking from "expo-linking";
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
+import logo from '../assets/images/logo.png'
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
@@ -19,7 +22,9 @@ import {
 
 const CELL_COUNT = 5;
 
-export default function ForgotPasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
+export default function ForgotPasswordScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
+    const { phone_id } = route.params;
+    
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
@@ -32,6 +37,10 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
     const [showMessage, setShowMessage] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
+
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -58,15 +67,81 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
         else{navigation.navigate('Invite')}
     }
 
-    const isValid = () => {
-        if(code === '012345'){
-            setValid(false)
-        }
-        else{setInvalid(true)}
+    const isValid = async () => {
+        await verifyEmailToken(code)
+        // if(code === '01234'){
+        //    setValid(false)
+        // }
+        // else{setInvalid(true)}
     }
 
+    const submit = useCallback(async (phone_id, password) => {
+        setIsLoading(true);
+        try {
+            const message = await dispatch(auth.forgot_password(phone_id, password));
+            if(message.code){
+                navigation.navigate('Password', {phone_id: phone_id, isReturning: true})
+            }else{
+                
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+    }, [dispatch, setIsLoading, setError])
+
+
+    const verifyEmailToken = useCallback(async (token) => {
+        setIsLoading(true);
+        try {
+            const message = await dispatch(auth.verify_email_token(token));
+            if(message.code){
+                // navigation.navigate('LoginContacts')
+                setValid(false)
+            }else{
+                setInvalid(true)
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+    }, [dispatch, setIsLoading, setError])
+
+    const getEmailID = useCallback(async () => {
+        setError('');
+        setIsLoading(true);
+        try {
+            const res = await dispatch(auth.verify_email_forgot_password(phone_id));
+
+            if(res.error_message){
+
+            }else{
+                const message = await dispatch(auth.verify_email(phone_id, res.code));
+                setEmail(res.code)
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+      }, [dispatch, setIsLoading, setError])
+      
+    
+      useEffect(() => {
+        getEmailID()
+        .then(() => {
+            setIsLoading(false);
+        });
+      }, [dispatch, getEmailID])    
+
     return (
+    <>
+    {isLoading ? (
+          <View style={styles.container}>
+            <ActivityIndicator color="#fff" size='large'/>
+          </View>
+    ) : (
     <View style={styles.container}>
+        <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
         {/* <View style={styles.inputContainer}>
             <TextInput
@@ -85,7 +160,7 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
-                    <Text style={styles.hint}>A verification code was sent to your recovery email: dummy@email.com</Text>
+                    <Text style={styles.hint}>A verification code was sent to your recovery email: {email}</Text>
                 </View>
                 {/* <SMSVerifyCode
                     onInputCompleted={onInputCompleted}
@@ -141,7 +216,7 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
 
         <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.replace('LoginContacts')}
+            onPress={() => submit(phone_id, password)}
         >
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
@@ -152,6 +227,8 @@ export default function ForgotPasswordScreen({ navigation }: RootStackScreenProp
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
     </View>
+    )}
+    </>
   );
 }
 

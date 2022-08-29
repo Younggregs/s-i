@@ -1,22 +1,19 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, Modal, ActivityIndicator } from 'react-native';
+import { ScrollView, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import RNUrlPreview from 'react-native-url-preview';
-import YoutubePlayer from "react-native-youtube-iframe";
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-
-import EditScreenInfo from '../components/EditScreenInfo';
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import AddInterest from '../components/AddInterest';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import { FloatingAction } from "react-native-floating-action";
 
 import * as interests from '../store/actions/interests';
 
-import youtubeRegex from '../components/category_regexes/YoutubeRegex';
 import InterestComponent from "../components/InterestComponent";
+
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 
 export default function InterestsScreen({ navigation }: RootTabScreenProps<'Interests'>) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -28,10 +25,8 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
   interestsBucket = interestsList.filter(interest => interest.category.id === activeCategory.id)
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
-
-  const [playing, setPlaying] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -50,6 +45,14 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
     setIsLoading(false);
   }, [dispatch, setIsLoading, setError])
 
+  const refreshInterest = useCallback(async () => {
+    try {
+        await dispatch(interests.fetchInterests());
+    } catch (err) {
+        setError(err.message);
+    }
+  }, [dispatch])
+
   useEffect(() => {
     loadInterest()
     .then(() => {
@@ -57,15 +60,14 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
     });
   }, [dispatch, loadInterest])
 
-  const onStateChange = useCallback((state) => {
-    if (state === "ended") {
-      setPlaying(false);
-    }
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => {
+      refreshInterest()
+      setRefreshing(false)
+    });
   }, []);
 
-  const togglePlaying = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, []);
 
 
   return (
@@ -76,7 +78,14 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
             <ActivityIndicator color="#fff" size='large'/>
           </View>
         ) : (
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+      }
+      >
           {interestsBucket.map(item => 
             <InterestComponent key={item.id} item={item} />
           )}
@@ -85,16 +94,10 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
           </View>
         </ScrollView>
         )}
-        
       </View>
       <View style={styles.fab}>
         <AddInterest path="/screens/InterestsScreen.tsx"/>
       </View>
-      {/* <View style={styles.fab}>
-        <FloatingAction
-          onPressMain={() => setModalVisible(true)}
-        />
-      </View> */}
       <InterestCategorySwitch path="/screens/InterestsScreen.tsx" />
     </View>
   );

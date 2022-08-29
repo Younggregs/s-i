@@ -10,7 +10,7 @@ export const TOGGLE_NOTIFICATION = "TOGGLE_NOTIFICATION";
 export const request_invite = (contact_list) => {
     return async dispatch => {
         const formData = new FormData();
-        formData.append("contact_list", contact_list);
+        formData.append("contact_list", JSON.stringify(contact_list));
 
         const response = await fetch(`${SERVER_URL}/request_invite/`, {
             method: 'POST',
@@ -33,7 +33,6 @@ export const create_invite = (phone_id) => {
 
         const formData = new FormData();
         formData.append("phone_id", phone_id);
-        console.log('control reached', phone_id, user.token)
 
         const response = await fetch(`${SERVER_URL}/create_invite/`, {
             method: 'POST',
@@ -43,8 +42,6 @@ export const create_invite = (phone_id) => {
             body: formData
         });
         const resData = await response.json();
-
-        console.log('control completed')
 
         if(resData.error){
             throw new Error(resData.error);
@@ -72,7 +69,16 @@ export const fetch_friends = () => {
             throw new Error(resData.error);
         }
 
-        // return resData;
+        const resP = []
+        await resData.map(friend => {
+                const bucket = {  
+                    id: friend.friend.id, 
+                    name: friend.name, 
+                    phone: friend.friend.phone_id,
+                    notification: friend.notification
+                }
+            resP.unshift(bucket)
+        })
 
         const res = [
             {
@@ -142,7 +148,7 @@ export const fetch_friends = () => {
 
         dispatch({
             type: SET_FRIENDS,
-            friends: resData
+            friends: resP
         })
     }
 };
@@ -168,10 +174,6 @@ export const tagFriend = (friend) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-
-        console.log('res', resData)
-
-        // return resData;
 
         dispatch({
             type: TAG_FRIEND,
@@ -203,10 +205,6 @@ export const untagFriend = (friend) => {
             throw new Error(resData.error);
         }
 
-        console.log('res', resData)
-
-        // return resData;
-
         dispatch({
             type: UNTAG_FRIEND,
             id: friend.id
@@ -235,11 +233,6 @@ export const toggleNotification = (friend, toggle) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-
-        console.log('res', resData)
-
-        // return resData;
-
     
         dispatch({
             type: TOGGLE_NOTIFICATION,

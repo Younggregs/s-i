@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,6 +34,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     const [countryCode, setCountryCode] = useState('');
     const [callingCode, setCallingCode] = useState('');
     const [showMessage, setShowMessage] = useState(false);
+    const [isReturning, setIsReturning] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
 
@@ -68,7 +70,10 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             const message = await dispatch(auth.verify_invite_phone(phone_id));
             if(message.token){
                 setValid(true)
-                dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
+                const res = dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
+                if(message.code){
+                    setIsReturning(res.code)
+                }
             }else{
                 navigation.navigate('Invite')
             }
@@ -79,25 +84,48 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     }, [dispatch, setIsLoading, setError])
 
     const isInvited = async () => {
-         verifyPhone(value, formattedValue, callingCode, countryCode)
-        //  if(value === '08109599597' || value === '08109599598'){setValid(true)}
-        //  else{navigation.navigate('Invite')}
+        verifyPhone(value, formattedValue, callingCode, countryCode)
+        // if(value === '08109599597' || value === '07015020502'){setValid(true)}
+        // else{navigation.navigate('Invite')}
     }
 
     const isValid = async () => {
         setIsLoading(true)
         const response = await dispatch(auth.verify_phone_token(formattedValue, code));
         if(response.code === 'approved'){
-          navigation.navigate('Password', {phone_id: formattedValue})
+         navigation.navigate('Password', {phone_id: formattedValue, isReturning: isReturning })
         }else{
-          setInvalid(true)
+         setInvalid(true)
         }
         // if(code === '01234'){
-        //    navigation.navigate('Password', {phone_id: formattedValue})
-        // }
-        // else{setInvalid(true)}
+        //     navigation.navigate('Password', {phone_id: formattedValue, isReturning: isReturning})
+        //  }
+        //  else{setInvalid(true)}
 
         setIsLoading(false)
+    }
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            let user = await AsyncStorage.getItem('user')
+            if(user){
+                finish()
+            }
+        }
+
+        checkLoginStatus()
+    
+    })
+
+    const finish = () => {
+        const phone = '03003039'
+        const password = 'password'
+        const expoPushToken = 'khadjadjkkaldjfkd'
+    
+        try {
+            dispatch(auth.signin(phone, password, expoPushToken));
+        } catch (err) {
+        }
     }
 
     return (
@@ -121,7 +149,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
-                    <Text style={styles.hint}>A verification code was sent to: {value}</Text>
+                    <Text style={styles.hint}>A verification code was sent to your whatsapp inbox: {value}</Text>
                 </View>
                 {/* <SMSVerifyCode
                     onInputCompleted={onInputCompleted}

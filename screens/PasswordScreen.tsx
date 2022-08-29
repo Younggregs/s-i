@@ -15,7 +15,7 @@ import PhoneInput from "react-native-phone-number-input";
 import PasswordInputText from 'react-native-hide-show-password-input';
 
 export default function PasswordScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
-    const { phone_id } = route.params;
+    const { phone_id, isReturning } = route.params;
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
     const [password, setPassword] = useState('');
@@ -40,7 +40,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
         // let token = registerForPushNotificationsAsync();
       },[])
 
-    const submit = useCallback(async (password) => {
+    const submit = useCallback(async (password, token) => {
         setShowMessage(false)
         setError('');
         setIsLoading(true);
@@ -48,7 +48,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             const message = await dispatch(auth.verify_password(phone_id, password, token));
             if(message.code){
                 await dispatch(auth.auth(phone_id, password));
-                if(message.code === 1){
+                if(isReturning){
                     navigation.navigate('LoginContacts')
                 }else{
                     navigation.replace('RecoveryEmail', {phone_id: phone_id})
@@ -79,7 +79,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             <PasswordInputText
                 value={password}
                 autoFocus={true}
-                placeholder="Create password"
+                placeholder="Enter password"
                 placeholderTextColor={'#fff'}
                 onChangeText={(password: React.SetStateAction<string>) => setPassword(password)}
                 iconColor="#fff"
@@ -93,7 +93,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             </View>
         )}
 
-        <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')} style={styles.link}>
+        <TouchableOpacity onPress={() => navigation.replace('ForgotPassword', {phone_id: phone_id})} style={styles.link}>
             <Text style={styles.linkText}>Forgot password</Text>
         </TouchableOpacity>
 
@@ -106,7 +106,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
         ) : (
         <TouchableOpacity
             style={styles.button}
-            onPress={() => submit(password)}
+            onPress={() => submit(password, token)}
         >
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
@@ -213,7 +213,7 @@ async function registerForPushNotificationsAsync() {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
+      //console.log(token);
     } else {
       alert('Must use physical device for Push Notifications');
     }

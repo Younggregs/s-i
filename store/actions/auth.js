@@ -106,7 +106,6 @@ export const verify_password = (phone_id, password, notification_token) => {
         formData.append("phone_id", phone_id);
         formData.append("password", password);
         formData.append("notification_token", notification_token);
-        console.log('dd', phone_id, password)
 
         const response = await fetch(`${SERVER_URL}/verify_password/`, {
             method: 'POST',
@@ -133,7 +132,6 @@ export const verify_email = (phone_id, email_id) => {
             body: formData
         });
         const resData = await response.json();
-        console.log('control reached email', resData, phone_id, email_id)
 
         if(resData.error){
             throw new Error(resData.error);
@@ -164,14 +162,12 @@ export const verify_email_token = (token) => {
 
 export const verify_email_forgot_password = (phone_id) => {
     return async dispatch => {
+        const formData = new FormData();
+        formData.append("phone_id", phone_id);
+
         const response = await fetch(`${SERVER_URL}/verify_email_forgot_password/`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                phone_id
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -185,15 +181,14 @@ export const verify_email_forgot_password = (phone_id) => {
 
 export const forgot_password = (phone_id, password) => {
     return async dispatch => {
+        const formData = new FormData();
+        formData.append("phone_id", phone_id);
+        formData.append("password", password);
+        //formData.append("notification_token", 'notification_token');
+
         const response = await fetch(`${SERVER_URL}/forgot_password/`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                phone_id,
-                password
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -221,17 +216,20 @@ export const signin = () => {
 
 export const change_password = (old_password, new_password) => {
     return async dispatch => {
-        const token = getState().auth.token;
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("old_password", old_password);
+        formData.append("new_password", new_password);
+
+
         const response = await fetch(`${SERVER_URL}/change_password/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Token ${user.token}`
             },
-            body: JSON.stringify({
-                old_password,
-                new_password
-            })
+            body: formData
         });
         const resData = await response.json();
 
@@ -246,22 +244,22 @@ export const change_password = (old_password, new_password) => {
 export const logout = () => {
     return async dispatch => {
         AsyncStorage.removeItem('user');
-        const response = await fetch(`${SERVER_URL}/logout/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`
-            }
-        });
-        const resData = await response.json();
+        // const response = await fetch(`${SERVER_URL}/logout/`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Token ${token}`
+        //     }
+        // });
+        // const resData = await response.json();
 
-        if(resData.error){
-            throw new Error(resData.error);
-        }
+        // if(resData.error){
+        //     throw new Error(resData.error);
+        // }
 
-        return {
+        dispatch({
             type: LOGOUT
-        };
+        });
     };
 }
 
@@ -294,10 +292,9 @@ const saveDataToStorage = async (token, phone_id) => {
             token,
             phone_id
         })
-        console.log('user', user)
         await AsyncStorage.setItem('user', user);
     } catch (e) {
-        console.log(e)
+        // console.log(e)
     }
     return 1
 }

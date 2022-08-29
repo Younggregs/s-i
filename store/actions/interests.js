@@ -1,5 +1,6 @@
 import {SERVER_URL} from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment'
 export const SET_CATEGORIES = "SET_CATEGORIES";
 export const SELECT_CATEGORY = "SELECT_CATEGORY";
 export const SELECT_TOGGLE_CATEGORY = "SELECT_TOGGLE_CATEGORY";
@@ -84,7 +85,6 @@ export const toggleInterest = (id) => {
 
         let user = await AsyncStorage.getItem('user')
         user = JSON.parse(user)
-        console.log('id', id.toString(), user.token)
 
         const response = await fetch(`${SERVER_URL}/interesting_view/${id}/`, {
             method: 'GET',
@@ -93,7 +93,6 @@ export const toggleInterest = (id) => {
             }
         });
         const resData = await response.json();
-        console.log('resData', resData)
 
         if(resData.error){
             throw new Error(resData.error);
@@ -124,27 +123,33 @@ export const fetchInterests = () => {
         }
 
         const resP = []
+        const date = moment().subtract(20, 'hours');
         await resData.map(interest => {
-            const bucket = {  
-                id: interest.id, 
-                caption: interest.caption, 
-                link_text: interest.link_text,
-                account: {
-                    id: interest.account.id,
-                    phone: interest.account.phone_id,
-                    name: interest.friends_name
-                },
-                category:  {
-                    id: interest.category.id.toString(),
-                    name: interest.category.name, 
-                    active: false
-                },
-                type: interest.type,
-                interesting: interest.interesting,
-                created_at: interest.created_at
+            const created_at = moment(interest.created_at)
+            if (moment(date).isBefore(created_at)){
+                const time_remaining = created_at.diff(date, 'seconds') * 1000
+                const bucket = {  
+                    id: interest.id, 
+                    caption: interest.caption, 
+                    link_text: interest.link_text,
+                    account: {
+                        id: interest.account.id,
+                        phone: interest.account.phone_id,
+                        name: interest.friends_name
+                    },
+                    category:  {
+                        id: interest.category.id.toString(),
+                        name: interest.category.name, 
+                        active: false
+                    },
+                    type: interest.type,
+                    interesting: interest.interesting,
+                    created_at: interest.created_at,
+                    time_remaining: time_remaining,
+                    mine: user.phone_id === interest.account.phone_id ? true : false
+                }
+                resP.unshift(bucket)
             }
-
-            resP.unshift(bucket)
         })
 
         const res = [
@@ -314,10 +319,10 @@ export const feedback = (message) => {
         });
         const resData = await response.json();
 
-        console.log('resData', resData)
-
         if(resData.error){
             throw new Error(resData.error);
         }
+
+        return resData
     }
 };

@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
 
 import PhoneInput from "react-native-phone-number-input";
 import PasswordInputText from 'react-native-hide-show-password-input';
@@ -11,6 +13,31 @@ import PasswordInputText from 'react-native-hide-show-password-input';
 export default function ChangePasswordScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [password, setPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [success, setSuccess] = useState(false)
+    const [failed, setFailed] = useState(false)
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
+
+    const dispatch = useDispatch()
+
+    const submit = useCallback(async (oldPassword, newPassword) => {
+        setIsLoading(true);
+        setSuccess(false);
+        setFailed(false)
+        try {
+            const message = await dispatch(auth.change_password(oldPassword, newPassword));
+            if(message.code){
+                setSuccess(true)
+            }else{
+                setFailed(true)
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+    }, [dispatch, setIsLoading, setError])
     
     return (
     <View style={styles.container}>
@@ -42,13 +69,23 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
             />
         </View>
 
+        {!success ? <View /> : <Text>Password updated successfully</Text>}
+        {!failed  ? <View /> : <Text> Sorry something went wrong, please retry</Text>}
+
+        {isLoading ? (
+          <TouchableOpacity
+          style={styles.button}
+        >
+          <ActivityIndicator color="#fff" />
+        </TouchableOpacity>
+        ) : (
         <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.goBack()}
+            onPress={() => submit(password, newPassword)}
         >
             <Text style={styles.buttonText}>Update password</Text>
         </TouchableOpacity>
-        
+        )}
         <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>

@@ -110,10 +110,8 @@ export default function LoginContactsScreen() {
   const create_invite = useCallback(async (item) => {
     setError('');
     setIsRefreshing(true);
-    console.log('item:', item.phoneNumbers[0].number)
     try {
         const message = await dispatch(friends.create_invite(item.phoneNumbers[0].number));
-        console.log('message', message)
         if (message.token){
           invite(message.token, item.name)
         }

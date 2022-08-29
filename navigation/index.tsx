@@ -54,9 +54,9 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {/*{!isAuth && <LoginNavigator />}
-      {isAuth && <RootNavigator />}  */}
-       <RootNavigator />  
+      {!isAuth && <LoginNavigator />}
+      {isAuth && <RootNavigator />} 
+      {/* <RootNavigator />   */}
     </NavigationContainer>
   );
 }
@@ -125,28 +125,6 @@ function RootNavigator() {
           headerShown: true,
           headerTitle: (props) => <HeaderComponent {...props} />
         }} />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }} 
-      />
-      <Stack.Screen 
-        name="Password" 
-        component={PasswordScreen} 
-        options={{ headerShown: false }} />
-      <Stack.Screen 
-          name="Invite" 
-          component={InviteScreen} 
-          options={{ headerShown: false}} 
-      />
-      <Stack.Screen 
-          name="RequestInviteModal"
-          component={RequestInviteModalScreen}
-          options={{
-            headerShown: true,
-            headerTitle: (props) => <ContactSearchHeader {...props} />
-          }}
-      />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} />

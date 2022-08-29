@@ -29,6 +29,7 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
           }else{
             setSuccess(true)
           }
+          setMessage('')
         } catch (err) {
           setError(err.message);
         }
@@ -49,8 +50,8 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
                 placeholder="Message"
                 value={message}
         />
-        {success && <Text> Received successfully</Text>}
-        {failed && <Text> Sorry something went wrong, please retry</Text>}
+        {!success ? <View /> : <Text>Received successfully</Text>}
+        {!failed  ? <View /> : <Text> Sorry something went wrong, please retry</Text>}
         {isLoading ? (
           <TouchableOpacity
           style={styles.button}
@@ -109,10 +110,11 @@ const styles = StyleSheet.create({
     height: 150,
     width: '100%',
     marginTop: 20,
+    marginBottom: 20,
     borderRadius: 10,
     backgroundColor: '#373737',
     color: '#fff',
     paddingHorizontal: 20,
     paddingVertical: 5
-  },
+  }
 });

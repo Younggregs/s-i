@@ -24,7 +24,6 @@ export default function SettingsModalScreen() {
   const logout = () => {
     try {
         dispatch(auth.logout());
-        navigation.navigate('Password')
     } catch (err) {
     }
   }
@@ -114,7 +113,6 @@ export default function SettingsModalScreen() {
         style={styles.view} 
         onPress={() => 
         {
-          navigation.navigate('Login'),
           logout()
         }}>  
         <View style={styles.iconView}>
@@ -131,8 +129,9 @@ export default function SettingsModalScreen() {
         style={styles.view} 
         onPress={() => 
         {
-          navigation.navigate('Login'),
-          logout()
+          logout(),
+          navigation.navigate('Login')
+          
         }}>  
         <View style={styles.iconView}>
           <FontAwesome

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Platform, StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { useDispatch, useSelector } from 'react-redux';
@@ -30,6 +30,7 @@ export default function InterestComponent(props: any) {
     const [playing, setPlaying] = useState(false);
     const [visible, setVisible] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [hide, setHide] = useState(false)
     const hideMenu = () => setVisible(false);
     const showMenu = () => setVisible(true);
 
@@ -37,7 +38,14 @@ export default function InterestComponent(props: any) {
 
     const dispatch = useDispatch();
     const time = props.item.created_at
-    console.log('date', time)
+
+    useEffect(() => {
+      if(props.item.time_remaining <= 60000){
+        setTimeout(function hideToast() {
+          setHide(true)
+        }, props.item.time_remaining);
+      }
+    })
 
     const toggleInterest = useCallback(async (id) => {
       try {
@@ -60,7 +68,7 @@ export default function InterestComponent(props: any) {
     const openWhatsApp = () => {
       let msg = 'Caption: ' + 
         props.item.caption + '\n\n' + 
-        props.item.link_text + '\n\n My Comment:';
+        props.item.link_text + '\n\nMy Comment:';
       let mobile = props.item.account.phone;
      
       let url =
@@ -97,6 +105,8 @@ export default function InterestComponent(props: any) {
     }, [dispatch])
     
     return (
+      <>
+      {hide ? (<View />) : (
         <View key={props.item.id} style={styles.interestContainer} lightColor="#eee" darkColor="rgba(255,255,255,0.1)">
         <View style={styles.captionView}>
             <Text style={styles.caption}>{props.item.caption}</Text>
@@ -190,21 +200,28 @@ export default function InterestComponent(props: any) {
                 </TouchableOpacity>}
                 onRequestClose={hideMenu}
             >
+            {!props.item.mine ? (
               <MenuItem onPress={() => openWhatsApp()} textStyle={styles.menuText}>
                 Comment
                 <Image source={whatsapp} style={{ width: 20, height: 20 }} />
               </MenuItem>
+              ): <View />}
               <MenuDivider color='#fff'/>
               <MenuItem textStyle={styles.menuText}  onPress={() => copyToClipboard()}>
                 Copy
               </MenuItem>
               <MenuDivider color='#fff'/>
-              <MenuItem textStyle={styles.menuText}  onPress={() => deleteInterest(props.item.id)}>
-                Delete
-              </MenuItem>
+              {props.item.mine ? (
+                <MenuItem textStyle={styles.menuText}  onPress={() => deleteInterest(props.item.id)}>
+                  Delete
+                </MenuItem>
+              ): <View />}
+              
             </Menu>
         </View>
       </View>
+      )}
+    </>
   );
 }
 

@@ -151,7 +151,7 @@ export default function InviteModalScreen() {
         if(queryParams.invite === 'dlrow'){
           navigation.navigate('Login')
         }
-        console.log(`Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(queryParams)}`)
+        // console.log(`Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(queryParams)}`)
     }
   };
 

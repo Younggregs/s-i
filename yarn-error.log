@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/trapstar/.nvm/versions/node/v16.17.0/bin/node /Users/trapstar/.nvm/versions/node/v16.17.0/bin/yarn install
+  /Users/trapstar/.nvm/versions/node/v16.17.0/bin/node /Users/trapstar/.nvm/versions/node/v16.17.0/bin/yarn add @types/react-native-hide-show-password-input
 
 PATH: 
   /Users/trapstar/.nvm/versions/node/v16.17.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
@@ -14,12 +14,17 @@ Platform:
   darwin x64
 
 Trace: 
-  SyntaxError: /Users/trapstar/2022/s-i/package.json: Unexpected token } in JSON at position 2202
-      at JSON.parse (<anonymous>)
-      at /Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:1629:59
-      at Generator.next (<anonymous>)
-      at step (/Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:310:30)
-      at /Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:321:13
+  Error: https://registry.yarnpkg.com/@types%2freact-native-hide-show-password-input: Not found
+      at Request.params.callback [as _callback] (/Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:66145:18)
+      at Request.self.callback (/Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:140890:22)
+      at Request.emit (node:events:513:28)
+      at Request.<anonymous> (/Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:141862:10)
+      at Request.emit (node:events:513:28)
+      at IncomingMessage.<anonymous> (/Users/trapstar/.nvm/versions/node/v16.17.0/lib/node_modules/yarn/lib/cli.js:141784:12)
+      at Object.onceWrapper (node:events:627:28)
+      at IncomingMessage.emit (node:events:525:35)
+      at endReadableNT (node:internal/streams/readable:1358:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 
   {
@@ -61,6 +66,7 @@ npm manifest:
       "install": "^0.13.0",
       "linkify-html": "^3.0.5",
       "linkifyjs": "^3.0.5",
+      "moment": "^2.29.4",
       "react": "17.0.1",
       "react-dom": "17.0.1",
       "react-native": "0.64.3",
@@ -86,7 +92,7 @@ npm manifest:
       "react-spotify-embed": "^0.2.3",
       "redux": "^4.1.2",
       "redux-thunk": "^2.4.1",
-      "sentry-expo": "^4.0.0",
+      "sentry-expo": "^4.0.0"
     },
     "devDependencies": {
       "@babel/core": "^7.12.9",
@@ -6345,6 +6351,11 @@ Lockfile:
     dependencies:
       buffer-alloc "^1.1.0"
   
+  memoize-one@^6.0.0:
+    version "6.0.0"
+    resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-6.0.0.tgz#b2591b871ed82948aee4727dc6abceeeac8c1045"
+    integrity sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==
+  
   merge-options@^3.0.4:
     version "3.0.4"
     resolved "https://registry.yarnpkg.com/merge-options/-/merge-options-3.0.4.tgz#84709c2aa2a4b24c1981f66c179fe5565cc6dbb7"
@@ -6733,6 +6744,11 @@ Lockfile:
     integrity sha512-sC0/jL3ZL4bGtv1VS43TnrH7/FHUqgb7IU3VYWNDzuR223fYlpG5Gc974GsTP172Vi+lnnBL/G70xONmaggxeQ==
     dependencies:
       warning "^4.0.1"
+  
+  moment@^2.29.4:
+    version "2.29.4"
+    resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+    integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
   
   ms@2.0.0:
     version "2.0.0"
@@ -7384,7 +7400,7 @@ Lockfile:
       object-assign "^4.1.1"
       react-is "^16.8.1"
   
-  prop-types@^15.5.10, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+  prop-types@^15.5.10, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
     version "15.8.1"
     resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
     integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -7475,6 +7491,13 @@ Lockfile:
       caseless "^0.12.0"
       node-fetch "^2.0.0-alpha.8"
       typedarray-to-buffer "^3.1.2"
+  
+  raf@^3.4.1:
+    version "3.4.1"
+    resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
+    integrity sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==
+    dependencies:
+      performance-now "^2.1.0"
   
   range-parser@~1.2.1:
     version "1.2.1"

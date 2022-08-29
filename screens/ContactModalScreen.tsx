@@ -89,12 +89,45 @@ const testActiveContacts = [
 ];
 
 export default function ContactModalScreen() {
-  const [contact, setContact] = useState();
+  const [contact, setContact] = useState([]);
   const [visible, setVisible] = useState(false);
   const [text, setText] = useState('');
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState("");
+
+  const dispatch = useDispatch();
+
+  const processContacts = async (data) => {
+    const contact_list = []
+    
+    data.forEach(contact => {
+      if(contact.phoneNumbers){
+        let phone_id = contact.phoneNumbers[0].number;
+        phone_id = phone_id.replace(/\s/g, '');
+        contact_list.push(phone_id)
+      }
+    });
+
+    return contact_list;
+  }
+
+  const requestInvite = useCallback(async (data) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const contact_list = await processContacts(data)
+      const message = await dispatch(friends.request_invite(contact_list));
+      setContact(message)
+    } catch (err) {
+        setError(err.message);
+    }
+    setIsLoading(false);
+}, [dispatch, setIsLoading, setError])
 
   const friendList = useSelector((state) => state.friend.allFriends);
   const contactList = useSelector((state) => state.friend.allContacts);
@@ -111,34 +144,40 @@ export default function ContactModalScreen() {
     }
   });
 
-  const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
-
-  const dispatch = useDispatch();
-
-  const requestInvite = useCallback(async (contact_list) => {
-    setError('');
-    setIsRefreshing(true);
-    try {
-        console.log('control reached here', contact_list)
-        const message = await dispatch(friends.request_invite(contact_list));
-        console.log('control reached here', contact_list)
-    } catch (err) {
-        setError(err.message);
+  const tagList = contactList.filter((item) => {
+    let isActive = false
+    contact.find((friend) => {
+      if(item.phoneNumbers){
+        const phone = item.phoneNumbers[0].number
+        if(phone.replace(/\s/g, '') === friend.phone_id){
+          isActive = true
+        }
+      }
+    })
+    if(isActive){
+      Object.assign(item, { active: true });
+      return item
     }
-    setIsRefreshing(false);
-}, [dispatch, setIsLoading, setError])
+  })
+
+  const bufferList = tempList.filter((item) => {
+    const isActive = tagList.find((friend) => friend.id === item.id);
+    if (isActive === undefined) {
+      return item
+    }
+  })
+  
+  const searchList1 = tagList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
+  const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
+  const searchList = searchList1.concat(searchList2)
+
 
   const create_invite = useCallback(async (item) => {
     setError('');
     setIsRefreshing(true);
-    console.log('item:', item.phoneNumbers[0].number)
+    const phone_id = item.phoneNumbers[0].number
     try {
-        const message = await dispatch(friends.create_invite(item.phoneNumbers[0].number));
-        console.log('message', message)
+        const message = await dispatch(friends.create_invite(phone_id.replace(/\s/g, '')));
         if (message.token){
           invite(message.token, item.name)
         }
@@ -159,13 +198,16 @@ export default function ContactModalScreen() {
   const add = useCallback(
     async (item) => {
       setError("");
-      setIsLoading(true);
       try {
+        const phone_id = item.phoneNumbers[0].number
+        const obj = {
+          'phone_id': phone_id.replace(/\s/g, ''),
+          'name': item.name
+        }
         await dispatch(friends.tagFriend(item));
       } catch (err) {
         setError(err.message);
       }
-      setIsLoading(false);
     },
     [dispatch, setIsLoading, setError]
   );
@@ -186,6 +228,7 @@ export default function ContactModalScreen() {
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true)
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
@@ -194,6 +237,7 @@ export default function ContactModalScreen() {
 
         if (data.length > 0) {
           loadContact(data);
+          requestInvite(data);
         }
       }
     })();
@@ -202,6 +246,12 @@ export default function ContactModalScreen() {
 
 
   return (
+    <>
+    {isLoading ? (
+      <View style={styles.container} >
+        <ActivityIndicator color="#fff" size='large' />
+      </View>
+    ) : (
     <View style={styles.container}>
       <View
         style={styles.separator}
@@ -270,6 +320,8 @@ export default function ContactModalScreen() {
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
+    )}
+    </>
   );
 }
 
