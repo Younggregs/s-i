@@ -91,8 +91,7 @@ npm manifest:
       "react-redux": "^8.0.0",
       "react-spotify-embed": "^0.2.3",
       "redux": "^4.1.2",
-      "redux-thunk": "^2.4.1",
-      "sentry-expo": "^4.0.0"
+      "redux-thunk": "^2.4.1"
     },
     "devDependencies": {
       "@babel/core": "^7.12.9",

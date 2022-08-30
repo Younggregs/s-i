@@ -21,7 +21,7 @@ export default function ProfileModalScreen(props: any) {
   const categories = useSelector(state => state.interest.allCategories);
   const activeCategory = categories.find(category => category.active === true);
 
-  const friend = props.route.params.item
+  const friend = props.route.params.item;
   const interestsList = useSelector(state => state.interest.allInterests);
   let contactsInterests = []
   contactsInterests = interestsList.filter(interest => interest.account.id === friend.id)

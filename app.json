@@ -25,26 +25,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.shareinterest.app"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
     "description": "",
-    "hooks": {
-      "postPublish": [
-        {
-          "file": "sentry-expo/upload-sourcemaps",
-          "config": {
-            "organization": "Share Interest",
-            "project": "Share Interest",
-            "authToken": "870eb6e194394670ad7c46986f9884e279f8d34e395e4e54bf8457b25e4a8e1b"
-          }
-        }
-      ]
-    },
-    "plugins": [
-      "sentry-expo"
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "03ea279b-2954-4d3b-b074-440a857f13eb"
+      }
+    }
   }
 }

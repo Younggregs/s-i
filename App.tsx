@@ -17,14 +17,14 @@ import Navigation from './navigation';
 import authReducer from './store/reducers/auth';
 import interestReducer from './store/reducers/interests'
 import friendReducer from './store/reducers/friends'
-import * as Sentry from 'sentry-expo';
+// import * as Sentry from 'sentry-expo';
 
 
-Sentry.init({
-  dsn: 'https://2c14dd6a04894fa88d8687a2a46b79c4@o1276554.ingest.sentry.io/6471962',
-  enableInExpoDevelopment: true,
-  debug: true, 
-});
+// Sentry.init({
+//   dsn: 'https://2c14dd6a04894fa88d8687a2a46b79c4@o1276554.ingest.sentry.io/6471962',
+//   enableInExpoDevelopment: true,
+//   debug: true, 
+// });
 
 // Access any @sentry/react-native exports via:
 // Sentry.Native.*
