@@ -80,7 +80,7 @@ export default function HeaderComponent() {
                         </TouchableOpacity>}
                         onRequestClose={hideMenu}
                     >
-                        <MenuItem textStyle={styles.menuText}>My Profile</MenuItem>
+                        <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('MyProfile')}>My Profile</MenuItem>
                         <MenuDivider />
                         <MenuItem textStyle={styles.menuText} onPress={() => navigation.navigate('SettingsModal')}>Settings</MenuItem>
                     </Menu>

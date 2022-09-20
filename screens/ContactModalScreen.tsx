@@ -23,6 +23,8 @@ import * as friends from "../store/actions/friends";
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import InviteModalScreen from "./InviteScreen";
+import ContactItem from "../components/ContactItem";
 
 const testActiveContacts = [
   {
@@ -134,8 +136,8 @@ export default function ContactModalScreen() {
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);
     if (isFriend === undefined) {
-      const activeContact = testActiveContacts.find(
-        (contact) => contact.id === item.id
+      const activeContact = contact.find(
+        (obj) => obj.id === item.id
       );
       if (activeContact !== undefined) {
         Object.assign(item, { active: true });
@@ -146,7 +148,12 @@ export default function ContactModalScreen() {
 
   const tagList = contactList.filter((item) => {
     let isActive = false
+    let isNotMyFriend = false
     contact.find((friend) => {
+      const isFriend = friendList.find((myFriend) => myFriend.phone === friend.phone_id);
+      if(isFriend === undefined){
+        isNotMyFriend = true
+      }
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         if(phone.replace(/\s/g, '') === friend.phone_id){
@@ -154,7 +161,8 @@ export default function ContactModalScreen() {
         }
       }
     })
-    if(isActive){
+    
+    if(isActive && isNotMyFriend){
       Object.assign(item, { active: true });
       return item
     }
@@ -162,7 +170,8 @@ export default function ContactModalScreen() {
 
   const bufferList = tempList.filter((item) => {
     const isActive = tagList.find((friend) => friend.id === item.id);
-    if (isActive === undefined) {
+    const isMyFriend = friendList.find((friend) => friend.phone === item.phone);
+    if (isActive === undefined && isMyFriend === undefined) {
       return item
     }
   })
@@ -171,46 +180,6 @@ export default function ContactModalScreen() {
   const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList = searchList1.concat(searchList2)
 
-
-  const create_invite = useCallback(async (item) => {
-    setError('');
-    setIsRefreshing(true);
-    const phone_id = item.phoneNumbers[0].number
-    try {
-        const message = await dispatch(friends.create_invite(phone_id.replace(/\s/g, '')));
-        if (message.token){
-          invite(message.token, item.name)
-        }
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsRefreshing(false);
-  }, [dispatch, setIsLoading, setError])
-
-  const invite = (invite, name) => {
-    let redirectUrl = Linking.createURL("invite", {
-      queryParams: { invite: invite },
-    });
-    const message = `Hello ${name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
-    onShare(message);
-  };
-
-  const add = useCallback(
-    async (item) => {
-      setError("");
-      try {
-        const phone_id = item.phoneNumbers[0].number
-        const obj = {
-          'phone_id': phone_id.replace(/\s/g, ''),
-          'name': item.name
-        }
-        await dispatch(friends.tagFriend(item));
-      } catch (err) {
-        setError(err.message);
-      }
-    },
-    [dispatch, setIsLoading, setError]
-  );
 
   const loadContact = useCallback(
     async (data) => {
@@ -289,31 +258,7 @@ export default function ContactModalScreen() {
         <FlatList
           data={searchList}
           renderItem={({ item }) => (
-            <View
-              style={styles.contact}
-              lightColor='#eee'
-              darkColor='rgba(255,255,255,0.1)'
-            >
-              <View style={styles.contactImage}>
-                <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
-              </View>
-              <Text style={styles.item}>{`${item.name}`}</Text>
-              {item.active ? (
-                <TouchableOpacity
-                  onPress={() => add(item)}
-                  style={styles.tagView}
-                >
-                  <Text style={styles.buttonText}>Tag</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={() => create_invite(item)}
-                  style={styles.tagView}
-                >
-                  <Text style={styles.buttonText}>Invite</Text>
-                </TouchableOpacity>
-              )}
-            </View>
+            <ContactItem item={item}/>
           )}
         />
       </View>

@@ -67,12 +67,12 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         setShowMessage(false)
         setIsLoading(true);
         try {
-            const message = await dispatch(auth.verify_invite_phone(phone_id));
+            const message = await dispatch(auth.verify_invite_phone(phone, phone_id, callingCode));
             if(message.token){
                 setValid(true)
-                const res = dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
-                if(message.code){
-                    setIsReturning(res.code)
+                const res = await dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
+                if(res.code){
+                    setIsReturning(parseInt(res.code) == 1 && true )
                 }
             }else{
                 navigation.navigate('Invite')
@@ -93,7 +93,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         setIsLoading(true)
         const response = await dispatch(auth.verify_phone_token(formattedValue, code));
         if(response.code === 'approved'){
-         navigation.navigate('Password', {phone_id: formattedValue, isReturning: isReturning })
+         navigation.navigate('Password', {phone_id: formattedValue, phone: value, callingCode: callingCode, isReturning: isReturning })
         }else{
          setInvalid(true)
         }
@@ -118,12 +118,9 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     })
 
     const finish = () => {
-        const phone = '03003039'
-        const password = 'password'
-        const expoPushToken = 'khadjadjkkaldjfkd'
     
         try {
-            dispatch(auth.signin(phone, password, expoPushToken));
+            dispatch(auth.signin());
         } catch (err) {
         }
     }

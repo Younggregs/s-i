@@ -7,7 +7,10 @@ export const SELECT_TOGGLE_CATEGORY = "SELECT_TOGGLE_CATEGORY";
 export const ADD_INTEREST = "ADD_INTEREST"
 export const FETCH_INTERESTS = "FETCH_INTERESTS"
 export const TOGGLE_INTEREST = "TOGGLE_INTEREST"
+export const UPDATE_INTERESTING_LIST = "UPDATE_INTERESTING_LIST"
+export const UPDATE_INTERESTVIEW_LIST = "UPDATE_INTERESTVIEW_LIST"
 export const DELETE_INTEREST = "DELETE_INTEREST"
+
 
 export const fetchCategories = () => {
     return async (dispatch, getState) => {
@@ -18,7 +21,7 @@ export const fetchCategories = () => {
             {id: '4', name: 'Instagram', slug:'instagram', active: false},
             {id: '5', name: 'Tiktok', slug:'tiktok', active: false},
             {id: '6', name: 'Snapchat', slug:'snapchat', active: false},
-            {id: '7', name: 'Facebook', slug:'facebook', active: false},
+            {id: '7', name: 'Pinterest', slug:'pinterest', active: false},
             {id: '8', name: 'Netflix', slug:'netflix', active: false},
             {id: '9', name: 'Others', slug:'others', active: false}
         ]
@@ -105,6 +108,55 @@ export const toggleInterest = (id) => {
     }
 };
 
+export const InterestingList = (id) => {
+    return async (dispatch, getState) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        const response = await fetch(`${SERVER_URL}/interesting_list/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        dispatch({
+            type: UPDATE_INTERESTING_LIST,
+            interesting: resData
+        })
+    }
+};
+
+
+export const InterestViewList = (id) => {
+    return async (dispatch, getState) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        const response = await fetch(`${SERVER_URL}/interestview_list/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        dispatch({
+            type: UPDATE_INTERESTVIEW_LIST,
+            views: resData
+        })
+    }
+};
+
 
 export const fetchInterests = () => {
     return async (dispatch, getState) => {
@@ -140,6 +192,7 @@ export const fetchInterests = () => {
                     category:  {
                         id: interest.category.id.toString(),
                         name: interest.category.name, 
+                        slug: interest.category.slug, 
                         active: false
                     },
                     type: interest.type,
@@ -273,6 +326,24 @@ export const fetchInterests = () => {
             type: FETCH_INTERESTS,
             interests: resP
         })
+    }
+};
+
+export const fetchTweet = (id) => {
+    return async (dispatch, getState) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/tweet/${id}/`, {
+            method: 'GET',
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        return resData
     }
 };
 

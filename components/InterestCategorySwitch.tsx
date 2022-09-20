@@ -11,7 +11,7 @@ import * as interests from '../store/actions/interests';
 
 import spotify from '../assets/images/category-icons/spotify.png'
 import youtube from '../assets/images/category-icons/youtube.png'
-import facebook from '../assets/images/category-icons/facebook.png'
+import pinterest from '../assets/images/category-icons/pinterest.png'
 import instagram from '../assets/images/category-icons/instagram.png'
 import netflix from '../assets/images/category-icons/netflix.png'
 import snapchat from '../assets/images/category-icons/snapchat.png'
@@ -116,8 +116,8 @@ export default function InterestCategorySwitch({ path }: { path: string }) {
       case 'Others':
           return globe
         
-      case 'Facebook':
-          return facebook
+      case 'Pinterest':
+          return pinterest
     
       default:
         return globe

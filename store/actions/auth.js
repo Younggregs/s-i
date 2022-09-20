@@ -38,10 +38,12 @@ export const verify_invite_token = (token) => {
     };
 };
 
-export const verify_invite_phone = (phone_id) => {
+export const verify_invite_phone = (phone_id, phone, callingCode) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("phone_id", phone_id);
+        formData.append("phone", phone);
+        formData.append("callingCode", callingCode);
 
         const response = await fetch(`${SERVER_URL}/verify_invite/token/`, {
             method: 'POST',
@@ -100,10 +102,12 @@ export const verify_phone_token = (phone_id, token) => {
     };
 };
 
-export const verify_password = (phone_id, password, notification_token) => {
+export const verify_password = (phone_id, phone, callingCode, password, notification_token) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("phone_id", phone_id);
+        formData.append("phone", phone);
+        formData.append("callingCode", callingCode);
         formData.append("password", password);
         formData.append("notification_token", notification_token);
 
@@ -121,10 +125,12 @@ export const verify_password = (phone_id, password, notification_token) => {
     };
 };
 
-export const verify_email = (phone_id, email_id) => {
+export const verify_email = (phone_id, phone, callingCode, email_id) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("phone_id", phone_id);
+        formData.append("phone", phone);
+        formData.append("callingCode", callingCode);
         formData.append("email_id", email_id);
 
         const response = await fetch(`${SERVER_URL}/verify_email/`, {

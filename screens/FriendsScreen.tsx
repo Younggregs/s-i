@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
@@ -7,25 +7,37 @@ import { RootTabScreenProps } from '../types';
 
 import * as friends from '../store/actions/friends';
 
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
+
 export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friends'>) {
   const friendList = useSelector(state => state.friend.allFriends);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   const dispatch = useDispatch();
 
   const loadFriends = useCallback(async () => {
     setError('');
-    setIsRefreshing(true);
+    setIsLoading(true);
     try {
         await dispatch(friends.fetch_friends());
     } catch (err) {
         setError(err.message);
     }
-    setIsRefreshing(false);
+    setIsLoading(false);
   }, [dispatch, setIsLoading, setError])
+
+  const refreshFriends = useCallback(async () => {
+    try {
+        await dispatch(friends.fetch_friends());
+    } catch (err) {
+        setError(err.message);
+    }
+  }, [dispatch])
 
   useEffect(() => {
     setIsLoading(true);
@@ -35,11 +47,32 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
     });
   }, [dispatch, loadFriends])
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => {
+      refreshFriends()
+      setRefreshing(false)
+    });
+  }, []);
+
+
 
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <ScrollView>
+      {isLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color="#fff" size='large'/>
+        </View>
+      ) : (
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+        }
+        >
           {friendList.map(item => 
             <TouchableOpacity 
               onPress={() => navigation.navigate('ProfileModal', {item})}
@@ -54,6 +87,7 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
             </TouchableOpacity>
           )}
         </ScrollView>
+      )}
       </View>
       <TouchableOpacity style={styles.newFriendContainer} onPress={() => navigation.navigate('ContactModal')}>
         <Text style={styles.newFriendText}>Tag Friend</Text>

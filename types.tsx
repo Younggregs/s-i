@@ -26,6 +26,7 @@ export type RootStackParamList = {
   Modal: undefined;
   SearchModal: undefined;
   ProfileModal: undefined;
+  MyProfile: undefined;
   SettingsModal: undefined;
   ContactModal: undefined;
   Message: undefined;

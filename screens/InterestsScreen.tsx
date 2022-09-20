@@ -73,11 +73,11 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {isLoading ? (
-          <View style={styles.loading}>
-            <ActivityIndicator color="#fff" size='large'/>
-          </View>
-        ) : (
+      {isLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color="#fff" size='large'/>
+        </View>
+      ) : (
       <ScrollView
         refreshControl={
           <RefreshControl

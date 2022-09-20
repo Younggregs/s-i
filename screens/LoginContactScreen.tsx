@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, StyleSheet, FlatList, TextInput, ScrollView, TouchableOpacityBase, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, FlatList, TextInput, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
@@ -10,6 +10,7 @@ import { Text, View } from '../components/Themed';
 import * as friends from '../store/actions/friends';
 import * as auth from '../store/actions/auth';
 import onShare from "../components/Share";
+import ContactItem from "../components/ContactItem";
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -81,11 +82,44 @@ const testActiveContacts = [
 ];
 
 export default function LoginContactsScreen() {
-  const [contact, setContact] = useState()
+  const [contact, setContact] = useState([])
   const [text, setText] = useState('');
 
-  const friendList = useSelector(state => state.friend.allFriends);
-  const contactList = useSelector(state => state.friend.allContacts);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState('');
+
+  const dispatch = useDispatch();
+
+  const processContacts = async (data) => {
+    const contact_list = []
+    
+    data.forEach(contact => {
+      if(contact.phoneNumbers){
+        let phone_id = contact.phoneNumbers[0].number;
+        phone_id = phone_id.replace(/\s/g, '');
+        contact_list.push(phone_id)
+      }
+    });
+
+    return contact_list;
+  }
+
+  const requestInvite = useCallback(async (data) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const contact_list = await processContacts(data)
+      const message = await dispatch(friends.request_invite(contact_list));
+      setContact(message)
+    } catch (err) {
+        setError(err.message);
+    }
+    setIsLoading(false);
+}, [dispatch, setIsLoading, setError])
+
+  const friendList = useSelector((state) => state.friend.allFriends);
+  const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);
     if (isFriend === undefined) {
@@ -99,59 +133,51 @@ export default function LoginContactsScreen() {
     }
   });
 
-  const searchList = tempList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState('');
-
-  const dispatch = useDispatch();
-
-  const create_invite = useCallback(async (item) => {
-    setError('');
-    setIsRefreshing(true);
-    try {
-        const message = await dispatch(friends.create_invite(item.phoneNumbers[0].number));
-        if (message.token){
-          invite(message.token, item.name)
-        }
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsRefreshing(false);
-  }, [dispatch, setIsLoading, setError])
-
-  const invite = (invite, name) => {
-    let redirectUrl = Linking.createURL("invite", {
-      queryParams: { invite: invite },
-    });
-    const message = `Hello ${name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
-    onShare(message);
-  };
-
-  const add = useCallback(
-    async (item) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.tagFriend(item));
-      } catch (err) {
-        setError(err.message);
+  const tagList = contactList.filter((item) => {
+    let isActive = false
+    let isMyFriend = false
+    contact.find((friend) => {
+      const isFriend = friendList.find((myFriend) => myFriend.phone === friend.phone_id);
+      if(isFriend === undefined){
+        isMyFriend = true
       }
-      setIsRefreshing(false);
-    },
-    [dispatch, setIsLoading, setError]
-  );
+      if(item.phoneNumbers){
+        const phone = item.phoneNumbers[0].number
+        if(phone.replace(/\s/g, '') === friend.phone_id){
+          isActive = true
+        }
+      }
+    })
+    
+    if(isActive && isMyFriend){
+      Object.assign(item, { active: true });
+      return item
+    }
+  })
+
+  const bufferList = tempList.filter((item) => {
+    const isActive = tagList.find((friend) => friend.id === item.id);
+    const isMyFriend = friendList.find((friend) => friend.phone === item.phone);
+    if (isActive === undefined && isMyFriend === undefined) {
+      return item
+    }
+  })
+
+  console.log('tag list', tagList)
+  
+  const searchList1 = tagList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
+  const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
+  const searchList = searchList1.concat(searchList2)
   
   const loadContact = useCallback(async (data) => {
     setError('');
-    setIsRefreshing(true);
+    setIsLoading(true);
     try {
         await dispatch(friends.setContacts(data));
     } catch (err) {
         setError(err.message);
     }
-    setIsRefreshing(false);
+    setIsLoading(false);
   }, [dispatch, setIsLoading, setError])
 
   useEffect(() => {
@@ -159,11 +185,12 @@ export default function LoginContactsScreen() {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === 'granted') {
         const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.Emails],
+          fields: [Contacts.Fields.PhoneNumbers],
         });
 
         if (data.length > 0) {
           loadContact(data)
+          requestInvite(data);
         }
       }
     })();
@@ -171,12 +198,8 @@ export default function LoginContactsScreen() {
 
 
   const finish = () => {
-    const phone = '03003039'
-    const password = 'password'
-    const expoPushToken = 'khadjadjkkaldjfkd'
-
     try {
-        dispatch(auth.signin(phone, password, expoPushToken));
+        dispatch(auth.signin());
     } catch (err) {
     }
 }
@@ -186,53 +209,38 @@ export default function LoginContactsScreen() {
     <View style={styles.container}>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <View style={styles.searchContainer}>
-            <View style={styles.search}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Click to search contact"
-                    placeholderTextColor={'#fff'}
-                    autoFocus={true}
-                    returnKeyType="search"
-                    clearButtonMode="always"
-                    enablesReturnKeyAutomatically={true}
-                    onChangeText={newText => setText(newText)}
-                    defaultValue={text}
-                />
-            </View>
-            <View style={styles.buttonView}>
-                <TouchableOpacity style={styles.button} onPress={() => finish()}>
-                    <Text style={styles.buttonText}> Done </Text>
-                </TouchableOpacity> 
-            </View>    
+        <View style={styles.search}>
+            <TextInput
+                style={styles.input}
+                placeholder="Click to search contact"
+                placeholderTextColor={'#fff'}
+                autoFocus={true}
+                returnKeyType="search"
+                clearButtonMode="always"
+                enablesReturnKeyAutomatically={true}
+                onChangeText={newText => setText(newText)}
+                defaultValue={text}
+            />
         </View>
+        <View style={styles.buttonView}>
+            <TouchableOpacity style={styles.button} onPress={() => finish()}>
+                <Text style={styles.buttonText}> Done </Text>
+            </TouchableOpacity> 
+        </View>    
+      </View>
       <View style={styles.contactView}>
-        <FlatList
-          data={searchList}
-          renderItem={({item}) => 
-          <View style={styles.contact} lightColor="#eee" darkColor="rgba(255,255,255,0.1)">
-            <View style={styles.contactImage}>
-              <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
+        {isLoading ? (
+            <View style={styles.container} >
+              <ActivityIndicator color="#fff" size='large' />
             </View>
-            <Text style={styles.item}>{`${item.name}`}</Text>
-            {item.active ? (
-              <TouchableOpacity
-                onPress={() => add(item)}
-                style={styles.tagView}
-              >
-                <Text style={styles.buttonText}>Tag</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() => create_invite(item)}
-                style={styles.tagView}
-              >
-                <Text style={styles.buttonText}>Invite</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          
-        }
-        />
+        ) : (
+          <FlatList
+              data={searchList}
+              renderItem={({ item }) => (
+                <ContactItem item={item}/>
+              )}
+            />
+        )}
         </View>
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

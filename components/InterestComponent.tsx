@@ -1,15 +1,24 @@
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { Platform, StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, Linking, Image, Modal, TouchableOpacity } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import RNUrlPreview from 'react-native-url-preview';
 import YoutubePlayer from "react-native-youtube-iframe";
+import TwitterPlayer from './players/TwitterPlayer';
+import OthersPlayer from './players/OthersPlayer';
+import TextPlayer from './players/TextPlayer';
+import YouTubePlayer from './players/YoutubePlayer';
+
+import InterestingList from './InterestingList';
+import InterestViews from './InterestViews'; 
+
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -29,7 +38,8 @@ export default function InterestComponent(props: any) {
     const colorScheme = useColorScheme();
     const [playing, setPlaying] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [loaded, setLoaded] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [user, setUser] = useState({});
     const [hide, setHide] = useState(false)
     const hideMenu = () => setVisible(false);
     const showMenu = () => setVisible(true);
@@ -47,6 +57,15 @@ export default function InterestComponent(props: any) {
       }
     })
 
+    useEffect(() => {
+      const getUser = async () =>{
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        setUser(user)
+      }
+      getUser()
+    }, [dispatch, setUser])
+
     const toggleInterest = useCallback(async (id) => {
       try {
           const res = await dispatch(interests.toggleInterest(id));
@@ -54,15 +73,12 @@ export default function InterestComponent(props: any) {
       }
     }, [dispatch])
 
-    const onStateChange = useCallback((state) => {
-        if (state === "ended") {
-          setPlaying(false);
-        }
-    }, []);
-  
-    const togglePlaying = useCallback(() => {
-      setPlaying((prev) => !prev);
-    }, []);
+    const interestingList = useCallback(async () => {
+      try {
+         await dispatch(interests.InterestingList(props.item.id));
+      } catch (err) {
+      }
+    }, [dispatch])
 
 
     const openWhatsApp = () => {
@@ -115,52 +131,64 @@ export default function InterestComponent(props: any) {
             </Text>
         </View>
         <View style={styles.bodyView}>
-          
-          {/* {props.item.category.name === 'YouTube' && (
-            <>
-              {!loaded && (
-                <View style={styles.itemView}>
-                    <Text style={styles.loadingText}>Loading...</Text>
-                </View>
-              )}
-              <YoutubePlayer
-                height={150}
-                play={playing}
-                videoId={youtubeRegex(props.item.link_text)}
-                onChangeState={onStateChange}
-                onReady={() => setLoaded(true)}
-              />
-            </>
-          )} */}
-          
-          {props.item.category.name.length > 0 && props.item.type === 'url' && (
-            <>
-            <RNUrlPreview 
-              text={props.item.link_text}
-              containerStyle={styles.itemView}
-              titleStyle={{color: '#fff', fontWeight: 'bold', fontSize: 15}}
-              descriptionStyle={{color: '#fff'}}
-              imageStyle={{height: 140, width: 100}}
-              onLoad={() => setLoaded(true)}
-            />
-              {!loaded && (
-                <View style={styles.itemView}>
-                  <Text style={styles.loadingText}>Loading...</Text>
-                </View>
-              )}
-            </>
+
+          {props.item.category.slug === 'youtube' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
           )}
 
-          {props.item.category.name.length > 0 && props.item.type === 'text' && (
-            <View style={styles.itemView}>
-              <Text style={styles.categoryText}>{props.item.link_text && props.item.link_text}</Text>
-            </View>
-            
+          {props.item.category.slug === 'spotify' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'twitter' && props.item.type === 'url' && (
+            <TwitterPlayer id={props.item.id} link_text={props.item.link_text}/>
+          )}
+
+          {props.item.category.slug === 'instagram' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'tiktok' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'snapchat' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'pinterest' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'netflix' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+          
+          {props.item.category.slug === 'others' && props.item.type === 'url' && (
+            <OthersPlayer link_text={props.item.link_text} />
+          )}
+
+          {props.item.category.slug === 'others' && props.item.type === 'text' && (
+            <TextPlayer link_text={props.item.link_text}/>
           )}
         </View>
         <View style={styles.footerView}>
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('ProfileModal', {item: props.item.account})} 
+          {props.item.mine ? (
+            <>
+              <InterestingList id={props.item.id}/>
+              <InterestViews id={props.item.id} />
+            </>
+          ): (
+            <>
+              <TouchableOpacity 
+              onPress={() => {
+                  user.phone_id == props.item.account.phone ? (
+                    navigation.navigate('MyProfile')
+                  ): (
+                    navigation.navigate('ProfileModal', {item: props.item.account})
+                  )
+                }
+              } 
               style={styles.nameView}>
               <View style={styles.profileImageView}>
                 <Text style={styles.profileText}>{props.item.account.name.substring(0, 1)}</Text>
@@ -173,6 +201,9 @@ export default function InterestComponent(props: any) {
             >
               <Text style={styles.interactionsText}>Interesting</Text>
             </TouchableOpacity>
+            </>
+          )}
+            
             <View style={styles.shareView}>
                 <TouchableOpacity 
                   onPress={() => 
@@ -323,7 +354,7 @@ const styles = StyleSheet.create({
     interactionsView: {
         flex: 3,
         backgroundColor: 'transparent',
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: '#4169E1',
         borderStyle: "solid",
         borderWidth: 0.5,
         marginHorizontal: 5,

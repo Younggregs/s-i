@@ -21,7 +21,7 @@ import {
 const CELL_COUNT = 5;
 
 export default function RecoveryEmailScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
-    const { phone_id } = route.params;
+    const { phone_id, phone, callingCode } = route.params;
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
@@ -45,19 +45,33 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
+    const validateEmail = (email: String) => {
+        return email.match(
+          /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+    };
+
     const verifyEmail = useCallback(async (email) => {
         setError('');
+        setShowMessage(false)
         setIsLoading(true);
-        try {
-            const message = await dispatch(auth.verify_email(phone_id, email));
-            if(message.code){
-                setValid(true)
-            }else{
-               
+        if(validateEmail(email)){
+            try {
+                const message = await dispatch(auth.verify_email(phone_id, phone, callingCode, email));
+                if(message.code){
+                    setValid(true)
+                }else{
+                    setShowMessage(true)
+                    setError(message.error_message)
+                }
+            } catch (err) {
+                setError(err.message);
             }
-        } catch (err) {
-            setError(err.message);
+        }else{
+            setError('Email is not valid');
+            setShowMessage(true)
         }
+       
         setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
 
@@ -168,7 +182,7 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
           </View>
           {showMessage && (
             <View style={styles.message}>
-                <Text style={styles.errorText}>Invalid phone number</Text>
+                <Text style={styles.errorText}>{error}</Text>
             </View>
           )}
 

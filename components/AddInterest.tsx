@@ -19,7 +19,7 @@ import spotifyRegex from './category_regexes/SpotifyRegex';
 import snapchatRegex from './category_regexes/SnapchatRegex';
 import instagramRegex from './category_regexes/InstagramRegex';
 import netflixRegex from './category_regexes/NetflixRegex';
-import facebookRegex from './category_regexes/FacebookRegex';
+import pinterestRegex from './category_regexes/PinterestRegex';
 
 import * as interests from '../store/actions/interests';
 
@@ -35,6 +35,7 @@ export default function AddInterest({ path }: { path: string }) {
   const [loaded, setLoaded] = useState(false);
   const [type, setType] = useState('')
   const [category, setCategory] = useState('')
+  const [errorMessage, setErrorMessage] = useState(false)
   const [youtubeId, setYoutubeId] = useState('')
   const [playing, setPlaying] = useState(false);
 
@@ -63,7 +64,16 @@ export default function AddInterest({ path }: { path: string }) {
 
   const add = async () => {
     setIsLoading(true)
-    try {
+    setErrorMessage(false)
+    if(link.length <= 0){
+      setError('Link can not be empty')
+      setErrorMessage(true)
+    } 
+    else if(caption.length <= 0){
+      setError('Caption can not be empty')
+      setErrorMessage(true)
+    }else{
+      try {
         const interestCategory = categories.find((item: { name: any; }) => item.name === category);
         const interestObject = {
           'id': Math.random().toString(36).substring(2, 15),
@@ -82,7 +92,8 @@ export default function AddInterest({ path }: { path: string }) {
           },
           'type': type,
           'interesting': false,
-          'created_at': new Date()
+          'created_at': new Date(),
+          'mine': true
         }
         await dispatch(interests.addInterest(interestObject));
         
@@ -91,10 +102,9 @@ export default function AddInterest({ path }: { path: string }) {
       } catch (err) {
           setError(err.message);
       }
-
-      setIsLoading(false)
       setModalVisible(false)
-   
+    }
+    setIsLoading(false)
   }
 
   const determineLinkCategory = async () => {
@@ -126,8 +136,8 @@ export default function AddInterest({ path }: { path: string }) {
         else if(netflixRegex(link)){
           setCategory('Netflix')
         }
-        else if(facebookRegex(link)){
-          setCategory('Facebook')
+        else if(pinterestRegex(link)){
+          setCategory('Pinterest')
         }
         
         else{
@@ -240,6 +250,8 @@ export default function AddInterest({ path }: { path: string }) {
           ): (
             <View />
           )}
+
+          {errorMessage && <Text style={{color: '#ff0000'}}>{error}</Text>}
 
           {isLoading ? (
                 <TouchableOpacity

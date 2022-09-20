@@ -15,7 +15,7 @@ import PhoneInput from "react-native-phone-number-input";
 import PasswordInputText from 'react-native-hide-show-password-input';
 
 export default function PasswordScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
-    const { phone_id, isReturning } = route.params;
+    const { phone_id, phone, callingCode, isReturning } = route.params;
     const [text, setText] = useState('');
     const [text2, setText2] = useState('');
     const [password, setPassword] = useState('');
@@ -45,13 +45,14 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
         setError('');
         setIsLoading(true);
         try {
-            const message = await dispatch(auth.verify_password(phone_id, password, token));
+            const message = await dispatch(auth.verify_password(phone_id, phone, callingCode, password, token));
             if(message.code){
-                await dispatch(auth.auth(phone_id, password));
+                const phone_res = message.code
+                await dispatch(auth.auth(phone_res, password));
                 if(isReturning){
                     navigation.navigate('LoginContacts')
                 }else{
-                    navigation.replace('RecoveryEmail', {phone_id: phone_id})
+                    navigation.replace('RecoveryEmail', {phone_id: phone_res, phone: phone, callingCode: callingCode})
                 }
             }else if(message.error_message){
                 setShowMessage(true)

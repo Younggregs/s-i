@@ -20,6 +20,7 @@ import ModalScreen from '../screens/ModalScreen';
 import ContactModalScreen from '../screens/ContactModalScreen';
 import SearchModalScreen from '../screens/SearchModalScreen';
 import ProfileModalScreen from '../screens/ProfileModalScreen';
+import MyProfileScreen from '../screens/MyProfileScreen';
 import SettingsModalScreen from '../screens/SettingsModalScreen';
 import LoginScreen from '../screens/LoginScreen';
 import PasswordScreen from '../screens/PasswordScreen';
@@ -50,6 +51,8 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
   const isAuth = useSelector(state => !!state.auth.token);
   const didTryAutoLogin = useSelector(state => state.auth.didTryAutoLogin);
   
+  
+
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
@@ -139,6 +142,13 @@ function RootNavigator() {
         <Stack.Screen 
           name="ProfileModal"
           component={ProfileModalScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen 
+          name="MyProfile"
+          component={MyProfileScreen}
           options={{
             headerShown: false
           }}

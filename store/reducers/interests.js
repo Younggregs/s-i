@@ -1,8 +1,10 @@
-import { SET_CATEGORIES, SELECT_CATEGORY, SELECT_TOGGLE_CATEGORY, ADD_INTEREST, FETCH_INTERESTS, TOGGLE_INTEREST, DELETE_INTEREST } from "../actions/interests";
+import { SET_CATEGORIES, SELECT_CATEGORY, SELECT_TOGGLE_CATEGORY, ADD_INTEREST, FETCH_INTERESTS, TOGGLE_INTEREST, DELETE_INTEREST, UPDATE_INTERESTING_LIST, UPDATE_INTERESTVIEW_LIST } from "../actions/interests";
 
 const initialState = {
     allCategories: [],
-    allInterests: []
+    allInterests: [],
+    allInterestings: [],
+    allViews: []
 };
 
 export default (state=initialState, action) => {
@@ -65,6 +67,18 @@ export default (state=initialState, action) => {
             return {
                 ...state,
                 allInterests: tempInterest
+            }
+        
+        case UPDATE_INTERESTING_LIST:
+            return {
+                ...state,
+                allInterestings: action.interesting
+            }
+
+        case UPDATE_INTERESTVIEW_LIST:
+            return {
+                ...state,
+                allViews: action.views
             }
         
         case DELETE_INTEREST:

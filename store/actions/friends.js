@@ -26,13 +26,14 @@ export const request_invite = (contact_list) => {
     };
 };
 
-export const create_invite = (phone_id) => {
+export const create_invite = (phone_id, name) => {
     return async dispatch => {
         let user = await AsyncStorage.getItem('user')
         user = JSON.parse(user)
 
         const formData = new FormData();
         formData.append("phone_id", phone_id);
+        formData.append("name", name);
 
         const response = await fetch(`${SERVER_URL}/create_invite/`, {
             method: 'POST',
