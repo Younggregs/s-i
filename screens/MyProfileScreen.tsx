@@ -25,7 +25,6 @@ export default function MyProfileScreen(props: any) {
       let user = await AsyncStorage.getItem('user')
       user = JSON.parse(user)
       setUser(user)
-      console.log('user11', user)
     }
     getUser()
   }, [setUser])

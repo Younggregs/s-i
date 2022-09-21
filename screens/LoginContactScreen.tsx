@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, StyleSheet, FlatList, TextInput, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Linking from "expo-linking";
@@ -162,8 +162,6 @@ export default function LoginContactsScreen() {
       return item
     }
   })
-
-  console.log('tag list', tagList)
   
   const searchList1 = tagList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)

@@ -27,7 +27,6 @@ export default function InterestViews(interestItem) {
     let itemInterestings = []
     itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
 
-
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -55,7 +54,7 @@ export default function InterestViews(interestItem) {
 
   const interestingList = useCallback(async () => {
     try {
-       await dispatch(interests.InterestViewList(interestItem.id));
+       await dispatch(interests.interestViewList(interestItem.id));
     } catch (err) {
     }
   }, [dispatch])
@@ -94,7 +93,7 @@ export default function InterestViews(interestItem) {
                 name="eye"
                 size={20}
                 color={'#fff'}
-            /> {0}
+            /> {itemInterestings.length}
         </Text>
     </TouchableOpacity>
     </View>
@@ -125,7 +124,7 @@ const ContactItem = ({item}) => {
                     style={styles.tagView}
                 >
                     <Text style={styles.timer}>
-                        <TimeAgo time={item.created_at} interval={20000}/>
+                        <TimeAgo time={item.created_at} interval={20000} hideAgo={true}/>
                     </Text>
                 </View>
             </TouchableOpacity>

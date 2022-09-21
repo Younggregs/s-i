@@ -3,8 +3,6 @@ import {
   Platform,
   StyleSheet,
   Image,
-  ScrollView,
-  TouchableOpacityBase,
   TouchableOpacity,
 } from "react-native";
 import * as Contacts from "expo-contacts";

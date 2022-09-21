@@ -1,7 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, ScrollView, Alert } from 'react-native';  
+import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -69,8 +69,15 @@ export default function AddInterest({ path }: { path: string }) {
       setError('Link can not be empty')
       setErrorMessage(true)
     } 
+    else if(link.length >= 256){
+      setError('Link/Text can not be more than 256 characters')
+      setErrorMessage(true)
+    }
     else if(caption.length <= 0){
       setError('Caption can not be empty')
+      setErrorMessage(true)
+    }else if(caption.length >= 256){
+      setError('Caption can not be more than 256 characters')
       setErrorMessage(true)
     }else{
       try {

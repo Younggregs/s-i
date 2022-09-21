@@ -1,13 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  Platform,
   StyleSheet,
-  FlatList,
-  ScrollView,
-  TouchableOpacityBase,
   TouchableOpacity,
-  ActivityIndicator,
-  TextInput
+  ActivityIndicator
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";

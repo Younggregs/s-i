@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, RefreshControl, FlatList, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
@@ -60,7 +60,7 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
     });
   }, [dispatch, loadInterest])
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     wait(2000).then(() => {
       refreshInterest()
@@ -68,6 +68,23 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
     });
   }, []);
 
+
+const onViewableItemsChanged = useCallback(
+    (info: { changed: ViewToken[] }): void => {
+      const visibleItems = info.changed.filter((entry) => entry.isViewable);
+      visibleItems.forEach((visible) => {
+        !visible.item.mine && interestViewed(visible.item)
+      });
+    },
+    []
+  );
+
+  const interestViewed = useCallback(async (item) => {
+    try {
+       await dispatch(interests.interestViewRecord(item.id));
+    } catch (err) {
+    }
+  }, [dispatch])
 
 
   return (
@@ -78,22 +95,30 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
           <ActivityIndicator color="#fff" size='large'/>
         </View>
       ) : (
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-      }
-      >
-          {interestsBucket.map(item => 
+      <View>
+        <FlatList
+          onViewableItemsChanged={onViewableItemsChanged}
+          contentContainerStyle={{ paddingBottom: 150 }}
+          viewabilityConfig={{
+            itemVisiblePercentThreshold: 100,
+            minimumViewTime: 2000,
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+          data={interestsBucket}
+          renderItem={({ item }) => (
             <InterestComponent key={item.id} item={item} />
           )}
-          <View style={styles.footerContainer}>
-            <Text style={styles.linkText}>shareinterest.app</Text>
-          </View>
-        </ScrollView>
-        )}
+        />
+        <View style={styles.footerContainer}>
+          <Text style={styles.linkText}>shareinterest.app</Text>
+        </View>
+      </View>
+      )}
       </View>
       <View style={styles.fab}>
         <AddInterest path="/screens/InterestsScreen.tsx"/>

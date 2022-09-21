@@ -108,7 +108,7 @@ export const toggleInterest = (id) => {
     }
 };
 
-export const InterestingList = (id) => {
+export const interestingList = (id) => {
     return async (dispatch, getState) => {
 
         let user = await AsyncStorage.getItem('user')
@@ -124,16 +124,37 @@ export const InterestingList = (id) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-
-        dispatch({
-            type: UPDATE_INTERESTING_LIST,
-            interesting: resData
-        })
+        if(resData.length > 0){
+            dispatch({
+                type: UPDATE_INTERESTING_LIST,
+                interesting: resData
+            })
+        }
     }
 };
 
+export const interestViewRecord = (id) => {
+    return async (dispatch, getState) => {
 
-export const InterestViewList = (id) => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        const response = await fetch(`${SERVER_URL}/interestview/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData
+    }
+};
+
+export const interestViewList = (id) => {
     return async (dispatch, getState) => {
 
         let user = await AsyncStorage.getItem('user')
@@ -150,10 +171,13 @@ export const InterestViewList = (id) => {
             throw new Error(resData.error);
         }
 
-        dispatch({
-            type: UPDATE_INTERESTVIEW_LIST,
-            views: resData
-        })
+        if(resData.length > 0){
+            dispatch({
+                type: UPDATE_INTERESTVIEW_LIST,
+                views: resData
+            })
+        }
+        
     }
 };
 

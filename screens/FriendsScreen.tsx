@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
@@ -65,28 +65,29 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
           <ActivityIndicator color="#fff" size='large'/>
         </View>
       ) : (
-        <ScrollView
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 20 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
             />
-        }
-        >
-          {friendList.map(item => 
+          }
+          data={friendList}
+          renderItem={({ item }) => (
             <TouchableOpacity 
               onPress={() => navigation.navigate('ProfileModal', {item})}
-               key={item.id} 
-               style={styles.interestContainer} 
-               lightColor="#eee" 
-               darkColor="rgba(255,255,255,0.1)">
+              key={item.id} 
+              style={styles.interestContainer} 
+              lightColor="#eee" 
+              darkColor="rgba(255,255,255,0.1)">
               <View style={styles.contactImage}>
                 <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
               </View>
               <Text style={styles.item}>{item.name}</Text>
             </TouchableOpacity>
           )}
-        </ScrollView>
+        />
       )}
       </View>
       <TouchableOpacity style={styles.newFriendContainer} onPress={() => navigation.navigate('ContactModal')}>

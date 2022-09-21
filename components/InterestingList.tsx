@@ -54,7 +54,7 @@ export default function InterestingList(interestItem) {
 
   const interestingList = useCallback(async () => {
     try {
-       await dispatch(interests.InterestingList(interestItem.id));
+       await dispatch(interests.interestingList(interestItem.id));
     } catch (err) {
     }
   }, [dispatch])
@@ -119,7 +119,7 @@ const ContactItem = ({item}) => {
                     style={styles.tagView}
                 >
                     <Text style={styles.timer}>
-                        <TimeAgo time={item.created_at} interval={20000}/>
+                        <TimeAgo time={item.created_at} interval={20000} hideAgo={true}/>
                     </Text>
                 </View>
             </TouchableOpacity>

@@ -3,8 +3,6 @@ import {
   Platform,
   StyleSheet,
   FlatList,
-  ScrollView,
-  TouchableOpacityBase,
   TouchableOpacity,
   ActivityIndicator,
   TextInput
