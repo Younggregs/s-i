@@ -75,11 +75,15 @@ export const addInterest = (interest) => {
         if(resData.error){
             throw new Error(resData.error);
         }
+        if(!resData.error_message){
+            interest.id = resData.id
+            dispatch({
+                type: ADD_INTEREST,
+                interest: interest
+            })
+        }
 
-        dispatch({
-            type: ADD_INTEREST,
-            interest: interest
-        })
+        return resData
     }
 };
 
@@ -123,12 +127,15 @@ export const interestingList = (id) => {
 
         if(resData.error){
             throw new Error(resData.error);
-        }
-        if(resData.length > 0){
-            dispatch({
-                type: UPDATE_INTERESTING_LIST,
-                interesting: resData
-            })
+        } 
+
+        if(!resData.error_message && resData.length > 0){
+            resData.map(item => (
+                dispatch({
+                    type: UPDATE_INTERESTING_LIST,
+                    interesting: item
+                })
+            ))
         }
     }
 };
@@ -171,13 +178,14 @@ export const interestViewList = (id) => {
             throw new Error(resData.error);
         }
 
-        if(resData.length > 0){
-            dispatch({
-                type: UPDATE_INTERESTVIEW_LIST,
-                views: resData
-            })
+        if(!resData.error_message && resData.length > 0){
+            resData.map(item => (
+                dispatch({
+                    type: UPDATE_INTERESTVIEW_LIST,
+                    views: item
+                })
+            ))
         }
-        
     }
 };
 
@@ -361,6 +369,24 @@ export const fetchTweet = (id) => {
 
         const response = await fetch(`${SERVER_URL}/tweet/${id}/`, {
             method: 'GET',
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        return resData
+    }
+};
+
+export const fetchTweetPreview = (link) => {
+    return async (dispatch, getState) => {
+        const formData = new FormData();
+        formData.append("link", link);
+
+        const response = await fetch(`${SERVER_URL}/tweet/id/`, {
+            method: 'POST',
+            body: formData
         });
         const resData = await response.json();
 

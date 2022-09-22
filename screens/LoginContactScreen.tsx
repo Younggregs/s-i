@@ -133,7 +133,7 @@ export default function LoginContactsScreen() {
     }
   });
 
-  const tagList = contactList.filter((item) => {
+  const activeList = contactList.filter((item) => {
     let isActive = false
     let isMyFriend = false
     contact.find((friend) => {
@@ -156,10 +156,22 @@ export default function LoginContactsScreen() {
   })
 
   const bufferList = tempList.filter((item) => {
-    const isActive = tagList.find((friend) => friend.id === item.id);
+    const isActive = activeList.find((friend) => friend.id === item.id);
     const isMyFriend = friendList.find((friend) => friend.phone === item.phone);
     if (isActive === undefined && isMyFriend === undefined) {
       return item
+    }
+  })
+
+  // Subtract my friend from active contacts
+  const tagList = activeList.filter((item) => {
+    if(item.phoneNumbers){
+      const phone = item.phoneNumbers[0].number
+      const isFriend = friendList.find((myFriend) => myFriend.phone === phone.replace(/\s/g, ''));
+      if(isFriend === undefined){
+        Object.assign(item, { active: true });
+        return item
+      }
     }
   })
   

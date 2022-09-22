@@ -1,52 +1,20 @@
-import * as WebBrowser from 'expo-web-browser';
 import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, TouchableOpacity, FlatList, TouchableNativeFeedback } from 'react-native';  
+import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';  
 import Modal from "react-native-modal";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View } from './Themed';
 
 import * as interests from '../store/actions/interests';
-import { ToastContainer } from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
-import moment from 'moment';
-import OthersPlayer from './players/OthersPlayer';
 import { useNavigation } from '@react-navigation/native';
 
-var linkify = require('linkifyjs');
-
-
 export default function InterestingList(interestItem) {
-  const [user, setUser] = useState({})
   const [modalVisible, setModalVisible] = useState(false);
 
-  const categories = useSelector(state => state.interest.allCategories);
-
-    const interestingsList = useSelector(state => state.interest.allInterestings);
-    let itemInterestings = []
-    itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
-
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState('');
-
+  const interestingsList = useSelector(state => state.interest.allInterestings);
+  let itemInterestings = []
+  itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const user = await AsyncStorage.getItem('user')
-        if(user !== null) {
-          setUser(user)
-        }
-      } catch(e) {
-        // error reading value
-      }
-      
-    }
-    getData()
-  }, [dispatch])
 
   useEffect(() => {
       interestingList()
@@ -63,6 +31,7 @@ export default function InterestingList(interestItem) {
   return (
   <View style={styles.interactionsView}>
     <Modal
+        propagateSwipe={true}
         swipeDirection="down"
         onSwipeComplete={() => { setModalVisible(false) }}
         isVisible={modalVisible}

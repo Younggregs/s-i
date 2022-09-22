@@ -1,35 +1,20 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator
 } from "react-native";
-import * as Contacts from "expo-contacts";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch  } from "react-redux";
 import * as Linking from "expo-linking";
-import { FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-
-import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
 import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
-
-import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
-import InviteModalScreen from "./InviteScreen";
+import Toast from 'react-native-root-toast';
 
 export default function ContactItem({ item }) {
-  const [contact, setContact] = useState([]);
-  const [visible, setVisible] = useState(false);
-  const [text, setText] = useState('');
-
-  const navigation = useNavigation();
-  const colorScheme = useColorScheme();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
@@ -67,7 +52,12 @@ export default function ContactItem({ item }) {
           'phone_id': phone_id.replace(/\s/g, ''),
           'name': item.name
         }
-        await dispatch(friends.tagFriend(item));
+        const res = await dispatch(friends.tagFriend(obj));
+        if(res.error_message){
+          Toast.show(res.error_message, {
+            duration: Toast.durations.LONG,
+          });
+        }
       } catch (err) {
         setError(err.message);
       }
@@ -113,11 +103,6 @@ export default function ContactItem({ item }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   contact: {
     flexDirection: "row",
     alignItems: "center",

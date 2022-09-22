@@ -8,6 +8,8 @@ import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 
 import * as interests from '../store/actions/interests';
+import * as Network from 'expo-network';
+import Toast from 'react-native-root-toast';
 
 import InterestComponent from "../components/InterestComponent";
 
@@ -54,15 +56,27 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
   }, [dispatch])
 
   useEffect(() => {
+    checkNetworkConnection()
     loadInterest()
     .then(() => {
         setIsLoading(false);
     });
   }, [dispatch, loadInterest])
 
+  const checkNetworkConnection = async () => {
+    const status = await Network.getNetworkStateAsync();
+    if (!status.isConnected || !status.isInternetReachable){
+      Toast.show('No or poor internet connection', {
+        duration: Toast.durations.LONG,
+      });
+
+    }
+  }
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     wait(2000).then(() => {
+      checkNetworkConnection()
       refreshInterest()
       setRefreshing(false)
     });

@@ -144,14 +144,13 @@ export default function ContactModalScreen() {
     }
   });
 
-  const tagList = contactList.filter((item) => {
+
+  // get all active contacts
+  const activeList = contactList.filter((item) => {
     let isActive = false
     let isNotMyFriend = false
     contact.find((friend) => {
-      const isFriend = friendList.find((myFriend) => myFriend.phone === friend.phone_id);
-      if(isFriend === undefined){
-        isNotMyFriend = true
-      }
+ 
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         if(phone.replace(/\s/g, '') === friend.phone_id){
@@ -160,20 +159,33 @@ export default function ContactModalScreen() {
       }
     })
     
-    if(isActive && isNotMyFriend){
+    if(isActive){
       Object.assign(item, { active: true });
       return item
     }
   })
 
+  // Substract all active contacts from contacts
   const bufferList = tempList.filter((item) => {
-    const isActive = tagList.find((friend) => friend.id === item.id);
+    const isActive = activeList.find((friend) => friend.id === item.id);
     const isMyFriend = friendList.find((friend) => friend.phone === item.phone);
     if (isActive === undefined && isMyFriend === undefined) {
       return item
     }
   })
-  
+
+  // Subtract my friend from active contacts
+  const tagList = activeList.filter((item) => {
+    if(item.phoneNumbers){
+      const phone = item.phoneNumbers[0].number
+      const isFriend = friendList.find((myFriend) => myFriend.phone === phone.replace(/\s/g, ''));
+      if(isFriend === undefined){
+        Object.assign(item, { active: true });
+        return item
+      }
+    }
+  })
+
   const searchList1 = tagList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList = searchList1.concat(searchList2)

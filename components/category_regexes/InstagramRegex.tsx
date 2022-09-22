@@ -1,6 +1,5 @@
 
 function instagramRegex(link: string){
-    var id = null
     if(link){
         if (link.match(/instagram\.com/)) {
         }else{

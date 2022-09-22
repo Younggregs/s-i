@@ -1,15 +1,10 @@
-import * as WebBrowser from 'expo-web-browser';
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';  
+import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PlayerComponent from './PlayerComponent';
 
-import RNUrlPreview from 'react-native-url-preview';
-import YoutubePlayer from "react-native-youtube-iframe";
-
-import Colors from '../constants/Colors';
-import { MonoText } from './StyledText';
 import { Text, View } from './Themed';
 
 import youtubeRegex from './category_regexes/YoutubeRegex';
@@ -37,12 +32,9 @@ export default function AddInterest({ path }: { path: string }) {
   const [category, setCategory] = useState('')
   const [errorMessage, setErrorMessage] = useState(false)
   const [youtubeId, setYoutubeId] = useState('')
-  const [playing, setPlaying] = useState(false);
-
   const categories = useSelector(state => state.interest.allCategories);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   const dispatch = useDispatch();
@@ -102,14 +94,19 @@ export default function AddInterest({ path }: { path: string }) {
           'created_at': new Date(),
           'mine': true
         }
-        await dispatch(interests.addInterest(interestObject));
+        const res = await dispatch(interests.addInterest(interestObject));
+        if(res.error_message){
+          setError(res.res_message)
+          setErrorMessage(true)
+        }else{
+          setModalVisible(false)
+        }
         
         onChangeCaption('')
         onChangeLink('')
       } catch (err) {
           setError(err.message);
       }
-      setModalVisible(false)
     }
     setIsLoading(false)
   }
@@ -122,7 +119,6 @@ export default function AddInterest({ path }: { path: string }) {
         setType('url')
         if(res){
           setCategory('YouTube')
-          // setType('')
           setYoutubeId(res)
         }
         else if(tiktokRegex(link)){
@@ -157,16 +153,6 @@ export default function AddInterest({ path }: { path: string }) {
     }
     
   }
-
-  const onStateChange = useCallback((state) => {
-    if (state === "ended") {
-      setPlaying(false);
-    }
-  }, []);
-
-  const togglePlaying = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, []);
 
   return (
   <View style={styles.container}>
@@ -207,51 +193,7 @@ export default function AddInterest({ path }: { path: string }) {
                   <Text style={styles.captionText}>{caption}</Text>
               </View>
               <View style={styles.previewBody}>
-
-                {/* {category === 'YouTube' && (
-                  <>
-                    {!loaded && (
-                      <View style={styles.itemView}>
-                          <Text style={styles.loadingText}>Loading...</Text>
-                      </View>
-                    )}
-                    <YoutubePlayer
-                      height={150}
-                      play={playing}
-                      videoId={youtubeId}
-                      onChangeState={onStateChange}
-                    />
-                  </>
-                )} */}
-
-                {category.length > 0 && type === 'url' && (
-                  <>
-                  <RNUrlPreview 
-                    text={link}
-                    containerStyle={{
-                      height: 150,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexDirection: 'column'
-                    }}
-                    titleStyle={{color: '#fff', fontWeight: 'bold', fontSize: 15}}
-                    descriptionStyle={{color: '#fff'}}
-                    onLoad={() => setLoaded(true)}
-                  />
-                  {!loaded && (
-                    <View style={styles.itemView}>
-                      <Text style={styles.loadingText}>Loading...</Text>
-                    </View>
-                  )}
-                  </>
-                )}
-
-                {category.length > 0 && type === 'text' && (
-                  <View style={styles.itemView}>
-                    <Text style={styles.categoryText}>{link && link}</Text>
-                  </View>
-                )}
-
+                <PlayerComponent item={{link_text: link, category: {slug: category.toLowerCase()}, type: type, preview: true}}/>
               </View>
             </View>
           ): (
@@ -295,8 +237,6 @@ export default function AddInterest({ path }: { path: string }) {
   );
 }
 
-function handleHelpPress() {
-}
 
 const styles = StyleSheet.create({
   getStartedContainer: {

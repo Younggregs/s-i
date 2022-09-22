@@ -1,17 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
+import { StyleSheet, TextInput } from 'react-native';
 
-import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SearchHeader() {
-
-    const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
-    const navigation = useNavigation();
     
     return (
         <View style={styles.container}>
@@ -57,10 +51,5 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         backgroundColor: '#fff'
-    },
-    separator: {
-        marginVertical: 30,
-        height: 1,
-        width: '80%',
-    },
+    }
 });

@@ -175,11 +175,13 @@ export const tagFriend = (friend) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-
-        dispatch({
-            type: TAG_FRIEND,
-            friend: friend
-        })
+        if(!resData.error_message){
+            dispatch({
+                type: TAG_FRIEND,
+                friend: resData
+            })
+        }
+        return resData        
     }
 };
 

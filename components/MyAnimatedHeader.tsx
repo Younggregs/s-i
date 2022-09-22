@@ -1,21 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { StyleSheet, Animated, View, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, Animated, View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 import { useNavigation } from '@react-navigation/native';
 
 import { Text } from './Themed';
-
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-
-import * as friends from '../store/actions/friends';
-import onShare from './Share';
 
 const HEADER_HEIGHT = 200;
 

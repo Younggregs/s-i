@@ -1,7 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { Platform, ColorSchemeName, Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
 
 import { Text, View } from '../components/Themed';

@@ -1,6 +1,5 @@
 
 function twitterRegex(link: string){
-    var id = null
     if(link){
         if (link.match(/twitter\.com/)) {
         }else{

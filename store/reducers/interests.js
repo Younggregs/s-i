@@ -72,13 +72,13 @@ export default (state=initialState, action) => {
         case UPDATE_INTERESTING_LIST:
             return {
                 ...state,
-                allInterestings: action.interesting
+                allInterestings: [action.interesting, ...state.allInterestings]
             }
 
         case UPDATE_INTERESTVIEW_LIST:
             return {
                 ...state,
-                allViews: action.views
+                allViews: [action.views, ...state.allViews]
             }
         
         case DELETE_INTEREST:

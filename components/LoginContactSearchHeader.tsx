@@ -1,11 +1,8 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useCallback } from 'react';
-import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
 import * as auth from '../store/actions/auth';

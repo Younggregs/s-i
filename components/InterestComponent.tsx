@@ -1,21 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useState, useCallback, useEffect } from 'react';
-import { Platform, StyleSheet, Linking, Image, Modal, TouchableOpacity } from 'react-native';
+import { StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
 import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import RNUrlPreview from 'react-native-url-preview';
-import YoutubePlayer from "react-native-youtube-iframe";
 import TwitterPlayer from './players/TwitterPlayer';
 import OthersPlayer from './players/OthersPlayer';
 import TextPlayer from './players/TextPlayer';
-import YouTubePlayer from './players/YoutubePlayer';
-
+import PlayerComponent from './PlayerComponent';
 import InterestingList from './InterestingList';
 import InterestViews from './InterestViews'; 
 
@@ -25,10 +20,7 @@ import useColorScheme from '../hooks/useColorScheme';
 
 import { Text, View } from '../components/Themed';
 import onShare from './Share';
-import { RootTabScreenProps } from '../types';
 import { useNavigation } from '@react-navigation/native';
-
-import youtubeRegex from './category_regexes/YoutubeRegex';
 import * as interests from '../store/actions/interests';
 
 import whatsapp from '../assets/images/category-icons/whatsapp.png'
@@ -36,9 +28,7 @@ import whatsapp from '../assets/images/category-icons/whatsapp.png'
 
 export default function InterestComponent(props: any) {
     const colorScheme = useColorScheme();
-    const [playing, setPlaying] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
     const [user, setUser] = useState({});
     const [hide, setHide] = useState(false)
     const hideMenu = () => setVisible(false);
@@ -131,46 +121,7 @@ export default function InterestComponent(props: any) {
             </Text>
         </View>
         <View style={styles.bodyView}>
-
-          {props.item.category.slug === 'youtube' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'spotify' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'twitter' && props.item.type === 'url' && (
-            <TwitterPlayer id={props.item.id} link_text={props.item.link_text}/>
-          )}
-
-          {props.item.category.slug === 'instagram' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'tiktok' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'snapchat' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'pinterest' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'netflix' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-          
-          {props.item.category.slug === 'others' && props.item.type === 'url' && (
-            <OthersPlayer link_text={props.item.link_text} />
-          )}
-
-          {props.item.category.slug === 'others' && props.item.type === 'text' && (
-            <TextPlayer link_text={props.item.link_text}/>
-          )}
+          <PlayerComponent item={props.item}/>
         </View>
         <View style={styles.footerView}>
           {props.item.mine ? (

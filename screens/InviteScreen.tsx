@@ -106,28 +106,6 @@ export default function InviteModalScreen() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const invite = (item) => {
-    let redirectUrl = Linking.createURL("login", {
-      queryParams: { invite: "dlrow" },
-    });
-    const message = `Hello ${item.name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
-    onShare(message);
-  };
-
-  const add = useCallback(
-    async (item) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.tagFriend(item));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setIsLoading, setError]
-  );
-
   const loadContact = useCallback(
     async (data) => {
       setError("");
