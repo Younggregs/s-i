@@ -1,6 +1,5 @@
 import { Share } from 'react-native';
 
-
 const onShare = async (message: string) => {
   try {
     const result = await Share.share({

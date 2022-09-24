@@ -10,6 +10,8 @@ const initialState = {
 export default (state=initialState, action) => {
     const tempCategory = [...state.allCategories];
     const tempInterest = [...state.allInterests];
+    const tempInteresting = [...state.allInterestings]
+    const tempView = [...state.allViews]
     switch(action.type){
         case SET_CATEGORIES:
             return {
@@ -70,16 +72,19 @@ export default (state=initialState, action) => {
             }
         
         case UPDATE_INTERESTING_LIST:
+            const interestingExist = tempInteresting.find(item => item.id === action.interesting.id)
             return {
                 ...state,
-                allInterestings: [action.interesting, ...state.allInterestings]
+                allInterestings: !interestingExist ? [action.interesting, ...state.allInterestings] : tempInteresting
             }
 
         case UPDATE_INTERESTVIEW_LIST:
+            const viewExist = tempView.find(item => item.id === action.views.id)
             return {
                 ...state,
-                allViews: [action.views, ...state.allViews]
+                allViews: !viewExist ? [action.views, ...state.allViews] : tempView
             }
+            
         
         case DELETE_INTEREST:
             const updatedInterestList = tempInterest.filter(interest => interest.id !== action.id)

@@ -3,23 +3,14 @@ import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
-import { useNavigation } from '@react-navigation/native';
-
 import * as auth from '../store/actions/auth';
 
 export default function LoginContactSearchHeader() {
-
-    const [visible, setVisible] = useState(false);
     const [text, setText] = useState('');
-    const navigation = useNavigation();
 
     const dispatch = useDispatch();
 
     const finish = () => {
-        const phone = '03003039'
-        const password = 'password'
-        const expoPushToken = 'khadjadjkkaldjfkd'
-
         try {
             dispatch(auth.signin());
         } catch (err) {

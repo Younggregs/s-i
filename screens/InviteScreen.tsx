@@ -146,7 +146,8 @@ export default function InviteModalScreen() {
         });
 
         if (data.length > 0) {
-          loadContact(data);
+          const valid_contacts = data.filter(item => item.name !== undefined)
+          loadContact(valid_contacts)
         }
       }
     })();

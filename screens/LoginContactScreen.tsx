@@ -199,8 +199,9 @@ export default function LoginContactsScreen() {
         });
 
         if (data.length > 0) {
-          loadContact(data)
-          requestInvite(data);
+          const valid_contacts = data.filter(item => item.name !== undefined)
+          loadContact(valid_contacts)
+          requestInvite(valid_contacts);
         }
       }
     })();

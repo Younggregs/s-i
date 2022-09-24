@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 
 import { View } from '../components/Themed';
-import { useNavigation } from '@react-navigation/native';
 
 export default function SearchHeader() {
     const [text, setText] = useState('');
