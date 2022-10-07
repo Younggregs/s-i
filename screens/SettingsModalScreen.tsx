@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, Linking, Touchable, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, Linking, Alert, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 
@@ -28,6 +28,14 @@ export default function SettingsModalScreen() {
     }
   }
 
+  const deleteButtonAlert = () =>
+    Alert.alert('Delete Account', 'This action would delete all your data permanently from Share Interest. Are you sure you want to proceed with this action?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      { text: 'OK', onPress: () => dispatch(auth.logout()) },
+    ]);
 
   return (
     <View style={styles.container}>
@@ -65,7 +73,7 @@ export default function SettingsModalScreen() {
         <Text style={styles.title}>Change password</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangeRecoveryEmail')}>  
+      {/* <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangeRecoveryEmail')}>  
         <View style={styles.iconView}>
           <FontAwesome
             name="envelope-o"
@@ -74,7 +82,7 @@ export default function SettingsModalScreen() {
           />
         </View>
         <Text style={styles.title}>Change Recovery Email</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(terms)}>  
         <View style={styles.iconView}>
@@ -129,9 +137,7 @@ export default function SettingsModalScreen() {
         style={styles.view} 
         onPress={() => 
         {
-          logout(),
-          navigation.navigate('Login')
-          
+          deleteButtonAlert()
         }}>  
         <View style={styles.iconView}>
           <FontAwesome

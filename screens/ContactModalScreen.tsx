@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
-import * as Linking from "expo-linking";
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 

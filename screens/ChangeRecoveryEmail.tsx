@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Alert, Linking} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Linking from "expo-linking";
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
@@ -132,7 +131,7 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
         </SafeAreaView>
         )}
         
-        <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
     </View>

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Linking, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Linking from "expo-linking";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { FontAwesome } from '@expo/vector-icons';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
@@ -10,8 +10,6 @@ import * as auth from '../store/actions/auth';
 import logo from '../assets/images/logo.png'
 
 import PhoneInput from "react-native-phone-number-input";
-import SMSVerifyCode from 'react-native-sms-verifycode';
-import PasswordInputText from 'react-native-hide-show-password-input';
 
 import {
     CodeField,
@@ -29,6 +27,7 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false)
 
     const [value, setValue] = useState("");
     const [formattedValue, setFormattedValue] = useState("");
@@ -48,25 +47,6 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
         setValue,
     });
 
-    
-
-    const onInputCompleted = (text) => {
-        Alert.alert(
-          text,
-          '本次输入的验证码',
-          [
-              {
-              text: '确定',
-            },
-          ]
-        )
-    }
-
-    const isInvited = () => {
-        if(value === '08109599597' || value === '08109599598'){setValid(true)}
-        else{navigation.navigate('Invite')}
-    }
-
     const isValid = async () => {
         await verifyEmailToken(code)
         // if(code === '01234'){
@@ -76,16 +56,21 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
     }
 
     const submit = useCallback(async (phone_id, password) => {
+        const passwordValidate = password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*"'()+,-./:;<=>?[\]^_`{|}~])(?=.{8,})/)
         setIsLoading(true);
-        try {
-            const message = await dispatch(auth.forgot_password(phone_id, password));
-            if(message.code){
-                navigation.navigate('Password', {phone_id: phone_id, isReturning: true})
-            }else{
-                
+        if(passwordValidate){
+            try {
+                const message = await dispatch(auth.forgot_password(phone_id, password));
+                if(message.code){
+                    navigation.navigate('Password', {phone_id: phone_id, isReturning: true})
+                }else{
+                    
+                }
+            } catch (err) {
+                setError(err.message);
             }
-        } catch (err) {
-            setError(err.message);
+        }else{
+            setError('New password not valid, please confirm it contains all necessary characters specified above.')
         }
         setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
@@ -143,32 +128,12 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
     <View style={styles.container}>
         <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
-        {/* <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.input}
-                placeholder="Phone number"
-                placeholderTextColor={'#fff'}
-                autoFocus={true}
-                returnKeyType="next"
-                clearButtonMode="always"
-                enablesReturnKeyAutomatically={true}
-                onChangeText={newText => setText(newText)}
-                defaultValue={text}
-            />
-        </View> */}
         {valid ? (
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
                     <Text style={styles.hint}>A verification code was sent to your recovery email: {email}</Text>
                 </View>
-                {/* <SMSVerifyCode
-                    onInputCompleted={onInputCompleted}
-                    containerPaddingHorizontal={30}
-                    containerBackgroundColor="transparent"
-                    codeColor="#fff"
-                    initialCodes={[1, 2, 3, 4, 5]}
-                /> */}
                 <CodeField
                     // ref={ref}
                     // {...props}
@@ -202,17 +167,32 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
             </SafeAreaView>
         ) : (
         <SafeAreaView style={styles.wrapper}>
-         <View style={styles.inputContainer}>
-            <PasswordInputText
-                value={password}
-                autoFocus={true}
-                placeholder="Create new password"
-                placeholderTextColor={'#fff'}
-                onChangeText={(password: React.SetStateAction<string>) => setPassword(password)}
-                iconColor="#fff"
-                textColor="#fff"
-            />
+        <View style={styles.labelView}>
+            <Text style={styles.label}>Create new password</Text>
         </View>
+        <View style={styles.inputContainer}>
+            <TextInput 
+                secureTextEntry={!showPassword}
+                style={{color: '#fff', flex: 8}}
+                onChangeText={(value) => setPassword(value)}
+            />
+            <View style={styles.iconView}>
+                <FontAwesome
+                    onPress={() => setShowPassword(!showPassword)}
+                    name= {showPassword ? "eye": "eye-slash"}
+                    size={20}
+                    color={'#fff'}
+                />
+            </View>
+        </View>
+        <View>
+            <Text>
+                Password must contain atleast 1 lowercase and 1 uppercase alphabetical characters respectively, 1 numeric character, 
+                1 special character and should be atleast 8 characters long.
+            </Text>
+        </View>
+
+        {error.length < 1 ? <View /> : <View style={styles.feedback}><Text style={styles.feebackFailedText}>{error}</Text></View>}
 
         <TouchableOpacity
             style={styles.button}
@@ -223,7 +203,7 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
         </SafeAreaView>
         )}
         
-        <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
     </View>
@@ -244,6 +224,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginVertical: 20
     },
+    feedback: {
+        backgroundColor: '#fff',
+        padding: 5,
+        borderRadius: 5,
+        margin: 5
+    },
+    feebackSuccessText: {
+        color: '#0000ff'
+    },
+    feebackFailedText: {
+        color: '#ff0000'
+    },
     inputContainer: {
         width: '100%',
         borderRadius: 10,
@@ -252,7 +244,14 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderStyle: 'solid',
         borderColor: '#fff',
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        height: 50,
+        flexDirection: 'row'
+    },
+    iconView: {
+        flex: 2,
+        alignItems: "center",
+        justifyContent: 'center'
     },
     link: {
         marginTop: 15,

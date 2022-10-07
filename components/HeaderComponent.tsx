@@ -19,7 +19,7 @@ export default function HeaderComponent() {
     const hideMenu = () => setVisible(false);
     const showMenu = () => setVisible(true);
     const navigation = useNavigation();
-    
+
     return (
         <>
             {isSearch ? ( 

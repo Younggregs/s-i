@@ -129,14 +129,11 @@ function RootNavigator() {
           headerTitle: (props) => <HeaderComponent {...props}/>
         }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-        <Stack.Screen
-          name="SearchModal"
-          component={SearchModalScreen}
+      <Stack.Screen 
+          name="MyProfile"
+          component={MyProfileScreen}
           options={{
-            headerShown: true,
-            headerTitle: (props) => <SearchHeader {...props} />
+            headerShown: false
           }}
         />
         <Stack.Screen 
@@ -147,18 +144,21 @@ function RootNavigator() {
           }}
         />
         <Stack.Screen 
-          name="MyProfile"
-          component={MyProfileScreen}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Stack.Screen 
           name="SettingsModal"
           component={SettingsModalScreen}
           options={{
               headerShown: true,
               title: 'Settings'
+          }}
+        />
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen
+          name="SearchModal"
+          component={SearchModalScreen}
+          options={{
+            headerShown: true,
+            headerTitle: (props) => <SearchHeader {...props} />
           }}
         />
         <Stack.Screen 

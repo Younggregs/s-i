@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet,TouchableNativeFeedback } from 'react-native';
+import { StyleSheet,TouchableNativeFeedback, Linking } from 'react-native';
 import { useDispatch } from 'react-redux';
-import * as Linking from 'expo-linking';
 
 import { Text, View } from '../Themed';
 import * as interests from '../../store/actions/interests';

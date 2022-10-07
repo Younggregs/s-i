@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import logo from '../assets/images/logo.png'
@@ -10,9 +10,9 @@ export default function AboutScreen({ navigation }: RootStackScreenProps<'NotFou
       <Image source={logo} style={{ width: 50, height: 50 }} />
       <Text style={styles.title}>Share Interest</Text>
       <View style={styles.link}>
-        <Text style={styles.linkText}>copyright &copy; 2022 share interest</Text>
+        <Text style={styles.linkText}>copyright &copy; 2022 Share Interest</Text>
       </View>
-      <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
+      <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
         <Text style={styles.linkText}>shareinterest.app</Text>
       </TouchableOpacity>
     </View>

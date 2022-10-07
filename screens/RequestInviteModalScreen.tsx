@@ -6,10 +6,10 @@ import {
   ActivityIndicator,
   TextInput,
   TouchableOpacity,
+  Linking
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
-import * as Linking from "expo-linking";
 import { FontAwesome } from '@expo/vector-icons';
 
 import { StatusBar } from "expo-status-bar";
@@ -225,6 +225,7 @@ export default function RequestInviteModalScreen() {
       <View style={styles.contactView}>
         <FlatList
           data={searchList}
+          contentContainerStyle={{ paddingBottom: 150 }}
           renderItem={({ item }) => (
             <View
               style={styles.contact}
@@ -241,7 +242,6 @@ export default function RequestInviteModalScreen() {
                 >
                   <Text style={styles.buttonText}>Request Invite</Text>
                 </TouchableOpacity>
-            
             </View>
           )}
         />

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Platform, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
-import * as Linking from "expo-linking";
 
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';

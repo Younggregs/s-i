@@ -76,7 +76,7 @@ export default function InterestViews(interestItem) {
 const ContactItem = ({item}) => {
     const navigation = useNavigation();
     const friend = {  
-        id: item.friend.id, 
+        id: item.friend.friend.id, 
         name: item.friend.name, 
         phone: item.friend.friend.phone_id,
         notification: item.friend.notification

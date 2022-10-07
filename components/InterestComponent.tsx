@@ -63,18 +63,11 @@ export default function InterestComponent(props: any) {
       }
     }, [dispatch])
 
-    const interestingList = useCallback(async () => {
-      try {
-         await dispatch(interests.InterestingList(props.item.id));
-      } catch (err) {
-      }
-    }, [dispatch])
-
 
     const openWhatsApp = () => {
       let msg = 'Caption: ' + 
         props.item.caption + '\n\n' + 
-        props.item.link_text + '\n\nMy Comment:';
+        props.item.link_text + '\n\nMy comment:';
       let mobile = props.item.account.phone;
      
       let url =
@@ -92,7 +85,11 @@ export default function InterestComponent(props: any) {
     };
 
     const copyToClipboard = () => {
-      Clipboard.setString(props.item.link_text);
+      let msg = 'Caption: ' + 
+        props.item.caption + '\n\n' + 
+        props.item.link_text + '\n\n' + 
+        '\nCopied from https://shareinterest.page.link';
+      Clipboard.setString(msg);
       let toast = Toast.show('Copied to clipboard', {
         duration: Toast.durations.LONG,
       });
@@ -159,7 +156,7 @@ export default function InterestComponent(props: any) {
                 <TouchableOpacity 
                   onPress={() => 
                     onShare(
-                    `${props.item.link_text} \n\n${props.item.caption}`
+                    `${props.item.link_text} \n\n${props.item.caption} \n\nShared from https://shareinterest.page.link`
                     )
                   } 
                 >

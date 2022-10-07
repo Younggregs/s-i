@@ -2,10 +2,10 @@ import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Linking
 } from "react-native";
 import { useDispatch  } from "react-redux";
-import * as Linking from "expo-linking";
 import { Text, View } from "../components/Themed";
 import onShare from "../components/Share";
 
@@ -35,10 +35,12 @@ export default function ContactItem({ item }) {
   }, [dispatch, setIsLoading, setError])
 
   const invite = (invite, name) => {
+
     let redirectUrl = Linking.createURL("invite", {
       queryParams: { invite: invite },
     });
-    const message = `Hello ${name}, i am inviting you to join Share Interest, use this link \n${redirectUrl} \n\n https://shareinterest.app`;
+    const dynamicLink  = `https://shareinterest.page.link/invite?invite=${invite}`
+    const message = `Hello ${name}, i would like to invite you to join Share Interest, you can use this link \n${dynamicLink}`;
     onShare(message);
   };
 

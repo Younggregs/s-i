@@ -4,10 +4,10 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Linking
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
-import * as Linking from "expo-linking";
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
@@ -175,6 +175,14 @@ export default function InviteModalScreen() {
           <Text style={styles.buttonText}>Request Invite</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text>{'<< Go back to Login'}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
+          <Text style={styles.linkText}>shareinterest.app</Text>
+      </TouchableOpacity>
       {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
@@ -186,6 +194,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
+  },
+  linkText: {
+      fontSize: 14,
+      color: '#2e78b7',
   },
   textView: {
     marginHorizontal: 20,

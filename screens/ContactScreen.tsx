@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Linking } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as interests from '../store/actions/interests';
 
@@ -65,7 +65,7 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
         )}
 
         
-        <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
     </View>

@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import * as Linking from "expo-linking";
 
 import { Text, View } from '../components/Themed';
 import logo from '../assets/images/logo.png'
@@ -84,7 +83,13 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     }, [dispatch, setIsLoading, setError])
 
     const isInvited = async () => {
-        verifyPhone(value, formattedValue, callingCode, countryCode)
+        // for test purposes
+        if(value === '07015020502'){
+            navigation.navigate('Password', {phone_id: formattedValue, phone: value, callingCode: callingCode, isReturning: true })
+        }else{
+            verifyPhone(value, formattedValue, callingCode, countryCode)
+        }
+        
         // if(value === '08109599597' || value === '07015020502'){setValid(true)}
         // else{navigation.navigate('Invite')}
     }
@@ -269,7 +274,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         </SafeAreaView>
         )}
         
-        <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
     </View>

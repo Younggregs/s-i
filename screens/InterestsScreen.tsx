@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { StyleSheet, RefreshControl, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, RefreshControl, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
@@ -112,7 +112,7 @@ const onViewableItemsChanged = useCallback(
       <View>
         <FlatList
           onViewableItemsChanged={onViewableItemsChanged}
-          contentContainerStyle={{ paddingBottom: 150 }}
+          contentContainerStyle={{ paddingBottom: 250 }}
           viewabilityConfig={{
             itemVisiblePercentThreshold: 100,
             minimumViewTime: 2000,
@@ -129,8 +129,11 @@ const onViewableItemsChanged = useCallback(
           )}
         />
         <View style={styles.footerContainer}>
-          <Text style={styles.linkText}>shareinterest.app</Text>
+          <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
+              <Text style={styles.linkText}>shareinterest.app</Text>
+          </TouchableOpacity>
         </View>
+        
       </View>
       )}
       </View>

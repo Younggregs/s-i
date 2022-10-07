@@ -131,7 +131,6 @@ export const interestingList = (id) => {
 
         if(!resData.error_message && resData.length > 0){
             resData.map(item => {
-                console.log('requests sent', item)
                 dispatch({
                     type: UPDATE_INTERESTING_LIST,
                     interesting: item
