@@ -88,7 +88,7 @@ export default function InterestComponent(props: any) {
       let msg = 'Caption: ' + 
         props.item.caption + '\n\n' + 
         props.item.link_text + '\n\n' + 
-        '\nCopied from https://shareinterest.page.link';
+        '\nCopied from https://shareinterest.page.link/invite';
       Clipboard.setString(msg);
       let toast = Toast.show('Copied to clipboard', {
         duration: Toast.durations.LONG,
@@ -156,7 +156,7 @@ export default function InterestComponent(props: any) {
                 <TouchableOpacity 
                   onPress={() => 
                     onShare(
-                    `${props.item.link_text} \n\n${props.item.caption} \n\nShared from https://shareinterest.page.link`
+                    `${props.item.link_text} \n\n${props.item.caption} \n\nShared from https://shareinterest.page.link/invite`
                     )
                   } 
                 >

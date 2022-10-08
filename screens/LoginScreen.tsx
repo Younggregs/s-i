@@ -71,7 +71,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
                 setValid(true)
                 const res = await dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
                 if(res.code){
-                    setIsReturning(parseInt(res.code) == 1 && true )
+                    setIsReturning(parseInt(res.code) == 1 ? true : false )
                 }
             }else{
                 navigation.navigate('Invite')

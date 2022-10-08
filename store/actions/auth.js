@@ -38,7 +38,7 @@ export const verify_invite_token = (token) => {
     };
 };
 
-export const verify_invite_phone = (phone_id, phone, callingCode) => {
+export const verify_invite_phone = (phone, phone_id, callingCode) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("phone_id", phone_id);
