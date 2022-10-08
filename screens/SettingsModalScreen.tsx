@@ -14,9 +14,9 @@ import * as auth from '../store/actions/auth';
 
 export default function SettingsModalScreen() {
   const colorScheme = useColorScheme();
-  const terms = 'https://shareinterest.app/terms-conditions'
-  const privacy = 'https://shareinterest.app/privacy'
-  const faq = 'https://shareinterest.app/faq'
+  const terms = 'https://shareinterest.app/terms.html'
+  const privacy = 'https://shareinterest.app/privacy.html'
+  const faq = 'https://shareinterest.app/faq.html'
   
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -92,7 +92,7 @@ export default function SettingsModalScreen() {
             color={Colors[colorScheme].text}
           />
         </View>
-        <Text style={styles.title}>Terms and Conditions</Text>
+        <Text style={styles.title}>Terms of Service</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(privacy)}>  
@@ -103,7 +103,7 @@ export default function SettingsModalScreen() {
             color={Colors[colorScheme].text}
           />
         </View>
-        <Text style={styles.title}>Privacy Policy</Text>
+        <Text style={styles.title}>Privacy</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(faq)}>  

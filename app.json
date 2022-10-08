@@ -2,7 +2,7 @@
   "expo": {
     "name": "Share Interest",
     "slug": "share-interest",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "shareinterest.app",
@@ -19,13 +19,13 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "2",
+      "buildNumber": "3",
       "userInterfaceStyle": "dark",
       "supportsTablet": true,
       "bundleIdentifier": "com.shareinterest.app"
     },
     "android": {
-      "versionCode": 13,
+      "versionCode": 14,
       "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
