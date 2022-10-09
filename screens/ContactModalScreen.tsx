@@ -14,13 +14,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
-import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import InviteModalScreen from "./InviteScreen";
 import ContactItem from "../components/ContactItem";
 
 const testActiveContacts = [
@@ -147,19 +145,18 @@ export default function ContactModalScreen() {
   // get all active contacts
   const activeList = contactList.filter((item) => {
     let isActive = false
-    let isNotMyFriend = false
     contact.find((friend) => {
- 
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
-        if(phone.replace(/\s/g, '') === friend.phone_id){
+        const phoneRegex = phone.replace(/\s/g, '')
+        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone){
           isActive = true
+          Object.assign(item, { active: true, phone_id: friend.phone_id});
         }
       }
     })
     
     if(isActive){
-      Object.assign(item, { active: true });
       return item
     }
   })
@@ -173,11 +170,12 @@ export default function ContactModalScreen() {
     }
   })
 
-  // Subtract my friend from active contacts
+  // Subtract my friends from active contacts
   const tagList = activeList.filter((item) => {
     if(item.phoneNumbers){
       const phone = item.phoneNumbers[0].number
-      const isFriend = friendList.find((myFriend) => myFriend.phone === phone.replace(/\s/g, ''));
+      const phoneRegex = phone.replace(/\s/g, '')
+      const isFriend = friendList.find((myFriend) => myFriend.phone === phoneRegex || myFriend.phone === item.phone_id);
       if(isFriend === undefined){
         Object.assign(item, { active: true });
         return item

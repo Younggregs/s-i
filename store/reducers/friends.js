@@ -16,9 +16,10 @@ export default (state=initialState, action) => {
             }
         
         case TAG_FRIEND:
+            const friendExist = tempFriends.find(item => item.phone === action.friend.friend.phone_id)
             return {
                 ...state,
-                allFriends: [action.friend, ...state.allFriends]
+                allFriends: !friendExist ? [action.friend, ...state.allFriends] : tempFriends
             }
 
         case UNTAG_FRIEND:

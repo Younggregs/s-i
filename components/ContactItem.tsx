@@ -36,9 +36,9 @@ export default function ContactItem({ item }) {
 
   const invite = (invite, name) => {
 
-    let redirectUrl = Linking.createURL("invite", {
-      queryParams: { invite: invite },
-    });
+    // let redirectUrl = Linking.createURL("invite", {
+    //   queryParams: { invite: invite },
+    // });
     const dynamicLink  = `https://shareinterest.page.link/invite?invite=${invite}`
     const message = `Hello ${name}, i would like to invite you to join Share Interest, you can use this link \n${dynamicLink}`;
     onShare(message);
@@ -49,7 +49,7 @@ export default function ContactItem({ item }) {
       setError("");
       setIsLoading(true)
       try {
-        const phone_id = item.phoneNumbers[0].number
+        const phone_id = item.phone_id
         const obj = {
           'phone_id': phone_id.replace(/\s/g, ''),
           'name': item.name
