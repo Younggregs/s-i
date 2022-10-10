@@ -173,6 +173,7 @@ export default function AddInterest({ path }: { path: string }) {
               onChangeText={(value) => onChangeLink(value)}
               onEndEditing={() => determineLinkCategory()}
               placeholder="Link"
+              returnKeyType='done'
               value={link}
           />
           <TextInput
@@ -180,6 +181,7 @@ export default function AddInterest({ path }: { path: string }) {
               placeholderTextColor='white'
               onChangeText={(value) => onChangeCaption(value)}
               placeholder="Caption"
+              returnKeyType='done'
               value={caption}
           />
 

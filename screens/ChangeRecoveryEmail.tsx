@@ -107,7 +107,7 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
             <TextInput
                 style={styles.input}
                 placeholderTextColor='white'
-                multiline
+                returnKeyType='done'
                 onChangeText={(value) => setEmail(value)}
                 placeholder="Email"
                 value={email}

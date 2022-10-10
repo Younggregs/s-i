@@ -57,6 +57,7 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
             <TextInput 
                 secureTextEntry={!showPassword}
                 style={{color: '#fff', flex: 8}}
+                returnKeyType='done'
                 onChangeText={(value) => setPassword(value)}
             />
             <View style={styles.iconView}>
@@ -76,6 +77,7 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
             <TextInput 
                 secureTextEntry={!showNewPassword}
                 style={{color: '#fff', flex: 8}}
+                returnKeyType='done'
                 onChangeText={(value) => setNewPassword(value)}
             />
             <View style={styles.iconView}>

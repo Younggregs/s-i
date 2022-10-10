@@ -134,19 +134,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     <View style={styles.container}>
         <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
-        {/* <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.input}
-                placeholder="Phone number"
-                placeholderTextColor={'#fff'}
-                autoFocus={true}
-                returnKeyType="next"
-                clearButtonMode="always"
-                enablesReturnKeyAutomatically={true}
-                onChangeText={newText => setText(newText)}
-                defaultValue={text}
-            />
-        </View> */}
         {valid ? (
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>

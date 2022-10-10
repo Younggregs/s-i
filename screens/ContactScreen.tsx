@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Linking } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Linking, KeyboardAvoidingView } from 'react-native';
+import { useDispatch } from 'react-redux';
 import * as interests from '../store/actions/interests';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [message, setMessage] = useState('')
@@ -13,7 +14,6 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
     const dispatch = useDispatch()
 
     const [isLoading, setIsLoading] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
     const submit = useCallback(
@@ -40,12 +40,15 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
 
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    style={styles.container}>
         <Text style={styles.title}>Send us a message</Text>
             <TextInput
                 style={styles.input}
                 placeholderTextColor='white'
                 multiline
+                textAlignVertical='top'
                 onChangeText={(value) => setMessage(value)}
                 placeholder="Message"
                 value={message}
@@ -68,7 +71,7 @@ export default function ContactScreen({ navigation }: RootStackScreenProps<'NotF
         <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

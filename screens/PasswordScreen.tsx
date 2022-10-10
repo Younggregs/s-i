@@ -74,6 +74,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             <TextInput 
                 secureTextEntry={!showPassword}
                 style={{color: '#fff', flex: 8}}
+                returnKeyType='done'
                 onChangeText={(value) => setPassword(value)}
             />
             <View style={styles.iconView}>

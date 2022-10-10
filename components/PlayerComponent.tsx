@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import React from 'react';
 import TwitterPlayer from './players/TwitterPlayer';
 import OthersPlayer from './players/OthersPlayer';
 import TextPlayer from './players/TextPlayer';
-
 import { View } from '../components/Themed';
 
 export default function PlayerComponent({item}) {
@@ -53,30 +51,3 @@ export default function PlayerComponent({item}) {
         </View>
   );
 }
-
-const styles = StyleSheet.create({
-    container: { 
-        flexDirection: 'row',
-        backgroundColor: 'transparent'
-    },
-    search: {
-        width: '100%',
-        borderRadius: 10,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        backgroundColor: 'transparent'
-    },
-    searchText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    textInputContainer: {
-        flex: 1,
-        color: '#fff'
-    },
-    icon: {
-        width: 30,
-        height: 30,
-        backgroundColor: '#fff'
-    }
-});
