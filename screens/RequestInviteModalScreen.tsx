@@ -134,7 +134,8 @@ export default function RequestInviteModalScreen() {
     contact.find((friend) => {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
-        if(phone.replace(/\s/g, '') === friend.phone_id){
+        const phoneRegex = phone.replace(/\s/g, '')
+        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone){
           isActive = true
         }
       }
