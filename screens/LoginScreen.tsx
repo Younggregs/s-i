@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Linking } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Linking, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -82,7 +83,13 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
 
-    const isInvited = async () => {
+    const resendOTP = useCallback(async (phone, phone_id, callingCode, countryCode) => {
+        setIsRefreshing(true)
+            const res = await dispatch(auth.verify_phone(phone, phone_id, callingCode, countryCode));
+        setIsRefreshing(false)
+    }, [dispatch, setIsRefreshing])
+
+    const isInvited = async (countryCode, callingCode) => {
         // for test purposes
         if(value === '07015020502'){
             navigation.navigate('Password', {phone_id: formattedValue, phone: value, callingCode: callingCode, isReturning: true })
@@ -102,6 +109,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         }else{
          setInvalid(true)
         }
+
         // if(code === '01234'){
         //     navigation.navigate('Password', {phone_id: formattedValue, isReturning: isReturning})
         //  }
@@ -131,7 +139,10 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     }
 
     return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+    >
         <Image source={logo} style={{ width: 50, height: 50 }} />
         <Text style={styles.title}>Share Interest</Text>
         {valid ? (
@@ -170,6 +181,21 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
                     <View style={styles.message}>
                         <Text style={styles.errorText}>Incorrect code</Text>
                     </View>
+                )}
+
+                {isRefreshing ? (
+                <View>
+                    <ActivityIndicator color="#fff" />
+                </View>
+                ) : (
+                <TouchableOpacity onPress={() => resendOTP(value, formattedValue, callingCode, countryCode)} style={styles.otpStyle}>
+                    <Text style={styles.otpText}>Resend OTP</Text>
+                    <FontAwesome
+                        name="rotate-right"
+                        size={15}
+                        color={'#fff'}
+                    />
+                </TouchableOpacity>
                 )}
 
                 {isLoading ? (
@@ -241,7 +267,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
                 const checkCountryCode = phoneInput.current?.getCountryCode();
                 const checkCountryPrefix = phoneInput.current?.getCallingCode();
                 setShowMessage(true);
-                checkValid ? isInvited() : setValid(false)
+                checkValid ? isInvited(checkCountryCode, checkCountryPrefix) : setValid(false)
                 setCountryCode(checkCountryCode !== undefined ? checkCountryCode : '');
                 setCallingCode(checkCountryPrefix !== undefined ? checkCountryPrefix : '');
             }}
@@ -253,6 +279,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
             <View style={styles.message}>
                 <Text style={styles.errorText}>Invalid phone number</Text>
                 <Text>CountryCode: {countryCode}</Text>
+                <Text>CallingCode: {callingCode}</Text>
                 <Text>Value : {value}</Text>
                 <Text>Formatted Value : {formattedValue}</Text>
                 <Text>Valid : {valid ? "true" : "false"}</Text>
@@ -264,7 +291,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
         <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -274,6 +301,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
+    },
+    otpStyle: {
+        flexDirection: 'row',
+        marginTop: 20,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    otpText: {
+        margin: 5,
+        fontSize: 15
     },
     title: {
         fontSize: 25,

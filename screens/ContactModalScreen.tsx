@@ -84,9 +84,9 @@ export default function ContactModalScreen() {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         const phoneRegex = phone.replace(/\s/g, '')
-        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone){
+        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone1_id || phoneRegex === friend.phone || phoneRegex === friend.phone1){
           isActive = true
-          Object.assign(item, { active: true, phone_id: friend.phone_id});
+          Object.assign(item, { active: true, phone_id: friend.phone_id, phone1_id: friend.phone1_id, phone: friend.phone, phone1: friend.phone1});
         }
       }
     })
@@ -110,7 +110,7 @@ export default function ContactModalScreen() {
     if(item.phoneNumbers){
       const phone = item.phoneNumbers[0].number
       const phoneRegex = phone.replace(/\s/g, '')
-      const isFriend = friendList.find((myFriend) => myFriend.phone === phoneRegex || myFriend.phone === item.phone_id);
+      const isFriend = friendList.find((myFriend) => myFriend.phone === phoneRegex || myFriend.phone === item.phone_id || myFriend.phone === item.phone1_id || myFriend.phone === item.phone || myFriend.phone === item.phone1);
       if(isFriend === undefined){
         Object.assign(item, { active: true });
         return item

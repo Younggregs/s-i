@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Linking, KeyboardAvoidingView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -44,7 +44,10 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
     }, [dispatch, setIsLoading, setError])
     
     return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+    >
         <Text style={styles.title}>Enter your current password and new password to update</Text>
         {/* <View style={styles.labelView}>
             <Text style={styles.label}>Enter password</Text>
@@ -118,7 +121,7 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
         <TouchableOpacity onPress={() => Linking.openURL('https://shareinterest.app')} style={styles.link}>
             <Text style={styles.linkText}>shareinterest.app</Text>
         </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

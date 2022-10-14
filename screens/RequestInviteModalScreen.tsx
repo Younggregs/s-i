@@ -5,9 +5,9 @@ import {
   FlatList,
   ActivityIndicator,
   TextInput,
-  TouchableOpacity,
-  Linking
+  TouchableOpacity
 } from "react-native";
+import * as Linking from 'expo-linking';
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';

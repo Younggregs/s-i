@@ -65,9 +65,8 @@ export default function InterestComponent(props: any) {
 
 
     const openWhatsApp = () => {
-      let msg = 'Caption: ' + 
-        props.item.caption + '\n\n' + 
-        props.item.link_text + '\n\nMy comment:';
+      let msg = props.item.caption + '\n\n' + 
+        props.item.link_text + '\n\nReply: ';
       let mobile = props.item.account.phone;
      
       let url =
@@ -85,8 +84,7 @@ export default function InterestComponent(props: any) {
     };
 
     const copyToClipboard = () => {
-      let msg = 'Caption: ' + 
-        props.item.caption + '\n\n' + 
+      let msg = props.item.caption + '\n\n' + 
         props.item.link_text + '\n\n' + 
         '\nCopied from https://shareinterest.page.link/invite';
       Clipboard.setString(msg);
@@ -277,6 +275,8 @@ const styles = StyleSheet.create({
     },
     timer: {
       color: '#fff',
+      fontWeight: 'bold',
+      fontStyle: 'italic',
       fontSize: 15,
       flex: 3
     },

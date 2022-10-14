@@ -73,7 +73,7 @@ export const verify_phone = (phone, phone_id, callingCode, countryCode) => {
             body: formData
         });
         const resData = await response.json();
-
+        
         if(resData.error){
             throw new Error(resData.error);
         }
