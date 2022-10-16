@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet,TouchableNativeFeedback, Linking } from 'react-native';
 import { useDispatch } from 'react-redux';
+import Modal from "react-native-modal";
+import { WebView } from 'react-native-webview';
 
 import { Text, View } from '../Themed';
 import * as interests from '../../store/actions/interests';
 
 export default function TwitterPlayer({id, link_text, preview}) {
-
-    const [tweet, setTweet] = useState({})
+    const [modalVisible, setModalVisible] = useState(false);
+    const [tweet, setTweet] = useState()
     const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch();
@@ -17,10 +19,10 @@ export default function TwitterPlayer({id, link_text, preview}) {
         try {
             if(preview){
                 const res = await dispatch(interests.fetchTweetPreview(link_text));
-                setTweet(res)
+                setTweet(res[0].text)
             }else{
                 const res = await dispatch(interests.fetchTweet(id));
-                setTweet(res)
+                setTweet(res.tweet)
             }
             
         } catch (err) {}
@@ -33,21 +35,35 @@ export default function TwitterPlayer({id, link_text, preview}) {
             setIsLoading(false);
         });
     },[dispatch, fetchTweet])
+
+    // onPress={() => Linking.openURL(link_text)}
     
     return (
         <View style={styles.itemView}>
+            <Modal
+                propagateSwipe={true}
+                swipeDirection="down"
+                onSwipeComplete={() => { setModalVisible(false) }}
+                isVisible={modalVisible}
+            >
+                <WebView
+                    style={styles.container}
+                    source={{ uri: link_text }}
+                    />
+            </Modal>
             {isLoading ? (
                 <View>
                   <Text style={styles.loadingText}>Loading...</Text>
                 </View>
             ): (
-                <TouchableNativeFeedback onPress={() => Linking.openURL(link_text)}>
-                    <Text>{tweet.tweet}</Text>
+                <TouchableNativeFeedback onPress={() => setModalVisible(true)}>
+                    <Text>{tweet}</Text>
                 </TouchableNativeFeedback>
             )}
         </View>
   );
 }
+
 
 const styles = StyleSheet.create({
     itemView: {
@@ -62,4 +78,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         margin:5
     },
+    container: {
+        flex: 1,
+        marginTop: 200,
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderStyle: "solid",
+        borderWidth: 0.5,
+        borderRadius: 15
+      },
 });

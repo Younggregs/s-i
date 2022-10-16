@@ -5,7 +5,7 @@ import { Text, View } from '../Themed';
 import Modal from "react-native-modal";
 import { WebView } from 'react-native-webview';
 
-export default function InstagramPlayer({link_text}) {
+export default function SnapchatPlayer({link_text}) {
     const [loaded, setLoaded] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     

@@ -36,7 +36,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     const [showMessage, setShowMessage] = useState(false);
     const [isReturning, setIsReturning] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
-    let verifycode = useRef(null);
 
     const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -91,7 +90,7 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
 
     const isInvited = async (countryCode, callingCode) => {
         // for test purposes
-        if(value === '07015020502'){
+        if(value === '07015020502' || value === '08094862708'){
             navigation.navigate('Password', {phone_id: formattedValue, phone: value, callingCode: callingCode, isReturning: true })
         }else{
             verifyPhone(value, formattedValue, callingCode, countryCode)

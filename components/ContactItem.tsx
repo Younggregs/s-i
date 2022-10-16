@@ -40,7 +40,7 @@ export default function ContactItem({ item }) {
     //   queryParams: { invite: invite },
     // });
     const dynamicLink  = `https://shareinterest.page.link/invite?invite=${invite}`
-    const message = `Hello ${name}, i would like to invite you to join Share Interest, you can use this link \n${dynamicLink}`;
+    const message = `Hello ${name}, I would like to invite you to join Share Interest! Share Interest is a simple and secure app we can use to share and discover music, videos and any other interesting content with each other on the internet by just sharing the link. Get it now at; \n${dynamicLink}`;
     onShare(message);
   };
 

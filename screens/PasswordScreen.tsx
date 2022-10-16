@@ -103,7 +103,7 @@ export default function PasswordScreen({ route, navigation }: RootStackScreenPro
             </View>
         )}
 
-        <TouchableOpacity onPress={() => navigation.replace('ForgotPassword', {phone_id: phone_id})} style={styles.link}>
+        <TouchableOpacity onPress={() => navigation.replace('ForgotPassword', {phone_id: phone_id, phone: phone, callingCode: callingCode})} style={styles.link}>
             <Text style={styles.linkText}>Forgot password</Text>
         </TouchableOpacity>
 

@@ -73,7 +73,7 @@ export const verify_phone = (phone, phone_id, callingCode, countryCode) => {
             body: formData
         });
         const resData = await response.json();
-        
+
         if(resData.error){
             throw new Error(resData.error);
         }
@@ -132,7 +132,7 @@ export const verify_email = (phone_id, phone, callingCode, email_id) => {
         formData.append("phone", phone);
         formData.append("callingCode", callingCode);
         formData.append("email_id", email_id);
-
+        
         const response = await fetch(`${SERVER_URL}/verify_email/`, {
             method: 'POST',
             body: formData
@@ -166,10 +166,12 @@ export const verify_email_token = (token) => {
     };
 };
 
-export const verify_email_forgot_password = (phone_id) => {
+export const verify_email_forgot_password = (phone_id, phone, callingCode) => {
     return async dispatch => {
         const formData = new FormData();
         formData.append("phone_id", phone_id);
+        formData.append("phone", phone);
+        formData.append("callingCode", callingCode);
 
         const response = await fetch(`${SERVER_URL}/verify_email_forgot_password/`, {
             method: 'POST',

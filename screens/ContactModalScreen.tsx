@@ -36,12 +36,18 @@ export default function ContactModalScreen() {
 
   const processContacts = async (data) => {
     const contact_list = []
-    
+
     data.forEach(contact => {
       if(contact.phoneNumbers){
         let phone_id = contact.phoneNumbers[0].number;
         phone_id = phone_id.replace(/\s/g, '');
+        if( phone_id.charAt(0) === '0'){
+          contact_list.push(phone_id.slice(1))
+        }else{
+          contact_list.push('0' + phone_id)
+        }
         contact_list.push(phone_id)
+        
       }
     });
 

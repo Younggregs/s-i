@@ -21,7 +21,7 @@ import {
 const CELL_COUNT = 5;
 
 export default function ForgotPasswordScreen({ route, navigation }: RootStackScreenProps<'NotFound'>) {
-    const { phone_id } = route.params;
+    const { phone_id, phone, callingCode } = route.params;
     
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
@@ -30,12 +30,8 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
     const [showPassword, setShowPassword] = useState(false)
 
     const [value, setValue] = useState("");
-    const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(true);
     const [invalidCode, setInvalid] = useState(false);
-    const [showMessage, setShowMessage] = useState(false);
-    const phoneInput = useRef<PhoneInput>(null);
-    let verifycode = useRef(null);
 
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
@@ -96,8 +92,7 @@ export default function ForgotPasswordScreen({ route, navigation }: RootStackScr
         setError('');
         setIsLoading(true);
         try {
-            const res = await dispatch(auth.verify_email_forgot_password(phone_id));
-
+            const res = await dispatch(auth.verify_email_forgot_password(phone_id, phone, callingCode));
             if(res.error_message){
 
             }else{
