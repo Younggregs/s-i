@@ -54,7 +54,7 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
         setError('');
         setShowMessage(false)
         setIsLoading(true);
-        if(validateEmail(email)){
+        if(validateEmail(email.replace(/\s/g, ''))){
             try {
                 const message = await dispatch(auth.verify_email(phone_id, phone, callingCode, email));
                 if(message.code){
@@ -75,14 +75,16 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
     }, [dispatch, setIsLoading, setError])
 
     const verifyEmailToken = useCallback(async (token) => {
-        setInvalid(false)
+        setError('');
+        setShowMessage(false)
         setIsLoading(true);
         try {
             const message = await dispatch(auth.verify_email_token(token));
             if(message.code){
                 navigation.navigate('LoginContacts')
             }else{
-                setInvalid(true)
+                setShowMessage(true)
+                setError(message.error_message)
             }
         } catch (err) {
             setError(err.message);
@@ -143,9 +145,10 @@ export default function RecoveryEmailScreen({ route, navigation }: RootStackScre
                     </Text>
                     )}
                 />
-                {invalidCode && (
+                
+                {showMessage && (
                     <View style={styles.message}>
-                        <Text style={styles.errorText}>Incorrect code</Text>
+                        <Text style={styles.errorText}>{error}</Text>
                     </View>
                 )}
 

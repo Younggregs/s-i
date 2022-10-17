@@ -11,6 +11,7 @@ import * as Linking from 'expo-linking';
 import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
+import parsePhoneNumber from 'libphonenumber-js'
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
@@ -21,70 +22,6 @@ import { useNavigation } from '@react-navigation/native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-
-const testActiveContacts = [
-  {
-    contactType: "person",
-    firstName: "0802",
-    id: "23350",
-    imageAvailable: false,
-    lastName: "5431",
-    lookupKey: "3789r23006-132313172113191D1B1915",
-    middleName: "703",
-    name: "0802 703 5431",
-  },
-  {
-    contactType: "person",
-    firstName: "7",
-    id: "21900",
-    imageAvailable: false,
-    lastName: "Emmy",
-    lookupKey: "1724i126931420c65fbd1.3789r21657-213242425A",
-    name: "7 Emmy",
-  },
-  {
-    contactType: "person",
-    firstName: "AO",
-    id: "21806",
-    imageAvailable: false,
-    lookupKey: "1724i60424f7a0e70f9f7",
-    name: "AO",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdul",
-    id: "22315",
-    imageAvailable: false,
-    lastName: "BoardMan",
-    lookupKey: "1724i43be121e8b832a69",
-    name: "Abdul BoardMan",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdul",
-    id: "2712",
-    imageAvailable: false,
-    lastName: "Ptwn",
-    lookupKey: "1724i7ec282d98a3e602f",
-    name: "Abdul Ptwn",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdulrasaq",
-    id: "2718",
-    imageAvailable: false,
-    lookupKey: "1724i55ef0d650b520827",
-    name: "Abdulrasaq",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdulsalam",
-    id: "23181",
-    imageAvailable: false,
-    lookupKey: "3789r21671-2A2C3052404E2A402A42.1724i36227f9109c197f7",
-    name: "Abdulsalam",
-  },
-];
 
 export default function RequestInviteModalScreen() {
   const [contact, setContact] = useState([]);
@@ -100,12 +37,33 @@ export default function RequestInviteModalScreen() {
 
   const processContacts = async (data) => {
     const contact_list = []
-    
+
+    // We'll need to generate atleast two different phone number format for each phone returned
+    // eg 8109599597 and 08109599597 or if it starts with + 
+    // eg +2348109599597 and +2348109599597.
     data.forEach(contact => {
       if(contact.phoneNumbers){
         let phone_id = contact.phoneNumbers[0].number;
         phone_id = phone_id.replace(/\s/g, '');
-        contact_list.push(phone_id)
+
+        if(phone_id.charAt(0) === '0'){
+          contact_list.push(phone_id.slice(1))
+          contact_list.push(phone_id)
+        }else if(phone_id.charAt(0) === '+') {
+          // This small process here is crazy lol
+          const phoneNumber = parsePhoneNumber(phone_id)
+          const callingCode = phoneNumber ? phoneNumber.countryCallingCode : '+234'
+          let phone = phoneNumber ? phoneNumber.formatNational() : '';
+          phone = phone.replace(/\s/g, '');
+          const phone1_id = '+' + callingCode + phone
+          const phone2_id = '+' + callingCode + phone.slice(1)
+
+          contact_list.push(phone1_id)
+          contact_list.push(phone2_id)
+        }else{
+          contact_list.push('0' + phone_id)
+          contact_list.push(phone_id)
+        }
       }
     });
 
@@ -135,8 +93,9 @@ export default function RequestInviteModalScreen() {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         const phoneRegex = phone.replace(/\s/g, '')
-        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone){
+        if( phoneRegex === friend.phone_id || phoneRegex === friend.phone1_id || phoneRegex === friend.phone || phoneRegex === friend.phone1){
           isActive = true
+          Object.assign(item, { active: true, phone_id: friend.phone_id, phone1_id: friend.phone1_id, phone: friend.phone, phone1: friend.phone1});
         }
       }
     })
@@ -151,8 +110,22 @@ export default function RequestInviteModalScreen() {
     let redirectUrl = Linking.createURL("invite", {
       queryParams: { invite: "dlrow" },
     });
-    const message = `Hello ${item.name}, can you send me an invite to join Share Interest please? \n\n https://shareinterest.app`;
-    onShare(message);
+    const message = `Hello ${item.name}, can you send me an invite to join Share Interest please? \n\n https://shareinterest.page.link/invite`;
+    // onShare(message);
+
+    let url =
+        "whatsapp://send?text=" +
+        message +
+        "&phone=" +
+        item.phone_id;
+      Linking.openURL(url)
+        .then(data => {
+          // console.log("WhatsApp Opened successfully " + data);
+        })
+        .catch(() => {
+          alert("Make sure WhatsApp is installed on your device");
+        });  
+
   };
 
   const loadContact = useCallback(

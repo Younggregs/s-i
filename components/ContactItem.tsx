@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { useDispatch  } from "react-redux";
 import { Text, View } from "../components/Themed";
+import parsePhoneNumber from 'libphonenumber-js'
 import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
@@ -22,11 +23,15 @@ export default function ContactItem({ item }) {
   const create_invite = useCallback(async (item) => {
     setError('');
     setIsLoading(true)
-    const phone_id = item.phoneNumbers[0].number
+    let phone_id = item.phoneNumbers[0].number
+    let countryCode = item.phoneNumbers[0].countryCode
+    countryCode = countryCode ? countryCode.toUpperCase() : 'NG'
+    phone_id = phone_id.replace(/\s/g, '')
+    
     try {
-        const message = await dispatch(friends.create_invite(phone_id.replace(/\s/g, ''), item.name));
+        const message = await dispatch(friends.create_invite(phone_id, item.name));
         if (message.token){
-          invite(message.token, item.name)
+          invite(message.token, item.name, phone_id, countryCode)
         }
     } catch (err) {
         setError(err.message);
@@ -34,14 +39,31 @@ export default function ContactItem({ item }) {
     setIsLoading(false)
   }, [dispatch, setIsLoading, setError])
 
-  const invite = (invite, name) => {
+  const invite = (invite, name, phone_id, countryCode) => {
 
     // let redirectUrl = Linking.createURL("invite", {
     //   queryParams: { invite: invite },
     // });
+    const phoneNumber = parsePhoneNumber(phone_id, countryCode)
+    let phone = phoneNumber.formatInternational()
+    phone = phone.replace(/\s/g, '')
+
     const dynamicLink  = `https://shareinterest.page.link/invite?invite=${invite}`
     const message = `Hello ${name}, I would like to invite you to join Share Interest! Share Interest is a simple and secure app we can use to share and discover music, videos and any other interesting content with each other on the internet by just sharing the link. Get it now at; \n${dynamicLink}`;
-    onShare(message);
+    // onShare(message);
+
+    let url =
+        "whatsapp://send?text=" +
+        message +
+        "&phone=" +
+        phone;
+      Linking.openURL(url)
+        .then(data => {
+          // console.log("WhatsApp Opened successfully " + data);
+        })
+        .catch(() => {
+          alert("Make sure WhatsApp is installed on your device");
+        });  
   };
 
   const add = useCallback(

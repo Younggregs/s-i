@@ -3,101 +3,20 @@ import {
   Platform,
   StyleSheet,
   Image,
-  TouchableOpacity,
-  Linking
+  TouchableOpacity
 } from "react-native";
 import * as Contacts from "expo-contacts";
+import * as Linking from 'expo-linking';
 import { useDispatch, useSelector } from "react-redux";
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
 import logo from '../assets/images/logo.png'
-import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
 import { useNavigation } from '@react-navigation/native';
 
-const testActiveContacts = [
-  {
-    contactType: "person",
-    firstName: "0802",
-    id: "23350",
-    imageAvailable: false,
-    lastName: "5431",
-    lookupKey: "3789r23006-132313172113191D1B1915",
-    middleName: "703",
-    name: "0802 703 5431",
-  },
-  {
-    contactType: "person",
-    firstName: "7",
-    id: "21900",
-    imageAvailable: false,
-    lastName: "Emmy",
-    lookupKey: "1724i126931420c65fbd1.3789r21657-213242425A",
-    name: "7 Emmy",
-  },
-  {
-    contactType: "person",
-    firstName: "AO",
-    id: "21806",
-    imageAvailable: false,
-    lookupKey: "1724i60424f7a0e70f9f7",
-    name: "AO",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdul",
-    id: "22315",
-    imageAvailable: false,
-    lastName: "BoardMan",
-    lookupKey: "1724i43be121e8b832a69",
-    name: "Abdul BoardMan",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdul",
-    id: "2712",
-    imageAvailable: false,
-    lastName: "Ptwn",
-    lookupKey: "1724i7ec282d98a3e602f",
-    name: "Abdul Ptwn",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdulrasaq",
-    id: "2718",
-    imageAvailable: false,
-    lookupKey: "1724i55ef0d650b520827",
-    name: "Abdulrasaq",
-  },
-  {
-    contactType: "person",
-    firstName: "Abdulsalam",
-    id: "23181",
-    imageAvailable: false,
-    lookupKey: "3789r21671-2A2C3052404E2A402A42.1724i36227f9109c197f7",
-    name: "Abdulsalam",
-  },
-];
-
 export default function InviteModalScreen() {
-  const [contact, setContact] = useState();
-  const [validInvite, setInvite] = useState(false);
-  const friendList = useSelector((state) => state.friend.allFriends);
-  const contactList = useSelector((state) => state.friend.allContacts);
-  const tempList = contactList.filter((item) => {
-    const isFriend = friendList.find((friend) => friend.id === item.id);
-    if (isFriend === undefined) {
-      const activeContact = testActiveContacts.find(
-        (contact) => contact.id === item.id
-      );
-      if (activeContact !== undefined) {
-        Object.assign(item, { active: true });
-      }
-      return item;
-    }
-  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -37,6 +37,7 @@
     "expo-updates": "~0.13.4",
     "expo-web-browser": "~10.2.1",
     "install": "^0.13.0",
+    "libphonenumber-js": "^1.10.14",
     "linkify-html": "^3.0.5",
     "linkifyjs": "^3.0.5",
     "moment": "^2.29.4",

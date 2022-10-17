@@ -1,9 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Alert, Linking} from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
+import * as auth from '../store/actions/auth';
+import logo from '../assets/images/logo.png'
 
 import PhoneInput from "react-native-phone-number-input";
 import SMSVerifyCode from 'react-native-sms-verifycode';
@@ -16,7 +19,7 @@ import {
 
 const CELL_COUNT = 5;
 
-export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
+export default function ChangeRecoveryEmail({ route, navigation }: RootStackScreenProps<'NotFound'>) {
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
@@ -26,6 +29,7 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
     const [valid, setValid] = useState(false);
     const [invalidCode, setInvalid] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
+    const [success, setSuccess] = useState(false);
     const phoneInput = useRef<PhoneInput>(null);
     let verifycode = useRef(null);
 
@@ -34,6 +38,60 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
         value,
         setValue,
     });
+
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [error, setError] = useState('');
+
+    const validateEmail = (email: String) => {
+        return email.match(
+          /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+    };
+
+    const verifyEmail = useCallback(async (email) => {
+        setError('');
+        setShowMessage(false)
+        setIsLoading(true);
+        if(validateEmail(email.replace(/\s/g, ''))){
+            try {
+                const message = await dispatch(auth.change_email(email));
+                if(message.code){
+                    setValid(true)
+                }else{
+                    setShowMessage(true)
+                    setError(message.error_message)
+                }
+            } catch (err) {
+                setError(err.message);
+            }
+        }else{
+            setError('Email is not valid');
+            setShowMessage(true)
+        }
+       
+        setIsLoading(false);
+    }, [dispatch, setIsLoading, setError])
+
+    const verifyEmailToken = useCallback(async (token) => {
+        setError('');
+        setShowMessage(false)
+        setSuccess(false)
+        setIsLoading(true);
+        try {
+            const message = await dispatch(auth.verify_email_token(token));
+            if(message.code){
+                setSuccess(true)
+            }else{
+                setShowMessage(true)
+                setError(message.error_message)
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+        setIsLoading(false);
+    }, [dispatch, setIsLoading, setError])
 
     
 
@@ -49,28 +107,33 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
         )
     }
 
-    const isInvited = () => {
-        if(value === '08109599597' || value === '08109599598'){setValid(true)}
-        else{navigation.navigate('Invite')}
-    }
-
-    const isValid = () => {
-        if(code === '012345'){
-            navigation.goBack()
+    const isValid = async () => {
+        if(success){
+            navigation.navigate('SettingsModal')
         }
-        else{setInvalid(true)}
+        await verifyEmailToken(code)
+        // if(code === '01234'){
+        //    navigation.navigate('LoginContacts')
+        // }
+        // else{setInvalid(true)}
     }
 
     return (
     <View style={styles.container}>
+        <Image source={logo} style={{ width: 50, height: 50 }} />
+        <Text style={styles.title}>Share Interest</Text>
+     
         {valid ? (
             <SafeAreaView style={styles.wrapper}>
                 <View style={styles.labelView}>
                     <Text style={styles.label}>Enter verification code</Text>
                     <Text style={styles.hint}>A verification code was sent to: {email}</Text>
                 </View>
-                
+              
                 <CodeField
+                    // ref={ref}
+                    // {...props}
+                    // Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
                     value={code}
                     onChangeText={setCode}
                     cellCount={CELL_COUNT}
@@ -86,23 +149,38 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
                     </Text>
                     )}
                 />
-                {invalidCode && (
+                
+                {showMessage && (
                     <View style={styles.message}>
-                        <Text style={styles.errorText}>Incorrect code</Text>
+                        <Text style={styles.errorText}>{error}</Text>
                     </View>
                 )}
+
+                {success && (
+                    <View style={styles.message}>
+                        <Text style={styles.hint}>Email updated successfully!</Text>
+                    </View>
+                )}
+
+                {isLoading ? (
+                    <TouchableOpacity
+                    style={styles.button}
+                >
+                    <ActivityIndicator color="#fff" />
+                </TouchableOpacity>
+                ) : (
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => isValid()}
                 >
-                    <Text style={styles.buttonText}>Verify</Text>
-                </TouchableOpacity>
+                    <Text style={styles.buttonText}>{success ? 'Finish': 'Verify'}</Text>
+                </TouchableOpacity>)}
             </SafeAreaView>
         ) : (
         <SafeAreaView style={styles.wrapper}>
           <View style={styles.labelView}>
               <Text style={styles.label}>Please enter new recovery email</Text>
-              <Text style={styles.hint}>(Your current verification email is: dummy@email.com)</Text>
+              <Text style={styles.hint}> {email && `(Email: ${email})`}</Text>
           </View>
             <TextInput
                 style={styles.input}
@@ -117,17 +195,27 @@ export default function ChangeRecoveryEmailScreen({ navigation }: RootStackScree
           </View>
           {showMessage && (
             <View style={styles.message}>
-                <Text style={styles.errorText}>Invalid phone number</Text>
+                <Text style={styles.errorText}>{error}</Text>
             </View>
           )}
+
+        {isLoading ? (
+            <TouchableOpacity
+            style={styles.button}
+        >
+            <ActivityIndicator color="#fff" />
+        </TouchableOpacity>
+        ) : (
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-                setValid(true)
+                verifyEmail(email)
+                // setValid(true)
             }}
           >
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
+        )}
         </SafeAreaView>
         )}
         

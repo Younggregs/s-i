@@ -147,6 +147,29 @@ export const verify_email = (phone_id, phone, callingCode, email_id) => {
     };
 };
 
+export const change_email = (email_id) => {
+    return async dispatch => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", user.phone_id);
+        formData.append("email_id", email_id);
+        
+        const response = await fetch(`${SERVER_URL}/verify_email/`, {
+            method: 'POST',
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData;
+    };
+};
+
 export const verify_email_token = (token) => {
     return async dispatch => {
         const formData = new FormData();

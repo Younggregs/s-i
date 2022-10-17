@@ -19,13 +19,13 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "6",
+      "buildNumber": "7",
       "userInterfaceStyle": "dark",
       "supportsTablet": true,
       "bundleIdentifier": "com.shareinterest.app"
     },
     "android": {
-      "versionCode": 18,
+      "versionCode": 19,
       "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",

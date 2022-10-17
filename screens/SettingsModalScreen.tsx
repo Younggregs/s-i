@@ -73,7 +73,7 @@ export default function SettingsModalScreen() {
         <Text style={styles.title}>Change password</Text>
       </TouchableOpacity>
 
-      {/* <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangeRecoveryEmail')}>  
+      <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('ChangeRecoveryEmail')}>  
         <View style={styles.iconView}>
           <FontAwesome
             name="envelope-o"
@@ -82,7 +82,7 @@ export default function SettingsModalScreen() {
           />
         </View>
         <Text style={styles.title}>Change Recovery Email</Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.view} onPress={() => Linking.openURL(terms)}>  
         <View style={styles.iconView}>

@@ -11,6 +11,7 @@ import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import parsePhoneNumber from 'libphonenumber-js'
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
@@ -37,17 +38,32 @@ export default function ContactModalScreen() {
   const processContacts = async (data) => {
     const contact_list = []
 
+    // We'll need to generate atleast two different phone number format for each phone returned
+    // eg 8109599597 and 08109599597 or if it starts with + 
+    // eg +2348109599597 and +2348109599597.
     data.forEach(contact => {
       if(contact.phoneNumbers){
         let phone_id = contact.phoneNumbers[0].number;
         phone_id = phone_id.replace(/\s/g, '');
-        if( phone_id.charAt(0) === '0'){
+
+        if(phone_id.charAt(0) === '0'){
           contact_list.push(phone_id.slice(1))
+          contact_list.push(phone_id)
+        }else if(phone_id.charAt(0) === '+') {
+          // This small process here is crazy lol
+          const phoneNumber = parsePhoneNumber(phone_id)
+          const callingCode = phoneNumber ? phoneNumber.countryCallingCode : '+234'
+          let phone = phoneNumber ? phoneNumber.formatNational() : '';
+          phone = phone.replace(/\s/g, '');
+          const phone1_id = '+' + callingCode + phone
+          const phone2_id = '+' + callingCode + phone.slice(1)
+
+          contact_list.push(phone1_id)
+          contact_list.push(phone2_id)
         }else{
           contact_list.push('0' + phone_id)
+          contact_list.push(phone_id)
         }
-        contact_list.push(phone_id)
-        
       }
     });
 
