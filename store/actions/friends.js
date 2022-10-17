@@ -126,7 +126,7 @@ export const untagFriend = (friend) => {
         user = JSON.parse(user)
 
         const formData = new FormData();
-        formData.append("phone_id", friend.phone_id);
+        formData.append("phone_id", friend.phone);
         formData.append("name", friend.name);
 
         const response = await fetch(`${SERVER_URL}/tag/`, {
