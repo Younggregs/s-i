@@ -63,6 +63,7 @@ export const addInterest = (interest) => {
         formData.append("link_text", interest.link_text);
         formData.append("type", interest.type);
 
+       
         const response = await fetch(`${SERVER_URL}/interest/`, {
             method: 'POST',
             headers: {
