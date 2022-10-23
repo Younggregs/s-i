@@ -58,17 +58,13 @@ export default function AddInterest({ path }: { path: string }) {
     setIsLoading(true)
     setErrorMessage(false)
     if(link.length <= 0){
-      setError('Link can not be empty')
+      setError('Link/Text can not be empty')
       setErrorMessage(true)
     } 
-    else if(link.length >= 256){
-      setError('Link/Text can not be more than 256 characters')
-      setErrorMessage(true)
-    }
     else if(caption.length <= 0){
       setError('Caption can not be empty')
       setErrorMessage(true)
-    }else if(caption.length >= 256){
+    }else if(caption.length >= 255){
       setError('Caption can not be more than 256 characters')
       setErrorMessage(true)
     }else{

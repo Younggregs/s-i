@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import parsePhoneNumber from 'libphonenumber-js'
+import { useQuery } from 'react-query'
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
@@ -23,6 +24,8 @@ import useColorScheme from '../hooks/useColorScheme';
 import ContactItem from "../components/ContactItem";
 
 export default function ContactModalScreen() {
+  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query)
+
   const [contact, setContact] = useState([]);
   const [text, setText] = useState('');
 
@@ -38,7 +41,7 @@ export default function ContactModalScreen() {
   const processContacts = async (data) => {
     const contact_list = []
 
-    // We'll need to generate atleast two different phone number format for each phone returned
+    // We'll need to generate atleast two different phone number formats for each phone returned
     // eg 8109599597 and 08109599597 or if it starts with + 
     // eg +2348109599597 and +2348109599597.
     data.forEach(contact => {
@@ -83,7 +86,8 @@ export default function ContactModalScreen() {
     setIsLoading(false);
 }, [dispatch, setIsLoading, setError])
 
-  const friendList = useSelector((state) => state.friend.allFriends);
+  //const friendList = useSelector((state) => state.friend.allFriends);
+  const friendList = friendListQuery.data
   const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);

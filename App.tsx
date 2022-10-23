@@ -4,6 +4,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from 'react-query'
 
 import { Provider } from 'react-redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux'
@@ -52,6 +56,7 @@ export default function App() {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
+  const queryClient = new QueryClient()
 
   useEffect(() => {
 
@@ -75,12 +80,14 @@ export default function App() {
   } else {
     return (
       <Provider store={store}>
-        <RootSiblingParent>
-          <SafeAreaProvider>
-            <Navigation colorScheme={colorScheme} />
-            <StatusBar />
-          </SafeAreaProvider>
-        </RootSiblingParent>
+        <QueryClientProvider client={queryClient}>
+          <RootSiblingParent>
+            <SafeAreaProvider>
+              <Navigation colorScheme={colorScheme} />
+              <StatusBar />
+            </SafeAreaProvider>
+          </RootSiblingParent>
+        </QueryClientProvider>
       </Provider>
     );
   }

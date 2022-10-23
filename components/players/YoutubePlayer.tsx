@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   itemView: {
-  height: 150,
+    height: 150,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5

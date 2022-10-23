@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';  
 import Modal from "react-native-modal";
 import { Text, View } from './Themed';
+import { useQuery } from 'react-query'
 
 import * as interests from '../store/actions/interests';
 import TimeAgo from 'react-native-timeago';
@@ -10,23 +11,10 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function InterestingList(interestItem) {
   const [modalVisible, setModalVisible] = useState(false);
-
-  const interestingsList = useSelector(state => state.interest.allInterestings);
-  let itemInterestings = []
-  itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-      interestingList()
-  }, [dispatch])
-
-  const interestingList = useCallback(async () => {
-    try {
-       await dispatch(interests.interestingList(interestItem.id));
-    } catch (err) {
-    }
-  }, [dispatch])
-
+  const { data } = useQuery(
+    ['interestingList', interestItem.id], 
+    () => interests.interesting_list_query(interestItem.id), 
+    { initialData: []})
 
   return (
   <View style={styles.interactionsView}>
@@ -43,7 +31,7 @@ export default function InterestingList(interestItem) {
             
             <Text style={styles.categoryText}>Interesting</Text>
             <FlatList
-                data={itemInterestings}
+                data={data}
                 renderItem={({ item }) => (
                 <ContactItem item={item}/>
                 )}
@@ -58,7 +46,7 @@ export default function InterestingList(interestItem) {
         
     </Modal>
     <TouchableOpacity onPress={() => setModalVisible(true)}>
-        <Text style={styles.interactionsText}>Interesting {itemInterestings.length}</Text>
+        <Text style={styles.interactionsText}>Interesting {data.length}</Text>
     </TouchableOpacity>
     </View>
   );

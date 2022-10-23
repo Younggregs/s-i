@@ -88,6 +88,33 @@ export const fetch_friends = () => {
     }
 };
 
+export const fetch_friends_query = async () => {
+    let user = await AsyncStorage.getItem('user')
+    user = JSON.parse(user)
+    const response = await fetch(`${SERVER_URL}/tag/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${user.token}`
+        }
+    });
+
+    const resData = await response.json();
+
+    const resP = []
+    await resData.map(friend => {
+            const bucket = {  
+                id: friend.friend.id, 
+                name: friend.name, 
+                phone: friend.friend.phone_id,
+                notification: friend.notification
+            }
+        resP.unshift(bucket)
+    })
+
+
+    return resP
+};
+
 export const tagFriend = (friend) => {
     return async (dispatch, getState) => {
         let user = await AsyncStorage.getItem('user')

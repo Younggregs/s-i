@@ -3,6 +3,7 @@ import { Platform, StyleSheet, FlatList, TextInput, ActivityIndicator, Touchable
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
 import parsePhoneNumber from 'libphonenumber-js'
+import { useQuery } from 'react-query'
 
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';
@@ -13,6 +14,8 @@ import ContactItem from "../components/ContactItem";
 
 
 export default function LoginContactsScreen() {
+  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query)
+
   const [contact, setContact] = useState([])
   const [text, setText] = useState('');
 
@@ -81,7 +84,7 @@ const loadFriends = useCallback(async () => {
   setIsLoading(false);
 }, [dispatch, setIsLoading, setError])
 
-  const friendList = useSelector((state) => state.friend.allFriends);
+  const friendList = friendListQuery.data
   const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);

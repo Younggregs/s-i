@@ -53,7 +53,7 @@ export default function PlayerComponent({item}) {
           )}
 
           {item.category.slug === 'others' && item.type === 'text' && (
-            <TextPlayer link_text={item.link_text}/>
+            <TextPlayer link_text={item.link_text} caption={item.caption}/>
           )}
         </View>
   );

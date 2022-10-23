@@ -63,6 +63,7 @@
     "react-native-web": "0.17.7",
     "react-native-webview": "11.18.1",
     "react-native-youtube-iframe": "^2.2.2",
+    "react-query": "^3.39.2",
     "react-redux": "^8.0.0",
     "react-spotify-embed": "^0.2.3",
     "redux": "^4.1.2",

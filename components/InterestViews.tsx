@@ -3,33 +3,36 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';  
 import Modal from "react-native-modal";
 import { Text, View } from './Themed';
+import { useQuery } from 'react-query'
 
 import * as interests from '../store/actions/interests';
 import TimeAgo from 'react-native-timeago';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 
-
-
 export default function InterestViews(interestItem) {
   const [modalVisible, setModalVisible] = useState(false);
+  const { data } = useQuery(
+    ['viewList', interestItem.id], 
+    () => interests.view_list_query(interestItem.id), 
+    { initialData: []})
 
-  const interestingsList = useSelector(state => state.interest.allViews);
-  let itemInterestings = []
-  itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
+  // const interestingsList = useSelector(state => state.interest.allViews);
+  // let itemInterestings = []
+  // itemInterestings = interestingsList.filter(interesting => interesting.interest_id == interestItem.id)
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  useEffect(() => {
-      interestingList()
-  }, [dispatch])
+  // useEffect(() => {
+  //     interestingList()
+  // }, [dispatch])
 
-  const interestingList = useCallback(async () => {
-    try {
-       await dispatch(interests.interestViewList(interestItem.id));
-    } catch (err) {
-    }
-  }, [dispatch])
+  // const interestingList = useCallback(async () => {
+  //   try {
+  //      await dispatch(interests.interestViewList(interestItem.id));
+  //   } catch (err) {
+  //   }
+  // }, [dispatch])
 
 
   return (
@@ -46,7 +49,7 @@ export default function InterestViews(interestItem) {
             </View>
             <Text style={styles.categoryText}>Views</Text>
             <FlatList
-                data={itemInterestings}
+                data={data}
                 renderItem={({ item }) => (
                 <ContactItem item={item}/>
                 )}
@@ -66,7 +69,7 @@ export default function InterestViews(interestItem) {
                 name="eye"
                 size={20}
                 color={'#fff'}
-            /> {itemInterestings.length}
+            /> {data.length}
         </Text>
     </TouchableOpacity>
     </View>

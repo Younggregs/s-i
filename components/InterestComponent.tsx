@@ -7,6 +7,8 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery } from 'react-query'
+
 import TwitterPlayer from './players/TwitterPlayer';
 import OthersPlayer from './players/OthersPlayer';
 import TextPlayer from './players/TextPlayer';
@@ -27,6 +29,10 @@ import whatsapp from '../assets/images/category-icons/whatsapp.png'
 
 
 export default function InterestComponent(props: any) {
+    // const interesting = useQuery(
+    //   ['interesting', props.item.id], 
+    //   interests.interesting_list_query)
+
     const colorScheme = useColorScheme();
     const [visible, setVisible] = useState(false);
     const [user, setUser] = useState({});
@@ -69,9 +75,9 @@ export default function InterestComponent(props: any) {
         props.item.link_text + '\n\nReply: ';
       let mobile = props.item.account.phone;
      
-      let url =
+      let url =x
         "whatsapp://send?text=" +
-        msg +
+        msg +e
         "&phone=" +
         mobile;
       Linking.openURL(url)

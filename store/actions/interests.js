@@ -54,6 +54,12 @@ export const selectToggleCategory = (categoryIndex) => {
 
 export const addInterest = (interest) => {
     return async (dispatch, getState) => {
+
+        // dispatch({
+        //     type: ADD_INTEREST,
+        //     interest: interest
+        // })
+        
         let user = await AsyncStorage.getItem('user')
         user = JSON.parse(user)
 
@@ -62,7 +68,6 @@ export const addInterest = (interest) => {
         formData.append("caption", interest.caption);
         formData.append("link_text", interest.link_text);
         formData.append("type", interest.type);
-
        
         const response = await fetch(`${SERVER_URL}/interest/`, {
             method: 'POST',
@@ -91,6 +96,11 @@ export const addInterest = (interest) => {
 export const toggleInterest = (id) => {
     return async (dispatch, getState) => {
 
+        dispatch({
+            type: TOGGLE_INTEREST,
+            id: id
+        })
+
         let user = await AsyncStorage.getItem('user')
         user = JSON.parse(user)
 
@@ -105,12 +115,22 @@ export const toggleInterest = (id) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-
-        dispatch({
-            type: TOGGLE_INTEREST,
-            id: id
-        })
     }
+};
+
+export const toggle_interest_query = async (id) => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/interesting_view/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        return resData
 };
 
 export const interestingList = (id) => {
@@ -139,6 +159,19 @@ export const interestingList = (id) => {
             })
         }
     }
+};
+
+export const interesting_list_query = async (id) => {
+    let user = await AsyncStorage.getItem('user')
+    user = JSON.parse(user)
+    const response = await fetch(`${SERVER_URL}/interesting_list/${id}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${user.token}`
+        }
+    });
+
+    return await response.json()
 };
 
 export const interestViewRecord = (id) => {
@@ -188,6 +221,20 @@ export const interestViewList = (id) => {
             ))
         }
     }
+};
+
+
+export const view_list_query = async (id) => {
+    let user = await AsyncStorage.getItem('user')
+    user = JSON.parse(user)
+    const response = await fetch(`${SERVER_URL}/interestview_list/${id}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${user.token}`
+        }
+    });
+
+    return await response.json()
 };
 
 
