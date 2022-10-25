@@ -3,7 +3,7 @@ import { Platform, StyleSheet, FlatList, TextInput, ActivityIndicator, Touchable
 import * as Contacts from 'expo-contacts';
 import { useDispatch, useSelector } from 'react-redux';
 import parsePhoneNumber from 'libphonenumber-js'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';
@@ -12,14 +12,29 @@ import * as friends from '../store/actions/friends';
 import * as auth from '../store/actions/auth';
 import ContactItem from "../components/ContactItem";
 
-
 export default function LoginContactsScreen() {
-  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query)
+  const [phonebook, setPhonebook] = useState(false)
+  const [contactList, setContactList] = useState([])
+  const queryClient = useQueryClient()
+  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+      return queryClient.getQueryData('friendsList') || []
+    }
+  })
+  const { data, isLoading } = useQuery(
+    ['registered_contacts', phonebook], 
+    () => friends.request_invite_query(phonebook), 
+    {
+        enabled: !!phonebook,
+        initialData: () => {
+          return queryClient.getQueryData('registered_contacts') || []
+        }
+    })
 
   const [contact, setContact] = useState([])
   const [text, setText] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
@@ -57,6 +72,7 @@ export default function LoginContactsScreen() {
       }
     });
 
+    setPhonebook(contact_list)
     return contact_list;
   }
 
@@ -71,7 +87,7 @@ export default function LoginContactsScreen() {
         setError(err.message);
     }
     setIsLoading(false);
-}, [dispatch, setIsLoading, setError])
+}, [dispatch, setError])
 
 const loadFriends = useCallback(async () => {
   setError('');
@@ -82,10 +98,10 @@ const loadFriends = useCallback(async () => {
       setError(err.message);
   }
   setIsLoading(false);
-}, [dispatch, setIsLoading, setError])
+}, [dispatch, setError])
 
   const friendList = friendListQuery.data
-  const contactList = useSelector((state) => state.friend.allContacts);
+  //const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);
     if (isFriend === undefined) {
@@ -102,7 +118,7 @@ const loadFriends = useCallback(async () => {
   // get all active contacts
   const activeList = contactList.filter((item) => {
     let isActive = false
-    contact.find((friend) => {
+    data.find((friend) => {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         const phoneRegex = phone.replace(/\s/g, '')
@@ -153,7 +169,7 @@ const loadFriends = useCallback(async () => {
         setError(err.message);
     }
     setIsLoading(false);
-  }, [dispatch, setIsLoading, setError])
+  }, [dispatch, setError])
 
   useEffect(() => {
     (async () => {
@@ -165,9 +181,11 @@ const loadFriends = useCallback(async () => {
 
         if (data.length > 0) {
           const valid_contacts = data.filter(item => item.name !== undefined)
-          loadFriends()
-          loadContact(valid_contacts)
-          requestInvite(valid_contacts);
+          //loadFriends()
+          processContacts(valid_contacts)
+          setContactList(valid_contacts)
+          // loadContact(valid_contacts)
+          // requestInvite(valid_contacts);
         }
       }
     })();

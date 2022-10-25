@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';  
 import Modal from "react-native-modal";
 import { Text, View } from './Themed';
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import * as interests from '../store/actions/interests';
 import TimeAgo from 'react-native-timeago';
@@ -11,10 +11,13 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function InterestingList(interestItem) {
   const [modalVisible, setModalVisible] = useState(false);
+  const queryClient = useQueryClient()
   const { data } = useQuery(
     ['interestingList', interestItem.id], 
     () => interests.interesting_list_query(interestItem.id), 
-    { initialData: []})
+    { initialData: () => {
+      return queryClient.getQueryData(['interestingList', interestItem.id]) || []
+    }})
 
   return (
   <View style={styles.interactionsView}>

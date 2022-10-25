@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { FlatList, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
@@ -13,7 +13,12 @@ const wait = (timeout) => {
 }
 
 export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friends'>) {
-  const {data, isLoading} = useQuery('friendsList', friends.fetch_friends_query)
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+      return queryClient.getQueryData('friendsList') || []
+    }
+  })
 
   const friendList = useSelector(state => state.friend.allFriends);
 

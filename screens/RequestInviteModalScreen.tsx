@@ -12,6 +12,7 @@ import * as Contacts from "expo-contacts";
 import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import parsePhoneNumber from 'libphonenumber-js'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
@@ -24,14 +25,26 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
 export default function RequestInviteModalScreen() {
-  const [contact, setContact] = useState([]);
+  const [phonebook, setPhonebook] = useState(false)
+  const [contactList, setContactList] = useState([])
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery(
+    ['registered_contacts', phonebook], 
+    () => friends.request_invite_query(phonebook), 
+    {
+        enabled: !!phonebook,
+        initialData: () => {
+          return queryClient.getQueryData('registered_contacts') || []
+        }
+    })
+
   const [text, setText] = useState('');
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
   const dispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
@@ -67,6 +80,7 @@ export default function RequestInviteModalScreen() {
       }
     });
 
+    setPhonebook(contact_list)
     return contact_list;
   }
 
@@ -82,14 +96,14 @@ export default function RequestInviteModalScreen() {
         setError(err.message);
     }
     setIsLoading(false);
-}, [dispatch, setIsLoading, setError])
+}, [dispatch, setError])
 
   const friendList = useSelector((state) => state.friend.allFriends);
-  const contactList = useSelector((state) => state.friend.allContacts);
+  //const contactList = useSelector((state) => state.friend.allContacts);
 
   const tempList = contactList.filter((item) => {
     let isActive = false
-    contact.find((friend) => {
+    data.find((friend) => {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         const phoneRegex = phone.replace(/\s/g, '')
@@ -139,12 +153,11 @@ export default function RequestInviteModalScreen() {
       }
       setIsRefreshing(false);
     },
-    [dispatch, setIsLoading, setError]
+    [dispatch, setError]
   );
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true)
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
@@ -153,8 +166,10 @@ export default function RequestInviteModalScreen() {
 
         if (data.length > 0) {
           const valid_contacts = data.filter(item => item.name !== undefined)
-          loadContact(valid_contacts)
-          requestInvite(valid_contacts);
+          processContacts(valid_contacts)
+          setContactList(valid_contacts)
+          //loadContact(valid_contacts)
+          //requestInvite(valid_contacts);
         }
       }
     })();
@@ -166,7 +181,7 @@ export default function RequestInviteModalScreen() {
       <View style={styles.container} >
         <ActivityIndicator color="#fff" size='large' />
       </View>
-    ) : (
+    ) : ( 
 
     <View style={styles.container}>
       <View
