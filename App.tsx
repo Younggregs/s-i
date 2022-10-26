@@ -48,6 +48,8 @@ const store = createStore(
   // composeWithDevTools()
 );
 
+export const queryClient = new QueryClient()
+
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
@@ -56,7 +58,6 @@ export default function App() {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-  const queryClient = new QueryClient()
 
   useEffect(() => {
 

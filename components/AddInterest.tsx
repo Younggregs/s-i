@@ -18,6 +18,7 @@ import netflixRegex from './category_regexes/NetflixRegex';
 import pinterestRegex from './category_regexes/PinterestRegex';
 
 import * as interests from '../store/actions/interests';
+import { queryClient } from "../App";
 
 var linkify = require('linkifyjs');
 
@@ -28,31 +29,26 @@ export default function AddInterest({ path }: { path: string }) {
       return queryClient.getQueryData('interestsList') || []
     }
   })
-  const queryClient = new QueryClient()
 
   const mutation = useMutation((item) => interests.add_interest_query(item), {
     onMutate: async (item) => {
         
         await queryClient.cancelQueries('interestsList')
 
-        const updatedData = [item, ...data]
-        queryClient.setQueryData('interestsList', updatedData)
+        queryClient.setQueryData('interestsList', [item, ...data])
 
         dispatch(interests.selectCategory(item.category.id)) 
         setModalVisible(false)
         onChangeCaption('') 
         onChangeLink('')
-        
-        // Return context with the optimistic todo
-        return { item, data: data, updatedData }
+
+        return { item, data: data }
     },
     onSuccess: (result, variables, context) => {
-      // Add friend
       queryClient.setQueryData('interestsList', [result, ...context?.data])
 
     },
     onError: (error, variables, context) => {
-      // Remove friend
       queryClient.setQueryData('interestsList', context?.data)
     }
   })

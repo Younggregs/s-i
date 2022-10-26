@@ -13,6 +13,7 @@ import { useQuery, useMutation, QueryClient } from 'react-query'
 
 import * as friends from "../store/actions/friends";
 import Toast from 'react-native-root-toast';
+import { queryClient } from "../App";
 
 export default function ContactItem({ item }) {
   const [hide, setHide] = useState(false)
@@ -21,7 +22,6 @@ export default function ContactItem({ item }) {
         return queryClient.getQueryData('friendsList') || []
     }
     })
-  const queryClient = new QueryClient()
 
   const mutation = useMutation(() => friends.tag_friend_query(item), {
     onMutate: async (friend) => {

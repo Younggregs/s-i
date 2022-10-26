@@ -26,6 +26,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as interests from '../store/actions/interests';
 
 import whatsapp from '../assets/images/category-icons/whatsapp.png'
+import { queryClient } from '../App';
 
 
 export default function InterestComponent(props: any) {
@@ -35,7 +36,6 @@ export default function InterestComponent(props: any) {
       return queryClient.getQueryData('interestsList') || []
     }
   })
-  const queryClient = new QueryClient()
 
   const mutation = useMutation(() => interests.toggle_interest_query(props.item.id), {
     onMutate: async (id) => {
@@ -128,9 +128,9 @@ export default function InterestComponent(props: any) {
         props.item.link_text + '\n\nReply: ';
       let mobile = props.item.account.phone;
      
-      let url =x
+      let url =
         "whatsapp://send?text=" +
-        msg +e
+        msg +
         "&phone=" +
         mobile;
       Linking.openURL(url)

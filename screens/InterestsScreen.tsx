@@ -109,20 +109,6 @@ const onViewableItemsChanged = useCallback(
     }
   }, [dispatch])
 
-  function onAppStateChange(status: AppStateStatus) {
-    if (Platform.OS !== 'web') {
-      focusManager.setFocused(status === 'active')
-    }
-  }
-  
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', onAppStateChange)
-  
-    return () => subscription.remove()
-  }, [])
- 
-
-
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>

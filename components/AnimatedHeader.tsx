@@ -17,6 +17,7 @@ import useColorScheme from '../hooks/useColorScheme';
 
 import * as friends from '../store/actions/friends';
 import onShare from './Share';
+import { queryClient } from '../App';
 
 const HEADER_HEIGHT = 200;
 
@@ -35,32 +36,6 @@ const AnimatedHeader = ({animatedValue, friend}) => {
         return queryClient.getQueryData('friendsList') || []
     }
     })
-    const queryClient = new QueryClient()
-    //   queryClient.setMutationDefaults('untag', {
-    //     mutationFn: () => friends.untag_friend_mutation(friend),
-    //     onMutate: async (friend) => {
-    //         console.log('friend', friend)
-    //       // Cancel current queries for the todos list
-    //       await queryClient.cancelQueries('friendsList')
-      
-    //       // Create optimistic todo
-    //       const optimisticTodo = friend
-
-    //       queryClient.setQueryData('friendsList', old => old.filter(item => item.id !== optimisticTodo.id))
-      
-    //       // Return context with the optimistic todo
-    //       return { optimisticTodo }
-    //     },
-    //     onSuccess: (result, variables, context) => {
-    //       // Remove friend
-    //       queryClient.setQueryData('friendsList', old => old.filter(friend => friend.id !== context.optimisticTodo.id))
-    //     },
-    //     onError: (error, variables, context) => {
-    //       // add friend back
-    //       queryClient.setQueryData('friendsList', old => [...old, context.optimisticTodo])
-    //     },
-    //     retry: 3,
-    //   })
     
     const mutation = useMutation(() => friends.untag_friend_mutation(friend), {
         onMutate: async (friend) => {
