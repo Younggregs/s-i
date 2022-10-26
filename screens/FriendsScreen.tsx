@@ -76,12 +76,12 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
       ) : (
         <FlatList
           contentContainerStyle={{ paddingBottom: 20 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
+          // refreshControl={
+          //  <RefreshControl
+          //    refreshing={refreshing}
+          //    onRefresh={onRefresh}
+          //  />
+          // }
           data={data}
           renderItem={({ item }) => (
             <TouchableOpacity 

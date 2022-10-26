@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
+import { useQuery, useQueryClient } from 'react-query'
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import InterestComponent from "../components/InterestComponent";
@@ -15,7 +16,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
 
 export default function ProfileModalScreen(props: any) {
-  const { navigation } = props;
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  }) 
+  
   const offset = useRef(new Animated.Value(0)).current;
 
   const categories = useSelector(state => state.interest.allCategories);
@@ -24,7 +31,7 @@ export default function ProfileModalScreen(props: any) {
   const friend = props.route.params.item;
   const interestsList = useSelector(state => state.interest.allInterests);
   let contactsInterests = []
-  contactsInterests = interestsList.filter(interest => interest.account.id === friend.id)
+  contactsInterests = data.filter(interest => interest.account.id === friend.id)
   let interestsBucket = []
   interestsBucket = contactsInterests.filter(interest => interest.category.id === activeCategory.id)
 

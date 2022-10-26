@@ -4,6 +4,7 @@ import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator } fro
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlayerComponent from './PlayerComponent';
+import { useQuery, useMutation, QueryClient } from 'react-query'
 
 import { Text, View } from './Themed';
 
@@ -20,9 +21,43 @@ import * as interests from '../store/actions/interests';
 
 var linkify = require('linkifyjs');
 
-
-
 export default function AddInterest({ path }: { path: string }) {
+  const dispatch = useDispatch();
+  const {data} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  })
+  const queryClient = new QueryClient()
+
+  const mutation = useMutation((item) => interests.add_interest_query(item), {
+    onMutate: async (item) => {
+        
+        await queryClient.cancelQueries('interestsList')
+
+        const updatedData = [item, ...data]
+        queryClient.setQueryData('interestsList', updatedData)
+
+        dispatch(interests.selectCategory(item.category.id)) 
+        setModalVisible(false)
+        onChangeCaption('') 
+        onChangeLink('')
+        
+        // Return context with the optimistic todo
+        return { item, data: data, updatedData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', [result, ...context?.data])
+
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+
   const [user, setUser] = useState({})
   const [modalVisible, setModalVisible] = useState(false);
   const [link, onChangeLink] = useState('');
@@ -36,8 +71,7 @@ export default function AddInterest({ path }: { path: string }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const dispatch = useDispatch();
+  
 
   useEffect(() => {
     const getData = async () => {
@@ -90,16 +124,17 @@ export default function AddInterest({ path }: { path: string }) {
           'created_at': new Date(),
           'mine': true
         }
-        const res = await dispatch(interests.addInterest(interestObject));
-        if(res.error_message){
-          setError(res.res_message)
-          setErrorMessage(true)
-        }else{
-          setModalVisible(false)
-        }
+        //const res = await dispatch(interests.addInterest(interestObject));
+        mutation.mutate(interestObject)
+        // if(res.error_message){
+        //   setError(res.res_message)
+        //   setErrorMessage(true)
+        // }else{
+        //   setModalVisible(false)
+        // }
         
-        onChangeCaption('')
-        onChangeLink('')
+        // onChangeCaption('')
+        // onChangeLink('')
       } catch (err) {
           setError(err.message);
       }

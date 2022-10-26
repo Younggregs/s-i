@@ -93,6 +93,38 @@ export const addInterest = (interest) => {
     }
 };
 
+export const add_interest_query = async (interest) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("category", interest.category.slug);
+        formData.append("caption", interest.caption);
+        formData.append("link_text", interest.link_text);
+        formData.append("type", interest.type);
+       
+        const response = await fetch(`${SERVER_URL}/interest/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            },
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        
+        if(!resData.error_message){
+            interest.id = resData.id
+            return interest
+        }
+
+        return []
+};
+
 export const toggleInterest = (id) => {
     return async (dispatch, getState) => {
 
@@ -292,6 +324,57 @@ export const fetchInterests = () => {
     }
 };
 
+export const fetch_interests_query = async () => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+        const response = await fetch(`${SERVER_URL}/interest/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        const resP = []
+        const date = moment().subtract(20, 'hours');
+        await resData.map(interest => {
+            const created_at = moment(interest.created_at)
+            if (moment(date).isBefore(created_at)){
+                const time_remaining = created_at.diff(date, 'seconds') * 1000
+                const bucket = {  
+                    id: interest.id, 
+                    caption: interest.caption, 
+                    link_text: interest.link_text,
+                    account: {
+                        id: interest.account.id,
+                        phone: interest.account.phone_id,
+                        name: interest.friends_name
+                    },
+                    category:  {
+                        id: interest.category.id.toString(),
+                        name: interest.category.name, 
+                        slug: interest.category.slug, 
+                        active: false
+                    },
+                    type: interest.type,
+                    interesting: interest.interesting,
+                    created_at: interest.created_at,
+                    time_remaining: time_remaining,
+                    mine: user.phone_id === interest.account.phone_id ? true : false
+                }
+                resP.unshift(bucket)
+            }
+        })
+
+        // console.log('control: ', resP)
+
+    return resP
+};
+
 export const fetchTweet = (id) => {
     return async (dispatch, getState) => {
 
@@ -351,6 +434,26 @@ export const deleteInterest = (id) => {
             id: id
         })
     }
+};
+
+export const delete_interest_query = async (id) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/delete_interest/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData
 };
 
 export const feedback = (message) => {

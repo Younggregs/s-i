@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { StyleSheet, RefreshControl, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
+import { StyleSheet, Platform, AppState, AppStateStatus, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import AddInterest from '../components/AddInterest';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
+import { useQuery, useQueryClient, focusManager } from 'react-query'
 
 import * as interests from '../store/actions/interests';
 import * as Network from 'expo-network';
@@ -18,15 +19,23 @@ const wait = (timeout) => {
 }
 
 export default function InterestsScreen({ navigation }: RootTabScreenProps<'Interests'>) {
+
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  })
+
   const [modalVisible, setModalVisible] = useState(false);
   const categories = useSelector(state => state.interest.allCategories);
   const activeCategory = categories.find(category => category.active === true);
 
   const interestsList = useSelector(state => state.interest.allInterests);
   let interestsBucket = []
-  interestsBucket = interestsList.filter(interest => interest.category.id === activeCategory.id)
+  interestsBucket = data.filter(interest => interest.category.id === activeCategory.id)
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false); 
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
@@ -45,7 +54,7 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
         setError(err.message);
     }
     setIsLoading(false);
-  }, [dispatch, setIsLoading, setError])
+  }, [dispatch, setError])
 
   const refreshInterest = useCallback(async () => {
     try {
@@ -57,9 +66,9 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
 
   useEffect(() => {
     checkNetworkConnection()
-    loadInterest()
+    // loadInterest()
     .then(() => {
-        setIsLoading(false);
+        // setIsLoading(false);
     });
   }, [dispatch, loadInterest])
 
@@ -100,6 +109,19 @@ const onViewableItemsChanged = useCallback(
     }
   }, [dispatch])
 
+  function onAppStateChange(status: AppStateStatus) {
+    if (Platform.OS !== 'web') {
+      focusManager.setFocused(status === 'active')
+    }
+  }
+  
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', onAppStateChange)
+  
+    return () => subscription.remove()
+  }, [])
+ 
+
 
   return (
     <View style={styles.container}>
@@ -117,12 +139,12 @@ const onViewableItemsChanged = useCallback(
             itemVisiblePercentThreshold: 100,
             minimumViewTime: 2000,
           }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
+          // refreshControl={
+          //  <RefreshControl
+          //    refreshing={refreshing}
+          //    onRefresh={onRefresh}
+          //  />
+          // }
           data={interestsBucket}
           renderItem={({ item }) => (
             <InterestComponent key={item.id} item={item} />

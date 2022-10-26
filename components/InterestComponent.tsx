@@ -7,7 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, QueryClient } from 'react-query'
 
 import TwitterPlayer from './players/TwitterPlayer';
 import OthersPlayer from './players/OthersPlayer';
@@ -29,9 +29,62 @@ import whatsapp from '../assets/images/category-icons/whatsapp.png'
 
 
 export default function InterestComponent(props: any) {
-    // const interesting = useQuery(
-    //   ['interesting', props.item.id], 
-    //   interests.interesting_list_query)
+  const [toggle, setToggle] = useState(false)
+  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  })
+  const queryClient = new QueryClient()
+
+  const mutation = useMutation(() => interests.toggle_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        let editData = data
+        const interest = editData.findIndex(item => item.id === id)
+        editData[interest].interesting = !editData[interest].interesting
+
+        queryClient.setQueryData('interestsList', editData)
+    
+        // Return context with the optimistic todo
+        return { id, data: data, editData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.editData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+  const deleteMutation = useMutation(() => interests.delete_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        const updatedData = data.filter(item => item.id !== id)
+        setHide(true)
+
+        queryClient.setQueryData('interestsList', updatedData)
+
+        // Return context with the optimistic todo
+        return { id, data: data, updatedData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.updatedData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
 
     const colorScheme = useColorScheme();
     const [visible, setVisible] = useState(false);
@@ -148,7 +201,7 @@ export default function InterestComponent(props: any) {
               <Text style={styles.nameText}>{props.item.account.name}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => toggleInterest(props.item.id)} 
+              onPress={() =>  mutation.mutate(props.item.id)} 
               style={[styles.interactionsView, props.item.interesting && styles.activeInteractionsView]}
             >
               <Text style={styles.interactionsText}>Interesting</Text>
@@ -195,7 +248,7 @@ export default function InterestComponent(props: any) {
               </MenuItem>
               <MenuDivider color='#fff'/>
               {props.item.mine ? (
-                <MenuItem textStyle={styles.menuText}  onPress={() => deleteInterest(props.item.id)}>
+                <MenuItem textStyle={styles.menuText}  onPress={() => deleteMutation.mutate(props.item.id)}>
                   Delete
                 </MenuItem>
               ): <View />}

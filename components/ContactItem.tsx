@@ -21,7 +21,7 @@ export default function ContactItem({ item }) {
         return queryClient.getQueryData('friendsList') || []
     }
     })
-    const queryClient = new QueryClient()
+  const queryClient = new QueryClient()
 
   const mutation = useMutation(() => friends.tag_friend_query(item), {
     onMutate: async (friend) => {
