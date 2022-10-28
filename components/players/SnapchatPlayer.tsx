@@ -47,11 +47,11 @@ export default function SnapchatPlayer({link_text}) {
                 <View style={styles.text}>
                   <Text style={styles.textTitle}>
                     {data?.title && data?.title.substring(0,50)} 
-                    {data?.title.length >= 150 && '...'}
+                    {data?.title && data?.title.length >= 150 && '...'}
                   </Text>
                   <Text>
                     {data?.description && data?.description.substring(0,100)} 
-                    {data?.description.length >= 150 && '...'}
+                    {data?.description && data?.description.length >= 150 && '...'}
                   </Text>
                 </View> 
               </View> 
