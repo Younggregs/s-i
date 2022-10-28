@@ -399,8 +399,24 @@ export const fetchTweet = (id) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-        return resData
+        return resData.tweet
     }
+};
+
+export const fetch_tweet_query = async (id) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/tweet/${id}/`, {
+            method: 'GET',
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        return resData.tweet
 };
 
 export const fetchTweetPreview = (link) => {
@@ -417,8 +433,24 @@ export const fetchTweetPreview = (link) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-        return resData
+        return resData[0].text
     }
+};
+
+export const fetch_tweet_preview_query = async (link) => {
+        const formData = new FormData();
+        formData.append("link", link);
+
+        const response = await fetch(`${SERVER_URL}/tweet/id/`, {
+            method: 'POST',
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        return resData[0].text
 };
 
 export const deleteInterest = (id) => {

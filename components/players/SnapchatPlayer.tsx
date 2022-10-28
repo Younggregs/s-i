@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, Image } from 'react-native';
-import UrlPreview from '../packages/UrlPreview';
 import { Text, View } from '../Themed';
 import Modal from "react-native-modal";
 import { WebView } from 'react-native-webview';
-import { getLinkPreview, getPreviewFromContent } from "link-preview-js";
-import { queryClient } from '../../App';
-import { useQuery, useMutation, QueryClient } from 'react-query'
+import { useQuery } from 'react-query'
 import * as interests from '../../store/actions/interests'
 
 export default function SnapchatPlayer({link_text}) {
-    const [loaded, setLoaded] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
     const {data, isLoading} = useQuery(
@@ -38,7 +34,7 @@ export default function SnapchatPlayer({link_text}) {
                 </View>
               ) : (
               <View style={styles.itemView}>
-                {data.images &&  
+                {data?.images &&  
                   <Image 
                     source={{uri: data?.images[0]}} 
                     style={styles.imagePreview} 

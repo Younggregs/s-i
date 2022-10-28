@@ -1,42 +1,96 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-import RNUrlPreview from 'react-native-url-preview';
+import { StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Text, View } from '../Themed';
+import Modal from "react-native-modal";
+import { WebView } from 'react-native-webview';
+import { useQuery } from 'react-query'
+import * as interests from '../../store/actions/interests'
 
 export default function SpotifyPlayer({link_text}) {
-
     const [loaded, setLoaded] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const {data, isLoading} = useQuery(
+      ['player_preview', link_text],
+      () => interests.fetch_preview_query(link_text))
     
     return (
         <View style={styles.itemView}>
-           <RNUrlPreview 
-              text={link_text}
-              containerStyle={styles.itemView}
-              titleStyle={{color: '#fff', fontWeight: 'bold', fontSize: 15}}
-              descriptionStyle={{color: '#fff'}}
-              imageStyle={{height: 140, width: 100}}
-              onLoad={() => setLoaded(true)}
-            />
-              {!loaded && (
+            <Modal
+                propagateSwipe={true}
+                swipeDirection="down"
+                onSwipeComplete={() => { setModalVisible(false) }}
+                isVisible={modalVisible}
+            >
+                <WebView
+                    style={styles.container}
+                    source={{ uri: link_text }}
+                    />
+            </Modal>
+
+        <TouchableOpacity style={styles.itemView} onPress={() => setModalVisible(true)}>
+              {isLoading ? (
                 <View style={styles.itemView}>
                   <Text style={styles.loadingText}>Loading...</Text>
                 </View>
+              ) : (
+              <View style={styles.itemView}>
+                {data?.images &&  
+                  <Image 
+                    source={{uri: data?.images[0]}} 
+                    style={styles.imagePreview} 
+                  />
+                }
+                <View style={styles.text}>
+                  <Text style={styles.textTitle}>
+                    {data?.title && data?.title.substring(0,50)} 
+                    {data?.title && data?.title.length >= 150 && '...'}
+                  </Text>
+                  <Text>
+                    {data?.description && data?.description.substring(0,100)} 
+                    {data?.description && data?.description.length >= 150 && '...'}
+                  </Text>
+                </View> 
+              </View> 
               )}
+        </TouchableOpacity>
         </View>
   );
 }
 
 const styles = StyleSheet.create({
     itemView: {
-        height: 150,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 5
-      },
+      height: 300,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 5
+    },
+    imagePreview: {
+      height: 150,
+      width: 300,
+      borderColor: '#fff',
+      borderWidth: 1,
+      borderStyle: 'solid',
+      resizeMode: 'cover',
+      borderRadius: 10
+    },
+    textTitle: {
+      fontWeight: 'bold',
+      fontSize: 15,
+      textDecorationLine: 'underline'
+    },
     loadingText: {
         textAlign: 'center',
         fontSize: 15,
         fontWeight: 'bold',
         margin:5
-      },
+    },
+    container: {
+      flex: 1,
+      marginTop: 200,
+      borderColor: 'rgba(255,255,255,0.1)',
+      borderStyle: "solid",
+      borderWidth: 0.5,
+      borderRadius: 15
+    },
 });

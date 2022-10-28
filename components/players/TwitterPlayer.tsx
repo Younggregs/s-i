@@ -1,50 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet,TouchableNativeFeedback, Linking } from 'react-native';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { StyleSheet,TouchableNativeFeedback } from 'react-native';
 import Modal from "react-native-modal";
 import { WebView } from 'react-native-webview';
+import { useQuery } from 'react-query'
 
 import { Text, View } from '../Themed';
 import * as interests from '../../store/actions/interests';
 
 export default function TwitterPlayer({id, link_text, preview}) {
     const [modalVisible, setModalVisible] = useState(false);
-    const [tweet, setTweet] = useState()
 
+    const tweetFunction = preview ?  
+    () => interests.fetch_tweet_preview_query(link_text) :
+    () => interests.fetch_tweet_query(id)
 
-    // const {data, isLoading} = useQuery(
-    //     ['player_preview', link_text],
-    //     () => interests.fetch_preview_query(link_text))
-  
-    //   console.log('request: ', data?.images[0], data?.title)
-
-    const [isLoading, setIsLoading] = useState(false)
-
-    const dispatch = useDispatch();
-
-    const fetchTweet = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            if(preview){
-                const res = await dispatch(interests.fetchTweetPreview(link_text));
-                setTweet(res[0].text)
-            }else{
-                const res = await dispatch(interests.fetchTweet(id));
-                setTweet(res.tweet)
-            }
-            
-        } catch (err) {}
-        setIsLoading(false)
-    }, [dispatch])
-
-    useEffect(() => {
-        fetchTweet()
-        .then(() => {
-            setIsLoading(false);
-        });
-    },[dispatch, fetchTweet])
-
-    // onPress={() => Linking.openURL(link_text)}
+    const {data, isLoading} = useQuery(
+        ['player_preview', link_text, id],
+        () => tweetFunction(), {
+            enabled: preview
+        }
+    )
     
     return (
         <View style={styles.itemView}>
@@ -63,9 +38,9 @@ export default function TwitterPlayer({id, link_text, preview}) {
                 <View>
                   <Text style={styles.loadingText}>Loading...</Text>
                 </View>
-            ): (
+            ) : (
                 <TouchableNativeFeedback onPress={() => setModalVisible(true)}>
-                    <Text>{tweet}</Text>
+                    <Text>{data}</Text>
                 </TouchableNativeFeedback>
             )}
         </View>
