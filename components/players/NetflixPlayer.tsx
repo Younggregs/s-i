@@ -1,33 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { Text, View } from '../Themed';
-import Modal from "react-native-modal";
-import { WebView } from 'react-native-webview';
 import { useQuery } from 'react-query'
 import * as interests from '../../store/actions/interests'
 
 export default function NetflixPlayer({link_text}) {
-    const [modalVisible, setModalVisible] = useState(false);
-
     const {data, isLoading} = useQuery(
       ['player_preview', link_text],
       () => interests.fetch_preview_query(link_text))
     
     return (
         <View style={styles.itemView}>
-            <Modal
-                propagateSwipe={true}
-                swipeDirection="down"
-                onSwipeComplete={() => { setModalVisible(false) }}
-                isVisible={modalVisible}
-            >
-                <WebView
-                    style={styles.container}
-                    source={{ uri: link_text }}
-                    />
-            </Modal>
-
-        <TouchableOpacity style={styles.itemView} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity style={styles.itemView} onPress={() => Linking.openURL(link_text)}>
               {isLoading ? (
                 <View style={styles.itemView}>
                   <Text style={styles.loadingText}>Loading...</Text>
