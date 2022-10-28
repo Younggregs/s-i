@@ -21,6 +21,13 @@ export default function YouTubePlayer({link_text}) {
     
     return (
         <View style={styles.itemView}>
+          
+          {isLoading && (
+            <View style={styles.itemView2}>
+                <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          )}
+
           <YoutubePlayer
             height={300}
             play={playing}
@@ -28,11 +35,7 @@ export default function YouTubePlayer({link_text}) {
             onChangeState={onStateChange}
             onReady={() => setIsLoading(false)}
           />
-          {isLoading && (
-            <View style={styles.itemView2}>
-                <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-          )}
+          
 
         </View>
   );

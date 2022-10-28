@@ -38,7 +38,7 @@ export default function SpotifyPlayer({link_text}) {
               )}
         </TouchableOpacity>
         </View>
-  );
+  ); 
 }
 
 const styles = StyleSheet.create({
@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
       width: 300,
       borderColor: '#fff',
       borderWidth: 1,
-      borderStyle: 'solid',
       resizeMode: 'cover',
       borderRadius: 10
     },
