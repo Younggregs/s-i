@@ -336,6 +336,7 @@ const styles = StyleSheet.create({
       color: '#fff',
       fontWeight: 'bold',
       fontStyle: 'italic',
+      textDecorationLine: 'underline',
       fontSize: 15,
       flex: 3
     },
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.1)',
         borderStyle: "solid",
         borderBottomWidth: 0.5,
-        height: 150
+        maxHeight: 300
     },
     icon: {
         width: 30,
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     nameText: {
-        fontSize: 12,
+        fontSize: 15,
         fontWeight: 'bold'
     },
     profileImageView:{

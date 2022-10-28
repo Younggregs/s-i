@@ -26,7 +26,7 @@ export default function YouTubePlayer({link_text}) {
     
     return (
         <View style={styles.itemView}>
-          <Modal
+          {/* <Modal
               propagateSwipe={true}
               swipeDirection="down"
               onSwipeComplete={() => { setModalVisible(false) }}
@@ -34,7 +34,7 @@ export default function YouTubePlayer({link_text}) {
             >
               <View style={styles.container}>
                 
-                <YoutubePlayer
+                {/* <YoutubePlayer
                   height={350}
                   play={playing}
                   videoId={youtubeRegex(link_text)}
@@ -46,26 +46,24 @@ export default function YouTubePlayer({link_text}) {
                   <View style={styles.itemView}>
                       <Text style={styles.loadingText}>Loading...</Text>
                   </View>
-                )}
+                )} 
               </View>
-          </Modal>
-          
-          <TouchableOpacity style={styles.itemView} onPress={() => setModalVisible(true)}>
-           <UrlPreview 
-              text={link_text}
-              containerStyle={styles.itemView}
-              titleStyle={{color: '#fff', fontWeight: 'bold', fontSize: 15}}
-              descriptionStyle={{color: '#fff'}}
-              imageStyle={{height: 140, width: 100}}
-              onLoad={() => setLoaded(true)}
-            />
-              {!loaded && (
-                <View style={styles.itemView}>
-                  <Text style={styles.loadingText}>Loading...</Text>
-                </View>
-              )}
-          </TouchableOpacity>
-         
+          </Modal> 
+        */}
+
+          <YoutubePlayer
+            height={300}
+            play={playing}
+            videoId={youtubeRegex(link_text)}
+            onChangeState={onStateChange}
+            onReady={() => setIsLoading(false)}
+          />
+          {isLoading && (
+            <View style={styles.itemView2}>
+                <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          )}
+
         </View>
   );
 }
@@ -80,7 +78,11 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   itemView: {
-    height: 150,
+    height: 220,
+    padding: 5
+  },
+  itemView2: {
+    height: 220,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5

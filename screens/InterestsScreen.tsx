@@ -22,9 +22,7 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
 
   const queryClient = useQueryClient()
   const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
-    initialData: () => {
-      return queryClient.getQueryData('interestsList') || []
-    }
+    initialData: []
   })
 
   const [modalVisible, setModalVisible] = useState(false);

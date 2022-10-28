@@ -10,6 +10,14 @@ import * as interests from '../../store/actions/interests';
 export default function TwitterPlayer({id, link_text, preview}) {
     const [modalVisible, setModalVisible] = useState(false);
     const [tweet, setTweet] = useState()
+
+
+    // const {data, isLoading} = useQuery(
+    //     ['player_preview', link_text],
+    //     () => interests.fetch_preview_query(link_text))
+  
+    //   console.log('request: ', data?.images[0], data?.title)
+
     const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch();

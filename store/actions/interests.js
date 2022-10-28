@@ -1,5 +1,6 @@
 import {SERVER_URL} from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLinkPreview, getPreviewFromContent } from "link-preview-js";
 import moment from 'moment'
 export const SET_CATEGORIES = "SET_CATEGORIES";
 export const SELECT_CATEGORY = "SELECT_CATEGORY";
@@ -10,7 +11,6 @@ export const TOGGLE_INTEREST = "TOGGLE_INTEREST"
 export const UPDATE_INTERESTING_LIST = "UPDATE_INTERESTING_LIST"
 export const UPDATE_INTERESTVIEW_LIST = "UPDATE_INTERESTVIEW_LIST"
 export const DELETE_INTEREST = "DELETE_INTEREST"
-
 
 export const fetchCategories = () => {
     return async (dispatch, getState) => {
@@ -374,6 +374,16 @@ export const fetch_interests_query = async () => {
 
     return resP
 };
+
+export const fetch_preview_query = async(link) => {
+    const res = await getLinkPreview(link).then((data) =>
+      {
+        return data
+      }
+    );
+
+    return res
+}
 
 export const fetchTweet = (id) => {
     return async (dispatch, getState) => {
