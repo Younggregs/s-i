@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import {
   QueryClient,

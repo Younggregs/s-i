@@ -310,6 +310,7 @@ export const fetchInterests = () => {
                     type: interest.type,
                     interesting: interest.interesting,
                     created_at: interest.created_at,
+                    saved: interest.saved,
                     time_remaining: time_remaining,
                     mine: user.phone_id === interest.account.phone_id ? true : false
                 }
@@ -364,15 +365,63 @@ export const fetch_interests_query = async () => {
                     interesting: interest.interesting,
                     created_at: interest.created_at,
                     time_remaining: time_remaining,
+                    saved: interest.saved,
                     mine: user.phone_id === interest.account.phone_id ? true : false
                 }
                 resP.unshift(bucket)
             }
         })
 
-        // console.log('control: ', resP)
-
     return resP
+};
+
+export const fetch_saved_interests_query = async () => {
+    let user = await AsyncStorage.getItem('user')
+    user = JSON.parse(user)
+    const response = await fetch(`${SERVER_URL}/fetch_saved_interest/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${user.token}`
+        }
+    });
+    const resData = await response.json();
+
+    if(resData.error){
+        throw new Error(resData.error);
+    }
+
+    const resP = []
+    const date = moment().subtract(20, 'hours');
+    await resData.map(interest => {
+        const created_at = moment(interest.created_at)
+            const time_remaining = created_at.diff(date, 'seconds') * 1000
+            const bucket = {  
+                id: interest.id, 
+                caption: interest.caption, 
+                link_text: interest.link_text,
+                account: {
+                    id: interest.account.id,
+                    phone: interest.account.phone_id,
+                    name: interest.friends_name
+                },
+                category:  {
+                    id: interest.category.id.toString(),
+                    name: interest.category.name, 
+                    slug: interest.category.slug, 
+                    active: false
+                },
+                type: interest.type,
+                interesting: interest.interesting,
+                created_at: interest.created_at,
+                time_remaining: time_remaining,
+                saved: interest.saved,
+                saved_screen: true,
+                mine: user.phone_id === interest.account.phone_id ? true : false
+            }
+            resP.unshift(bucket)
+    })
+
+return resP
 };
 
 export const fetch_preview_query = async(link) => {
@@ -478,6 +527,26 @@ export const deleteInterest = (id) => {
     }
 };
 
+export const delete_saved_interest_query = async (id) => {
+
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const response = await fetch(`${SERVER_URL}/delete_saved_interest/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            }
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData
+};
+
 export const delete_interest_query = async (id) => {
 
         let user = await AsyncStorage.getItem('user')
@@ -496,6 +565,26 @@ export const delete_interest_query = async (id) => {
         }
 
         return resData
+};
+
+export const save_interest_query = async (id) => {
+
+    let user = await AsyncStorage.getItem('user')
+    user = JSON.parse(user)
+
+    const response = await fetch(`${SERVER_URL}/save_interest/${id}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${user.token}`
+        }
+    });
+    const resData = await response.json();
+
+    if(resData.error){
+        throw new Error(resData.error);
+    }
+
+    return resData
 };
 
 export const feedback = (message) => {

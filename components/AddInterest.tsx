@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator } fro
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlayerComponent from './PlayerComponent';
-import { useQuery, useMutation, QueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import { Text, View } from './Themed';
 
@@ -18,12 +18,13 @@ import netflixRegex from './category_regexes/NetflixRegex';
 import pinterestRegex from './category_regexes/PinterestRegex';
 
 import * as interests from '../store/actions/interests';
-import { queryClient } from "../App";
 
 var linkify = require('linkifyjs');
 
 export default function AddInterest({ path }: { path: string }) {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient()
+
   const {data} = useQuery('interestsList', interests.fetch_interests_query,{
     initialData: () => {
       return queryClient.getQueryData('interestsList') || []

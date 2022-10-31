@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Platform, StyleSheet, FlatList, TextInput, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Contacts from 'expo-contacts';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import parsePhoneNumber from 'libphonenumber-js'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { StatusBar } from 'expo-status-bar';
 import { Text, View } from '../components/Themed';
@@ -13,9 +13,9 @@ import * as auth from '../store/actions/auth';
 import ContactItem from "../components/ContactItem";
 
 export default function LoginContactsScreen() {
+  const queryClient = useQueryClient()
   const [phonebook, setPhonebook] = useState(false)
   const [contactList, setContactList] = useState([])
-  const queryClient = useQueryClient()
   const friendListQuery = useQuery('friendsList', friends.fetch_friends_query,{
     initialData: () => {
       return queryClient.getQueryData('friendsList') || []
@@ -34,8 +34,6 @@ export default function LoginContactsScreen() {
   const [contact, setContact] = useState([])
   const [text, setText] = useState('');
 
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   const dispatch = useDispatch();
@@ -76,29 +74,6 @@ export default function LoginContactsScreen() {
     return contact_list;
   }
 
-  const requestInvite = useCallback(async (data) => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const contact_list = await processContacts(data)
-      const message = await dispatch(friends.request_invite(contact_list));
-      setContact(message)
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-}, [dispatch, setError])
-
-const loadFriends = useCallback(async () => {
-  setError('');
-  setIsLoading(true);
-  try {
-      await dispatch(friends.fetch_friends());
-  } catch (err) {
-      setError(err.message);
-  }
-  setIsLoading(false);
-}, [dispatch, setError])
 
   const friendList = friendListQuery.data
   //const contactList = useSelector((state) => state.friend.allContacts);
@@ -159,17 +134,6 @@ const loadFriends = useCallback(async () => {
   const searchList1 = tagList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList = searchList1.concat(searchList2)
-  
-  const loadContact = useCallback(async (data) => {
-    setError('');
-    setIsLoading(true);
-    try {
-        await dispatch(friends.setContacts(data));
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-  }, [dispatch, setError])
 
   useEffect(() => {
     (async () => {
@@ -181,11 +145,8 @@ const loadFriends = useCallback(async () => {
 
         if (data.length > 0) {
           const valid_contacts = data.filter(item => item.name !== undefined)
-          //loadFriends()
           processContacts(valid_contacts)
           setContactList(valid_contacts)
-          // loadContact(valid_contacts)
-          // requestInvite(valid_contacts);
         }
       }
     })();

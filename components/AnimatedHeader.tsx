@@ -3,7 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { StyleSheet, Animated, View, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
-import { useQuery, useMutation, QueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
@@ -17,12 +17,12 @@ import useColorScheme from '../hooks/useColorScheme';
 
 import * as friends from '../store/actions/friends';
 import onShare from './Share';
-import { queryClient } from '../App';
 
 const HEADER_HEIGHT = 200;
 
 const AnimatedHeader = ({animatedValue, friend}) => {
     const colorScheme = useColorScheme();
+    const queryClient = useQueryClient()
 
     const insets = useSafeAreaInsets();
     const headerHeight = animatedValue.interpolate({

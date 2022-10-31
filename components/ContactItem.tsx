@@ -9,14 +9,15 @@ import { useDispatch  } from "react-redux";
 import { Text, View } from "../components/Themed";
 import parsePhoneNumber from 'libphonenumber-js'
 import onShare from "../components/Share";
-import { useQuery, useMutation, QueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import * as friends from "../store/actions/friends";
 import Toast from 'react-native-root-toast';
-import { queryClient } from "../App";
 
 export default function ContactItem({ item }) {
   const [hide, setHide] = useState(false)
+  const queryClient = useQueryClient()
+
   const {data} = useQuery('friendsList', friends.fetch_friends_query,{
     initialData: () => {
         return queryClient.getQueryData('friendsList') || []

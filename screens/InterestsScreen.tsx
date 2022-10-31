@@ -1,12 +1,12 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { StyleSheet, Platform, AppState, AppStateStatus, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect } from "react";
+import { StyleSheet, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import AddInterest from '../components/AddInterest';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import { useQuery, useQueryClient, focusManager } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import * as interests from '../store/actions/interests';
 import * as Network from 'expo-network';
@@ -14,61 +14,26 @@ import Toast from 'react-native-root-toast';
 
 import InterestComponent from "../components/InterestComponent";
 
-const wait = (timeout) => {
-  return new Promise(resolve => setTimeout(resolve, timeout));
-}
-
 export default function InterestsScreen({ navigation }: RootTabScreenProps<'Interests'>) {
-
   const queryClient = useQueryClient()
-  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
-    initialData: []
+  const {data, isLoading, status} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
   })
 
-  const [modalVisible, setModalVisible] = useState(false);
   const categories = useSelector(state => state.interest.allCategories);
   const activeCategory = categories.find(category => category.active === true);
 
-  const interestsList = useSelector(state => state.interest.allInterests);
   let interestsBucket = []
   interestsBucket = data.filter(interest => interest.category.id === activeCategory.id)
 
-  // const [isLoading, setIsLoading] = useState(false); 
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-
   const dispatch = useDispatch();
-
-  const [visible, setVisible] = useState(false);
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
-
-  const loadInterest = useCallback(async () => {
-    setError('');
-    setIsLoading(true);
-    try {
-        await dispatch(interests.fetchInterests());
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-  }, [dispatch, setError])
-
-  const refreshInterest = useCallback(async () => {
-    try {
-        await dispatch(interests.fetchInterests());
-    } catch (err) {
-        setError(err.message);
-    }
-  }, [dispatch])
 
   useEffect(() => {
     checkNetworkConnection()
-    // loadInterest()
-    .then(() => {
-        // setIsLoading(false);
-    });
-  }, [dispatch, loadInterest])
+
+  }, [])
 
   const checkNetworkConnection = async () => {
     const status = await Network.getNetworkStateAsync();
@@ -79,15 +44,6 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
 
     }
   }
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    wait(2000).then(() => {
-      checkNetworkConnection()
-      refreshInterest()
-      setRefreshing(false)
-    });
-  }, []);
 
 
 const onViewableItemsChanged = useCallback(
@@ -123,12 +79,6 @@ const onViewableItemsChanged = useCallback(
             itemVisiblePercentThreshold: 100,
             minimumViewTime: 2000,
           }}
-          // refreshControl={
-          //  <RefreshControl
-          //    refreshing={refreshing}
-          //    onRefresh={onRefresh}
-          //  />
-          // }
           data={interestsBucket}
           renderItem={({ item }) => (
             <InterestComponent key={item.id} item={item} />

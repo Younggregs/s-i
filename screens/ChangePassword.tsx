@@ -49,9 +49,6 @@ export default function ChangePasswordScreen({ navigation }: RootStackScreenProp
         style={styles.container}
     >
         <Text style={styles.title}>Enter your current password and new password to update</Text>
-        {/* <View style={styles.labelView}>
-            <Text style={styles.label}>Enter password</Text>
-        </View> */}
 
         <View style={styles.labelView}>
             <Text style={styles.label}>Current password</Text>

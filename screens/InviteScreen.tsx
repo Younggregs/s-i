@@ -1,43 +1,20 @@
-import React, { useEffect, useState, useCallback, } from "react";
+import React, { useEffect } from "react";
 import {
   Platform,
   StyleSheet,
   Image,
   TouchableOpacity
 } from "react-native";
-import * as Contacts from "expo-contacts";
 import * as Linking from 'expo-linking';
-import { useDispatch, useSelector } from "react-redux";
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
 import logo from '../assets/images/logo.png'
 
-import * as friends from "../store/actions/friends";
 import { useNavigation } from '@react-navigation/native';
 
 export default function InviteModalScreen() {
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
-
-  const dispatch = useDispatch();
   const navigation = useNavigation();
-
-  const loadContact = useCallback(
-    async (data) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.setContacts(data));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setIsLoading, setError]
-  );
 
   const _handleUrl = async () => {
     const link = await Linking.getInitialURL()
@@ -55,22 +32,6 @@ export default function InviteModalScreen() {
           _handleUrl()
       }
   });
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Contacts.requestPermissionsAsync();
-      if (status === "granted") {
-        const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.Emails],
-        });
-
-        if (data.length > 0) {
-          const valid_contacts = data.filter(item => item.name !== undefined)
-          loadContact(valid_contacts)
-        }
-      }
-    })();
-  }, []);
 
   return (
     <View style={styles.container}>

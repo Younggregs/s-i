@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -9,14 +9,12 @@ import {
 } from "react-native";
 import * as Linking from 'expo-linking';
 import * as Contacts from "expo-contacts";
-import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import parsePhoneNumber from 'libphonenumber-js'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { StatusBar } from "expo-status-bar";
 import { Text, View } from "../components/Themed";
-import onShare from "../components/Share";
 
 import * as friends from "../store/actions/friends";
 import { useNavigation } from '@react-navigation/native';
@@ -25,9 +23,9 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
 export default function RequestInviteModalScreen() {
+  const queryClient = useQueryClient()
   const [phonebook, setPhonebook] = useState(false)
   const [contactList, setContactList] = useState([])
-  const queryClient = useQueryClient()
   const { data, isLoading } = useQuery(
     ['registered_contacts', phonebook], 
     () => friends.request_invite_query(phonebook), 
@@ -42,11 +40,6 @@ export default function RequestInviteModalScreen() {
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
-  const dispatch = useDispatch();
-
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
 
   const processContacts = async (data) => {
     const contact_list = []
@@ -83,23 +76,6 @@ export default function RequestInviteModalScreen() {
     setPhonebook(contact_list)
     return contact_list;
   }
-
-  const requestInvite = useCallback(async (data) => {
-    setError('');
-    setIsLoading(true);
-    try {
-        const contact_list = await processContacts(data)
-        const message = await dispatch(friends.request_invite(contact_list));
-        setContact(message)
-        
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-}, [dispatch, setError])
-
-  const friendList = useSelector((state) => state.friend.allFriends);
-  //const contactList = useSelector((state) => state.friend.allContacts);
 
   const tempList = contactList.filter((item) => {
     let isActive = false
@@ -142,20 +118,6 @@ export default function RequestInviteModalScreen() {
 
   };
 
-  const loadContact = useCallback(
-    async (data) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.setContacts(data));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setError]
-  );
-
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
@@ -168,8 +130,6 @@ export default function RequestInviteModalScreen() {
           const valid_contacts = data.filter(item => item.name !== undefined)
           processContacts(valid_contacts)
           setContactList(valid_contacts)
-          //loadContact(valid_contacts)
-          //requestInvite(valid_contacts);
         }
       }
     })();

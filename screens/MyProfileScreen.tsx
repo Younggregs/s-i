@@ -1,10 +1,7 @@
 import React, {useRef, useState, useEffect} from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet, Animated } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { ScrollView, StyleSheet, Animated } from 'react-native';
+import { useSelector } from 'react-redux';
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from 'react-query'
 

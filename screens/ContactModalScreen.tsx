@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -8,14 +8,13 @@ import {
   TextInput
 } from "react-native";
 import * as Contacts from "expo-contacts";
-import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import parsePhoneNumber from 'libphonenumber-js'
 import { useQuery, useQueryClient } from 'react-query'
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "../components/Themed";
+import { View } from "../components/Themed";
 
 import * as friends from "../store/actions/friends";
 
@@ -27,6 +26,7 @@ export default function ContactModalScreen() {
   const [phonebook, setPhonebook] = useState(false)
   const [contactList, setContactList] = useState([])
   const queryClient = useQueryClient()
+  
   const friendListQuery = useQuery('friendsList', friends.fetch_friends_query,{
     initialData: () => {
       return queryClient.getQueryData('friendsList') || []
@@ -47,12 +47,6 @@ export default function ContactModalScreen() {
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
-
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
-
-  const dispatch = useDispatch();
 
   const processContacts = async (data) => {
     const contact_list = []
@@ -89,19 +83,6 @@ export default function ContactModalScreen() {
     setPhonebook(contact_list)
     return contact_list;
   }
-
-  const requestInvite = useCallback(async (data) => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const contact_list = await processContacts(data)
-      const message = await dispatch(friends.request_invite(contact_list));
-      setContact(message)
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-}, [dispatch, setError])
 
   //const friendList = useSelector((state) => state.friend.allFriends);
   const friendList = friendListQuery.data
@@ -166,20 +147,6 @@ export default function ContactModalScreen() {
   const searchList = searchList1.concat(searchList2)
 
 
-  const loadContact = useCallback(
-    async (data) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.setContacts(data));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setError]
-  );
-
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
@@ -192,8 +159,6 @@ export default function ContactModalScreen() {
           const valid_contacts = data.filter(item => item.name !== undefined)
           processContacts(valid_contacts)
           setContactList(valid_contacts)
-          // loadContact(valid_contacts)
-          // requestInvite(valid_contacts);
         }
       }
     })();
