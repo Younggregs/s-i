@@ -1355,6 +1355,25 @@
     xcode "^3.0.0"
     xml-js "^1.6.11"
 
+"@expo/dev-server@0.1.119":
+  version "0.1.119"
+  resolved "https://registry.yarnpkg.com/@expo/dev-server/-/dev-server-0.1.119.tgz#d85036d8ddfd5668fd50ef373616b55580dc7670"
+  integrity sha512-DcVnj4/YA+b+Ljsz2qffHHN5LbouXFKeE9ER0Yjq5vIb2moV1q3U6LezndFLCf42Uev7C2vSa8YCcP3WOpxuMw==
+  dependencies:
+    "@expo/bunyan" "4.0.0"
+    "@expo/metro-config" "~0.3.18"
+    "@expo/osascript" "2.0.33"
+    body-parser "1.19.0"
+    chalk "^4.0.0"
+    connect "^3.7.0"
+    fs-extra "9.0.0"
+    node-fetch "^2.6.0"
+    open "^8.3.0"
+    resolve-from "^5.0.0"
+    semver "7.3.2"
+    serialize-error "6.0.0"
+    temp-dir "^2.0.0"
+
 "@expo/dev-server@~0.1.120":
   version "0.1.120"
   resolved "https://registry.yarnpkg.com/@expo/dev-server/-/dev-server-0.1.120.tgz#0c7aff4e29d98298214129127f5df951cb7b81dd"
@@ -1435,6 +1454,20 @@
     "@babel/code-frame" "~7.10.4"
     json5 "^1.0.1"
     write-file-atomic "^2.3.0"
+
+"@expo/metro-config@~0.3.18":
+  version "0.3.22"
+  resolved "https://registry.yarnpkg.com/@expo/metro-config/-/metro-config-0.3.22.tgz#fa4a0729ec8ecbc9c9fb79c63ecc66a299505c82"
+  integrity sha512-R81sLbaeUBjN8IXcxiVx7GcpSj8z7szILl1b5yJDb38WdIFwxhrseA5wXaTT1yMhI+59w6n99T2qtFV2yD5qYA==
+  dependencies:
+    "@expo/config" "7.0.1"
+    "@expo/json-file" "8.2.36"
+    chalk "^4.1.0"
+    debug "^4.3.2"
+    find-yarn-workspace-root "~2.0.0"
+    getenv "^1.0.0"
+    resolve-from "^5.0.0"
+    sucrase "^3.20.0"
 
 "@expo/metro-config@~0.4.0":
   version "0.4.0"

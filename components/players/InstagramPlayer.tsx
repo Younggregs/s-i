@@ -13,6 +13,16 @@ export default function InstagramPlayer({link_text}) {
       ['player_preview', link_text],
       () => interests.fetch_preview_query(link_text))
     
+    const formatDescribtion = (description) => {
+      let newDescription = description.replace(/[\r\n]/gm, '');
+      newDescription = newDescription.substring(0,100);
+      if(newDescription.length >= 150){
+        newDescription += ' ...'
+      }
+
+      return newDescription
+    }
+    
     return (
         <View style={styles.itemView}>
             <Modal
@@ -46,8 +56,7 @@ export default function InstagramPlayer({link_text}) {
                     {data?.title && data?.title.length >= 150 && '...'}
                   </Text>
                   <Text>
-                    {data?.description && data?.description.substring(0,100)} 
-                    {data?.description && data?.description.length >= 150 && '...'}
+                    {data?.description && formatDescribtion(data?.description)}
                   </Text>
                 </View> 
               </View> 
