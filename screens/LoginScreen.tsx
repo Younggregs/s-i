@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
-import { StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Linking, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, ActivityIndicator, Linking, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import logo from '../assets/images/logo.png'
@@ -11,7 +11,6 @@ import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
 
 import PhoneInput from "react-native-phone-number-input";
-import SMSVerifyCode from 'react-native-sms-verifycode';
 import {
     CodeField,
     Cursor,
@@ -23,7 +22,6 @@ import {
 const CELL_COUNT = 5;
 
 export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
-    const [text, setText] = useState('');
     const [code, setCode] = useState('');
     const [_url, setUrl] = useState('');
 
@@ -49,17 +47,6 @@ export default function LoginScreen({ navigation }: RootStackScreenProps<'NotFou
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
-    const onInputCompleted = (text) => {
-        Alert.alert(
-          text,
-          '本次输入的验证码',
-          [
-              {
-              text: '确定',
-            },
-          ]
-        )
-    }
 
     const verifyPhone = useCallback(async (phone, phone_id, callingCode, countryCode) => {
         setError('');

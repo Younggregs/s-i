@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';  
+import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlayerComponent from './PlayerComponent';
+import { useQuery, useMutation, useQueryClient } from 'react-query'
+import Modal2 from "react-native-modal";
+import Checkbox from 'expo-checkbox';
 
 import { Text, View } from './Themed';
 
@@ -17,27 +20,80 @@ import netflixRegex from './category_regexes/NetflixRegex';
 import pinterestRegex from './category_regexes/PinterestRegex';
 
 import * as interests from '../store/actions/interests';
+import * as friends from '../store/actions/friends';
+import { setNotificationChannelGroupAsync } from "expo-notifications";
 
 var linkify = require('linkifyjs');
 
+const data1 = [
+  { id: 1, txt: 'first check', isChecked: false },
+  { id: 2, txt: 'second check', isChecked: false },
+  { id: 3, txt: 'third check', isChecked: false },
+  { id: 4, txt: 'fourth check', isChecked: false },
+  { id: 5, txt: 'fifth check', isChecked: false },
+  { id: 6, txt: 'sixth check', isChecked: false },
+  { id: 7, txt: 'seventh check', isChecked: false },
+];
 
 
 export default function AddInterest({ path }: { path: string }) {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient()
+
+  const {data} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  })
+
+  const friendList = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+      return queryClient.getQueryData('friendsList') || []
+    }
+  })
+
+  const mutation = useMutation((item) => interests.add_interest_query(item), {
+    onMutate: async (item) => {
+        
+        await queryClient.cancelQueries('interestsList')
+
+        queryClient.setQueryData('interestsList', [item, ...data])
+
+        dispatch(interests.selectCategory(item.category.id)) 
+        setModalVisible(false)
+        onChangeCaption('') 
+        onChangeLink('')
+
+        return { item, data: data }
+    },
+    onSuccess: (result, variables, context) => {
+      queryClient.setQueryData('interestsList', [result, ...context?.data])
+
+    },
+    onError: (error, variables, context) => {
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+
   const [user, setUser] = useState({})
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
   const [link, onChangeLink] = useState('');
   const [caption, onChangeCaption] = useState('');
-  const [loaded, setLoaded] = useState(false);
+  const [searchWord, onChangeSearchWord] = useState('');
   const [type, setType] = useState('')
   const [category, setCategory] = useState('')
   const [errorMessage, setErrorMessage] = useState(false)
+  const [myfriends, setFriends] = useState(friendList.data || [])
   const [youtubeId, setYoutubeId] = useState('')
+  const [checked, setChecked] = useState(true)
+  const [selectedList, setSelected] = useState([])
   const categories = useSelector(state => state.interest.allCategories);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const dispatch = useDispatch();
+  
 
   useEffect(() => {
     const getData = async () => {
@@ -70,6 +126,10 @@ export default function AddInterest({ path }: { path: string }) {
     }else{
       try {
         const interestCategory = categories.find((item: { name: any; }) => item.name === category);
+        let shareList = selected.map((friend) => { return friend.id })
+        if(checked){
+          shareList = []
+        }
         const interestObject = {
           'id': Math.random().toString(36).substring(2, 15),
           'link_text': link,
@@ -88,18 +148,20 @@ export default function AddInterest({ path }: { path: string }) {
           'type': type,
           'interesting': false,
           'created_at': new Date(),
-          'mine': true
+          'mine': true,
+          'share_list': shareList
         }
-        const res = await dispatch(interests.addInterest(interestObject));
-        if(res.error_message){
-          setError(res.res_message)
-          setErrorMessage(true)
-        }else{
-          setModalVisible(false)
-        }
+        //const res = await dispatch(interests.addInterest(interestObject));
+        mutation.mutate(interestObject)
+        // if(res.error_message){
+        //   setError(res.res_message)
+        //   setErrorMessage(true)
+        // }else{
+        //   setModalVisible(false)
+        // }
         
-        onChangeCaption('')
-        onChangeLink('')
+        // onChangeCaption('')
+        // onChangeLink('')
       } catch (err) {
           setError(err.message);
       }
@@ -150,6 +212,32 @@ export default function AddInterest({ path }: { path: string }) {
     
   }
 
+  const searchList = myfriends.filter((friend) => friend.name.toUpperCase().indexOf(searchWord.toUpperCase()) > -1)
+
+  const handleChange = (id) => {
+    let temp = myfriends.map((friend) => {
+      if (id === friend.id) {
+        friend.isChecked = friend.isChecked === undefined ? false : friend.isChecked;
+        return { ...friend, isChecked: !friend.isChecked };
+      }
+      
+      return friend;
+    });
+    
+    setFriends(temp)
+  };
+
+  let selected = myfriends.filter((friend) => friend.isChecked);
+
+  const shareList = () => {
+    let list = "All My Friends";
+    if(!checked){
+      let select = selected.length;
+      list = `${select} Friend${select > 1 ? 's': ''}`
+    } 
+    return list
+  }
+
   return (
   <View style={styles.container}>
     <Modal
@@ -164,12 +252,14 @@ export default function AddInterest({ path }: { path: string }) {
       <View style={styles.modalView}>
           <Text style={styles.categoryText}>Share Interest</Text>
           <TextInput
-              style={styles.input}
+              style={[styles.input, {height: 75}]}
               placeholderTextColor='white'
               onChangeText={(value) => onChangeLink(value)}
               onEndEditing={() => determineLinkCategory()}
               placeholder="Link"
               returnKeyType='done'
+              multiline={true}
+              numberOfLines={3}
               value={link}
           />
           <TextInput
@@ -180,6 +270,96 @@ export default function AddInterest({ path }: { path: string }) {
               returnKeyType='done'
               value={caption}
           />
+
+          <Modal2
+              propagateSwipe={true}
+              swipeDirection="down"
+              onSwipeComplete={() => { setModalVisible2(false) }}
+              isVisible={modalVisible2}
+              >
+              <View style={styles.container2}>
+                  <View style={styles.swipeCueView}>
+                      <View style={styles.swipeCue} />
+                  </View>
+                  
+                  <Text style={styles.categoryText}>Select friends to share with</Text>
+
+                  <TextInput
+                      style={styles.input}
+                      placeholderTextColor='white'
+                      onChangeText={(value) => onChangeSearchWord(value)}
+                      placeholder="Search"
+                      returnKeyType="search"
+                      clearButtonMode="always"
+                      value={searchWord}
+                  />
+
+                  <View style={styles.contact}>
+                      
+                      <Text style={[styles.item, {fontWeight: "bold"}]}>
+                        All My Friends
+                      </Text>
+                      <View
+                          style={styles.tagView}
+                      >
+                        <Checkbox
+                          value={checked}
+                          onValueChange={setChecked}
+                          color={'#2196F3'}
+                        />
+                      </View>
+                  </View>
+
+                  <FlatList
+                      data={searchList}
+                      renderItem={({ item }) => (
+                      <View style={[styles.modalView, {margin: 1, padding: 5}]}>
+                      <View style={styles.contact}>
+                            <View style={styles.contactImage}>
+                                <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
+                            </View>
+                            <Text style={styles.item}>{`${item.name}`}</Text>
+                            <View
+                                style={styles.tagView}
+                            >
+                              <Checkbox
+                                value={item.isChecked}
+                                onValueChange={() => {
+                                  handleChange(item.id);
+                                }}
+                                color={'#2196F3'}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                      )}
+                  />
+                  
+                  <TouchableOpacity
+                    style={[styles.button, styles.buttonClose, styles.buttonCancel]}
+                    onPress={() => setModalVisible2(false)}
+                >
+                    <Text style={styles.textStyle}>Close</Text>
+                </TouchableOpacity>
+              </View>
+              
+          </Modal2>
+
+          <View style={styles.shareView}>
+            <View style={styles.share1}>
+              <Text>Share with: </Text>
+            </View>
+            <TouchableOpacity 
+            style={styles.share2} 
+            onPress={() => { 
+              setModalVisible2(true), 
+              setFriends(friendList.data || []) 
+              }}>
+              <Text>
+                {shareList()}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.previewView}>
               <Text style={styles.previewText}>{category && link  && ( `Preview (${category})`)}</Text>
@@ -234,7 +414,6 @@ export default function AddInterest({ path }: { path: string }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   getStartedContainer: {
@@ -391,16 +570,94 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#373737',
+    backgroundColor: '#000',
     color: '#fff',
     paddingHorizontal: 20,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#fff',
   },
   preview: {
     flexDirection: 'column',
     height: 200,
     width: '100%',
     marginVertical: 10,
-  }
-  
+  },
+  shareView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginTop: 15
+  },
+  share1: {
+    flex: 3
+  },
+  share2: {
+    flex: 9,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#fff', 
+    padding: 5,
+    borderRadius: 10
+  },
+  swipeCueView: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  swipeCue: {
+    width: 50,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    height: 4,
+  },
+  container2: {
+    flex: 1,
+    marginTop: 200,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderStyle: "solid",
+    borderWidth: 0.5,
+    borderRadius: 15
+  },
+  contact: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  contactView: {
+    height: '100%',
+    width: '100%',
+  },
+  contactText: {
+    fontWeight: 'bold',
+    fontSize: 20
+  },
+  tagView: {
+    padding: 10,
+    borderRadius: 5,
+    flex: 2,
+  },
+  contactImage: {
+    height: 30,
+    width: 30,
+    borderRadius: 15,
+    borderColor: "#ffffff",
+    borderWidth: 1,
+    borderStyle: "solid",
+    justifyContent: "center",
+    alignItems: 'center', 
+  },
+  item: {
+    height: 50,
+    width: "100%",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    fontSize: 15,
+    flex: 10,
+  },
+  timer: {
+    color: '#fff',
+    fontSize: 15,
+    flex: 3
+  },
 });
 

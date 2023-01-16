@@ -9,11 +9,46 @@ import { useDispatch  } from "react-redux";
 import { Text, View } from "../components/Themed";
 import parsePhoneNumber from 'libphonenumber-js'
 import onShare from "../components/Share";
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import * as friends from "../store/actions/friends";
 import Toast from 'react-native-root-toast';
 
 export default function ContactItem({ item }) {
+  const [hide, setHide] = useState(false)
+  const queryClient = useQueryClient()
+
+  const {data} = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+        return queryClient.getQueryData('friendsList') || []
+    }
+    })
+
+  const mutation = useMutation(() => friends.tag_friend_query(item), {
+    onMutate: async (friend) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('friendsList')
+        
+        setHide(true)
+        const updatedData = [...data, friend]
+        queryClient.setQueryData('friendsList', updatedData)
+    
+        // Return context with the optimistic todo
+        return { friend, data: data, updatedData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('friendsList', context?.updatedData)
+      setHide(true)
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('friendsList', context?.data)
+      setHide(false)
+    },
+    retry: 3,
+  })
+
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -91,18 +126,22 @@ export default function ContactItem({ item }) {
   );
 
   return (
-    <View
+    <View>
+      {hide ? (
+        <View />
+      ): (
+        <View
         style={styles.contact}
         lightColor='#eee'
         darkColor='rgba(255,255,255,0.1)'
     >
-        <View style={styles.contactImage}>
+      <View style={styles.contactImage}>
             <Text style={styles.contactText}>{item.name.substring(0, 1)}</Text>
         </View>
             <Text style={styles.item}>{`${item.name}`}</Text>
         {item.active ? (
         <TouchableOpacity
-            onPress={() => add(item)}
+            onPress={() => mutation.mutate(item)}
             style={styles.tagView}
         >{isLoading ? (
             <ActivityIndicator color="#fff"/>
@@ -122,6 +161,10 @@ export default function ContactItem({ item }) {
         )}
         </TouchableOpacity>
         )}
+
+    </View>
+    )}
+        
     </View>
   );
 }

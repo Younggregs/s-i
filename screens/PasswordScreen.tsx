@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Image, TouchableOpacity, TextInput, Platform, ActivityIndicator, Linking } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { FontAwesome } from '@expo/vector-icons';
 
 import * as Device from 'expo-device';

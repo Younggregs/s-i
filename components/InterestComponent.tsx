@@ -7,11 +7,8 @@ import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-root-toast';
 import TimeAgo from 'react-native-timeago';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
-import TwitterPlayer from './players/TwitterPlayer';
-import OthersPlayer from './players/OthersPlayer';
-import TextPlayer from './players/TextPlayer';
 import PlayerComponent from './PlayerComponent';
 import InterestingList from './InterestingList';
 import InterestViews from './InterestViews'; 
@@ -29,9 +26,115 @@ import whatsapp from '../assets/images/category-icons/whatsapp.png'
 
 
 export default function InterestComponent(props: any) {
-    // const interesting = useQuery(
-    //   ['interesting', props.item.id], 
-    //   interests.interesting_list_query)
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  })
+
+  const mutation = useMutation(() => interests.toggle_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        let editData = data
+        const interest = editData.findIndex(item => item.id === id)
+        editData[interest].interesting = !editData[interest].interesting
+
+        queryClient.setQueryData('interestsList', editData)
+    
+        // Return context with the optimistic todo
+        return { id, data: data, editData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.editData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+  const deleteMutation = useMutation(() => interests.delete_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        const updatedData = data.filter(item => item.id !== id)
+        setHide(true)
+
+        queryClient.setQueryData('interestsList', updatedData)
+
+        // Return context with the optimistic todo
+        return { id, data: data, updatedData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.updatedData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+  const savedMutation = useMutation(() => interests.save_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        saveToast()
+
+        let editData = data
+        const interest = editData.findIndex(item => item.id === id)
+        editData[interest].saved = true
+
+        queryClient.setQueryData('interestsList', editData)
+    
+        // Return context with the optimistic todo
+        return { id, data: data, editData }
+
+        // Return context with the optimistic todo
+        return { id, data: data, editData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.editData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
+
+  const deleteSavedMutation = useMutation(() => interests.delete_saved_interest_query(props.item.id), {
+    onMutate: async (id) => {
+        // Cancel current queries for the todos list
+        await queryClient.cancelQueries('interestsList')
+
+        const updatedData = data.filter(item => item.id !== id)
+        setHide(true)
+
+        queryClient.setQueryData('interestsList', updatedData)
+
+        // Return context with the optimistic todo
+        return { id, data: data, updatedData }
+    },
+    onSuccess: (result, variables, context) => {
+      // Add friend
+      queryClient.setQueryData('interestsList', context?.updatedData)
+      
+    },
+    onError: (error, variables, context) => {
+      // Remove friend
+      queryClient.setQueryData('interestsList', context?.data)
+    }
+  })
 
     const colorScheme = useColorScheme();
     const [visible, setVisible] = useState(false);
@@ -46,8 +149,8 @@ export default function InterestComponent(props: any) {
     const time = props.item.created_at
 
     useEffect(() => {
-      if(props.item.time_remaining <= 60000){
-        setTimeout(function hideToast() {
+      if(props.item.time_remaining <= 60000 && !props.item.saved_screen){
+        setTimeout(function hideToast() { 
           setHide(true)
         }, props.item.time_remaining);
       }
@@ -62,22 +165,14 @@ export default function InterestComponent(props: any) {
       getUser()
     }, [dispatch, setUser])
 
-    const toggleInterest = useCallback(async (id) => {
-      try {
-          const res = await dispatch(interests.toggleInterest(id));
-      } catch (err) {
-      }
-    }, [dispatch])
-
-
     const openWhatsApp = () => {
       let msg = props.item.caption + '\n\n' + 
         props.item.link_text + '\n\nReply: ';
       let mobile = props.item.account.phone;
      
-      let url =x
+      let url =
         "whatsapp://send?text=" +
-        msg +e
+        msg +
         "&phone=" +
         mobile;
       Linking.openURL(url)
@@ -95,6 +190,28 @@ export default function InterestComponent(props: any) {
         '\nCopied from https://shareinterest.page.link/invite';
       Clipboard.setString(msg);
       let toast = Toast.show('Copied to clipboard', {
+        duration: Toast.durations.LONG,
+      });
+      
+      // You can manually hide the Toast, or it will automatically disappear after a `duration` ms timeout.
+      setTimeout(function hideToast() {
+        Toast.hide(toast);
+      }, 1000);
+    };
+
+    const saveToast = () => {
+      let toast = Toast.show('Interest saved', {
+        duration: Toast.durations.LONG,
+      });
+      
+      // You can manually hide the Toast, or it will automatically disappear after a `duration` ms timeout.
+      setTimeout(function hideToast() {
+        Toast.hide(toast);
+      }, 1000);
+    };
+
+    const savedAlreadyToast = () => {
+      let toast = Toast.show('Interest saved already', {
         duration: Toast.durations.LONG,
       });
       
@@ -148,7 +265,7 @@ export default function InterestComponent(props: any) {
               <Text style={styles.nameText}>{props.item.account.name}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => toggleInterest(props.item.id)} 
+              onPress={() =>  mutation.mutate(props.item.id)} 
               style={[styles.interactionsView, props.item.interesting && styles.activeInteractionsView]}
             >
               <Text style={styles.interactionsText}>Interesting</Text>
@@ -194,8 +311,24 @@ export default function InterestComponent(props: any) {
                 Copy
               </MenuItem>
               <MenuDivider color='#fff'/>
-              {props.item.mine ? (
-                <MenuItem textStyle={styles.menuText}  onPress={() => deleteInterest(props.item.id)}>
+              <MenuItem 
+                textStyle={styles.menuText} 
+                onPress={() => {
+                  props.item.saved ? 
+                  savedAlreadyToast() : savedMutation.mutate(props.item.id)
+                }}
+              >
+                { props.item.saved ? 'Saved' : 'Save Interest' }
+              </MenuItem>
+              <MenuDivider color='#fff'/>
+              {props.item.saved_screen ? (
+                <MenuItem textStyle={styles.menuText}  onPress={() => deleteSavedMutation.mutate(props.item.id)}>
+                  Delete saved
+                </MenuItem>
+              ): <View />}
+              <MenuDivider color='#fff'/>
+              {props.item.mine && !props.item.saved_screen ? (
+                <MenuItem textStyle={styles.menuText}  onPress={() => deleteMutation.mutate(props.item.id)}>
                   Delete
                 </MenuItem>
               ): <View />}
@@ -283,6 +416,7 @@ const styles = StyleSheet.create({
       color: '#fff',
       fontWeight: 'bold',
       fontStyle: 'italic',
+      textDecorationLine: 'underline',
       fontSize: 15,
       flex: 3
     },
@@ -290,7 +424,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255,255,255,0.1)',
         borderStyle: "solid",
         borderBottomWidth: 0.5,
-        height: 150
+        maxHeight: 300
     },
     icon: {
         width: 30,
@@ -342,7 +476,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     nameText: {
-        fontSize: 12,
+        fontSize: 15,
         fontWeight: 'bold'
     },
     profileImageView:{

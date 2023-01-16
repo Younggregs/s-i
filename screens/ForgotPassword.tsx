@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Linking, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
@@ -8,8 +8,6 @@ import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
 import logo from '../assets/images/logo.png'
-
-import PhoneInput from "react-native-phone-number-input";
 
 import {
     CodeField,

@@ -54,6 +54,17 @@ const MyAnimatedHeader = ({animatedValue}) => {
                         <View style={styles.nameView}>
                             <Text style={styles.titleText}>My Profile</Text>
                         </View>
+                        <TouchableOpacity 
+                            style={styles.savedButton}
+                            onPress={() => navigation.navigate('SavedInterests')}
+                        >
+                            <Text style={styles.savedText}>Saved Interests</Text>
+                            <FontAwesome
+                                    name="floppy-o"
+                                    size={20}
+                                    color={Colors[colorScheme].text}
+                            />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.contentContainer}>
                         <View style={styles.imageView}>
@@ -89,6 +100,18 @@ const styles = StyleSheet.create({
     menuContainer: {
         flex: 1,
         backgroundColor: 'transparent',
+    },
+    savedButton: {
+        borderColor: '#fff',
+        borderStyle: "solid",
+        borderWidth: 1,
+        padding: 5,
+        borderRadius: 5,
+        flexDirection: 'row'
+    },
+    savedText: {
+        fontWeight: 'bold',
+        marginRight: 5
     },
     imageView: {
         borderColor: '#fff',

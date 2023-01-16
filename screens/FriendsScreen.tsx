@@ -1,65 +1,19 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from 'react-query'
+import React from "react";
+import { FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useQuery, useQueryClient } from 'react-query'
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 
 import * as friends from '../store/actions/friends';
 
-const wait = (timeout) => {
-  return new Promise(resolve => setTimeout(resolve, timeout));
-}
-
 export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friends'>) {
-  const {data, isLoading} = useQuery('friendsList', friends.fetch_friends_query)
-
-  const friendList = useSelector(state => state.friend.allFriends);
-
-
-  // const [isLoading, setIsLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  // const [error, setError] = useState('');
-
-  const dispatch = useDispatch();
-
-  // const loadFriends = useCallback(async () => {
-  //   setError('');
-  //   setIsLoading(true);
-  //   try {
-  //       await dispatch(friends.fetch_friends());
-  //   } catch (err) {
-  //       setError(err.message);
-  //   }
-  //   setIsLoading(false);
-  // }, [dispatch, setIsLoading, setError])
-
-  const refreshFriends = useCallback(async () => {
-    try {
-        await dispatch(friends.fetch_friends());
-    } catch (err) {
-        setError(err.message);
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+      return queryClient.getQueryData('friendsList') || []
     }
-  }, [dispatch])
-
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   loadFriends()
-  //   .then(() => {
-  //       setIsLoading(false);
-  //   });
-  // }, [dispatch, loadFriends])
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    wait(2000).then(() => {
-      refreshFriends()
-      setRefreshing(false)
-    });
-  }, []);
-
-
+  })
 
   return (
     <View style={styles.container}>
@@ -71,12 +25,6 @@ export default function FriendsScreen({ navigation }: RootTabScreenProps<'Friend
       ) : (
         <FlatList
           contentContainerStyle={{ paddingBottom: 20 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
           data={data}
           renderItem={({ item }) => (
             <TouchableOpacity 
@@ -114,6 +62,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     fontSize: 15
+  },
+  loading: {
+    margin: 100
   },
   contactImage: {
     height: 40,

@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import UrlPreview from '../packages/UrlPreview';
 import { Text, View } from '../Themed';
 import Modal from "react-native-modal";
-import { WebView } from 'react-native-webview';
 
 export default function TextPlayer({link_text, caption}) {
-    const [loaded, setLoaded] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
     function truncate(str, n){

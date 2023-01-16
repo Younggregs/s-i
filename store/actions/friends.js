@@ -26,6 +26,23 @@ export const request_invite = (contact_list) => {
     };
 };
 
+export const request_invite_query = async (contact_list) => {
+        const formData = new FormData();
+        formData.append("contact_list", JSON.stringify(contact_list));
+
+        const response = await fetch(`${SERVER_URL}/request_invite/`, {
+            method: 'POST',
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData;
+};
+
 export const create_invite = (phone_id, name) => {
     return async dispatch => {
         let user = await AsyncStorage.getItem('user')
@@ -146,6 +163,30 @@ export const tagFriend = (friend) => {
     }
 };
 
+export const tag_friend_query = async (friend) => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", friend.phone_id);
+        formData.append("name", friend.name);
+
+        const response = await fetch(`${SERVER_URL}/tag/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            },
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+        
+        return resData        
+};
+
 
 export const untagFriend = (friend) => {
     return async (dispatch, getState) => {
@@ -174,6 +215,30 @@ export const untagFriend = (friend) => {
             id: friend.id
         })
     }
+};
+
+export const untag_friend_mutation = async (friend) => {
+        let user = await AsyncStorage.getItem('user')
+        user = JSON.parse(user)
+
+        const formData = new FormData();
+        formData.append("phone_id", friend.phone);
+        formData.append("name", friend.name);
+
+        const response = await fetch(`${SERVER_URL}/tag/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${user.token}`
+            },
+            body: formData
+        });
+        const resData = await response.json();
+
+        if(resData.error){
+            throw new Error(resData.error);
+        }
+
+        return resData 
 };
 
 export const toggleNotification = (friend, toggle) => {

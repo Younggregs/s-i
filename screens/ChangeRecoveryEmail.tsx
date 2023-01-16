@@ -1,15 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, nuseCallback } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import * as auth from '../store/actions/auth';
 import logo from '../assets/images/logo.png'
 
-import PhoneInput from "react-native-phone-number-input";
-import SMSVerifyCode from 'react-native-sms-verifycode';
 import {
     CodeField,
     Cursor,
@@ -25,13 +23,9 @@ export default function ChangeRecoveryEmail({ route, navigation }: RootStackScre
     const [_url, setUrl] = useState('');
 
     const [value, setValue] = useState("");
-    const [formattedValue, setFormattedValue] = useState("");
     const [valid, setValid] = useState(false);
-    const [invalidCode, setInvalid] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
     const [success, setSuccess] = useState(false);
-    const phoneInput = useRef<PhoneInput>(null);
-    let verifycode = useRef(null);
 
     const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
     const [props, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -41,7 +35,6 @@ export default function ChangeRecoveryEmail({ route, navigation }: RootStackScre
 
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState('');
 
     const validateEmail = (email: String) => {
@@ -92,20 +85,6 @@ export default function ChangeRecoveryEmail({ route, navigation }: RootStackScre
         }
         setIsLoading(false);
     }, [dispatch, setIsLoading, setError])
-
-    
-
-    const onInputCompleted = (text) => {
-        Alert.alert(
-          text,
-          '本次输入的验证码',
-          [
-              {
-              text: '确定',
-            },
-          ]
-        )
-    }
 
     const isValid = async () => {
         if(success){

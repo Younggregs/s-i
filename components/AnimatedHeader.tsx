@@ -3,6 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { StyleSheet, Animated, View, TouchableOpacity, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
+import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
@@ -21,6 +22,7 @@ const HEADER_HEIGHT = 200;
 
 const AnimatedHeader = ({animatedValue, friend}) => {
     const colorScheme = useColorScheme();
+    const queryClient = useQueryClient()
 
     const insets = useSafeAreaInsets();
     const headerHeight = animatedValue.interpolate({
@@ -28,6 +30,35 @@ const AnimatedHeader = ({animatedValue, friend}) => {
         outputRange: [HEADER_HEIGHT + insets.top, insets.top + 44],
         extrapolate: 'clamp'
       });
+
+    const {data, isLoading} = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+        return queryClient.getQueryData('friendsList') || []
+    }
+    })
+    
+    const mutation = useMutation(() => friends.untag_friend_mutation(friend), {
+        onMutate: async (friend) => {
+            // Cancel current queries for the todos list
+            await queryClient.cancelQueries('friendsList')
+            
+            const updatedData = data.filter(item => item.id !== friend.id)
+            queryClient.setQueryData('friendsList', updatedData)
+        
+            // Return context with the optimistic todo
+            return { friend, data: data, updatedData }
+        },
+        onSuccess: (result, variables, context) => {
+          // Remove friend
+          queryClient.setQueryData('friendsList', context?.updatedData)
+          navigation.goBack();
+        },
+        onError: (error, variables, context) => {
+          // add friend back
+          queryClient.setQueryData('friendsList', context?.data)
+        },
+        retry: 3,
+    })
 
     const [visible, setVisible] = useState(false);
     const hideMenu = () => setVisible(false);
@@ -81,7 +112,7 @@ const AnimatedHeader = ({animatedValue, friend}) => {
                         <View style={styles.nameView}>
                             <Text style={styles.titleText}>{friend.name}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => untag()} style={styles.tag}>
+                        <TouchableOpacity onPress={() => mutation.mutate(friend)} style={styles.tag}>
                             <Text style={styles.text}>Untag</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => toggleNotification()} style={styles.notification}>

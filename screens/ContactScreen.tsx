@@ -5,7 +5,6 @@ import * as interests from '../store/actions/interests';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const [message, setMessage] = useState('')

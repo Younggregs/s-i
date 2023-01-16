@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -8,14 +8,13 @@ import {
   TextInput
 } from "react-native";
 import * as Contacts from "expo-contacts";
-import { useDispatch, useSelector } from "react-redux";
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import parsePhoneNumber from 'libphonenumber-js'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 
 import { StatusBar } from "expo-status-bar";
-import { Text, View } from "../components/Themed";
+import { View } from "../components/Themed";
 
 import * as friends from "../store/actions/friends";
 
@@ -24,19 +23,30 @@ import useColorScheme from '../hooks/useColorScheme';
 import ContactItem from "../components/ContactItem";
 
 export default function ContactModalScreen() {
-  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query)
+  const [phonebook, setPhonebook] = useState(false)
+  const [contactList, setContactList] = useState([])
+  const queryClient = useQueryClient()
+  
+  const friendListQuery = useQuery('friendsList', friends.fetch_friends_query,{
+    initialData: () => {
+      return queryClient.getQueryData('friendsList') || []
+    }
+  })
+  const { data, isLoading } = useQuery(
+    ['registered_contacts', phonebook], 
+    () => friends.request_invite_query(phonebook), 
+    {
+        enabled: !!phonebook,
+        initialData: () => {
+          return queryClient.getQueryData('registered_contacts') || []
+        }
+    })
 
   const [contact, setContact] = useState([]);
   const [text, setText] = useState('');
 
   const navigation = useNavigation();
   const colorScheme = useColorScheme();
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState("");
-
-  const dispatch = useDispatch();
 
   const processContacts = async (data) => {
     const contact_list = []
@@ -70,25 +80,13 @@ export default function ContactModalScreen() {
       }
     });
 
+    setPhonebook(contact_list)
     return contact_list;
   }
 
-  const requestInvite = useCallback(async (data) => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const contact_list = await processContacts(data)
-      const message = await dispatch(friends.request_invite(contact_list));
-      setContact(message)
-    } catch (err) {
-        setError(err.message);
-    }
-    setIsLoading(false);
-}, [dispatch, setIsLoading, setError])
-
   //const friendList = useSelector((state) => state.friend.allFriends);
   const friendList = friendListQuery.data
-  const contactList = useSelector((state) => state.friend.allContacts);
+  //const contactList = useSelector((state) => state.friend.allContacts);
   const tempList = contactList.filter((item) => {
     const isFriend = friendList.find((friend) => friend.id === item.id);
     if (isFriend === undefined) {
@@ -106,7 +104,7 @@ export default function ContactModalScreen() {
   // get all active contacts
   const activeList = contactList.filter((item) => {
     let isActive = false
-    contact.find((friend) => {
+    data.find((friend) => {
       if(item.phoneNumbers){
         const phone = item.phoneNumbers[0].number
         const phoneRegex = phone.replace(/\s/g, '')
@@ -149,23 +147,8 @@ export default function ContactModalScreen() {
   const searchList = searchList1.concat(searchList2)
 
 
-  const loadContact = useCallback(
-    async (data) => {
-      setError("");
-      setIsRefreshing(true);
-      try {
-        await dispatch(friends.setContacts(data));
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsRefreshing(false);
-    },
-    [dispatch, setIsLoading, setError]
-  );
-
   useEffect(() => {
     (async () => {
-      setIsLoading(true)
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
@@ -174,8 +157,8 @@ export default function ContactModalScreen() {
 
         if (data.length > 0) {
           const valid_contacts = data.filter(item => item.name !== undefined)
-          loadContact(valid_contacts)
-          requestInvite(valid_contacts);
+          processContacts(valid_contacts)
+          setContactList(valid_contacts)
         }
       }
     })();

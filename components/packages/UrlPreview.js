@@ -1,7 +1,8 @@
 import React from 'react';
 import {getLinkPreview} from 'link-preview-js';
 import PropTypes from 'prop-types';
-import {Image, Linking, Platform, Text, TouchableOpacity, View, ViewPropTypes} from 'react-native';
+import {Image, Linking, Platform, Text, TouchableOpacity, View} from 'react-native';
+import { ViewPropTypes } from 'deprecated-react-native-prop-types'
 
 const REGEX = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/g;
 

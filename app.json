@@ -13,19 +13,23 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/03ea279b-2954-4d3b-b074-440a857f13eb"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "buildNumber": "9",
+      "buildNumber": "12",
       "userInterfaceStyle": "dark",
       "supportsTablet": true,
-      "bundleIdentifier": "com.shareinterest.app"
+      "bundleIdentifier": "com.shareinterest.app",
+      "infoPlist": {
+        "NSContactsUsageDescription": "This app uses your contact list to show you your contacts so you can invite or tag them accordingly"
+      }
     },
     "android": {
-      "versionCode": 21,
+      "versionCode": 22,
       "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -42,6 +46,9 @@
       "eas": {
         "projectId": "03ea279b-2954-4d3b-b074-440a857f13eb"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }

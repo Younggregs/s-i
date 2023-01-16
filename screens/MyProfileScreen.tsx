@@ -1,11 +1,9 @@
 import React, {useRef, useState, useEffect} from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet, Animated } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { ScrollView, StyleSheet, Animated } from 'react-native';
+import { useSelector } from 'react-redux';
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery, useQueryClient } from 'react-query'
 
 import InterestCategorySwitch from '../components/InterestCategorySwitch';
 import InterestComponent from "../components/InterestComponent";
@@ -16,7 +14,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
 
 export default function MyProfileScreen(props: any) {
-  const { navigation } = props;
+  const queryClient = useQueryClient()
+  const {data, isLoading} = useQuery('interestsList', interests.fetch_interests_query,{
+    initialData: () => {
+      return queryClient.getQueryData('interestsList') || []
+    }
+  }) 
+  
   const offset = useRef(new Animated.Value(0)).current;
   const [user, setUser] = useState({});
 
@@ -34,7 +38,7 @@ export default function MyProfileScreen(props: any) {
 
   const interestsList = useSelector(state => state.interest.allInterests);
   let contactsInterests = []
-  contactsInterests = interestsList.filter(interest => interest.account.phone == user.phone_id)
+  contactsInterests = data.filter(interest => interest.account.phone == user.phone_id)
   let interestsBucket = []
   interestsBucket = contactsInterests.filter(interest => interest.category.id === activeCategory.id)
 

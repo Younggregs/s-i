@@ -187,9 +187,6 @@ export default function InterestCategorySwitch({ path }: { path: string }) {
   );
 }
 
-function handleHelpPress() {
-}
-
 const styles = StyleSheet.create({
   getStartedContainer: {
     alignItems: 'center',
