@@ -422,7 +422,7 @@ export const fetch_saved_interests_query = async () => {
             resP.unshift(bucket)
     })
 
-return resP
+    return resP
 };
 
 export const fetch_preview_query = async(link) => {

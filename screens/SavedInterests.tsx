@@ -35,10 +35,8 @@ export default function SavedInterests(props: any) {
     const categories = useSelector(state => state.interest.allCategories);
     const activeCategory = categories.find(category => category.active === true);
 
-    let contactsInterests = []
-    contactsInterests = data.filter(interest => interest.account.phone == user.phone_id)
     let interestsBucket = []
-    interestsBucket = contactsInterests.filter(interest => interest.category.id === activeCategory.id)
+    interestsBucket = data.filter(interest => interest.category.id === activeCategory.id)
 
   return (
     <SafeAreaProvider>
