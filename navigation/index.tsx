@@ -21,7 +21,7 @@ import ContactModalScreen from '../screens/ContactModalScreen';
 import SearchModalScreen from '../screens/SearchModalScreen';
 import ProfileModalScreen from '../screens/ProfileModalScreen';
 import MyProfileScreen from '../screens/MyProfileScreen';
-import SaveInterests from '../screens/SavedInterests';
+import SavedInterests from '../screens/SavedInterests';
 import SettingsModalScreen from '../screens/SettingsModalScreen';
 import LoginScreen from '../screens/LoginScreen';
 import PasswordScreen from '../screens/PasswordScreen';
@@ -156,7 +156,7 @@ function RootNavigator() {
         <Stack.Screen name="Modal" component={ModalScreen} />
         <Stack.Screen 
           name="SavedInterests"
-          component={SaveInterests}
+          component={SavedInterests}
           options={{
               headerShown: true,
               title: 'Saved Interests'

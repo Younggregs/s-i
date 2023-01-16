@@ -12,7 +12,7 @@ import * as interests from '../store/actions/interests';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SafeAreaView from 'react-native-safe-area-view';
 
-export default function SaveInterests(props: any) {
+export default function SavedInterests(props: any) {
     const queryClient = useQueryClient()
     const {data, isLoading} = useQuery('savedInterestsList', interests.fetch_saved_interests_query,{
         initialData: () => {

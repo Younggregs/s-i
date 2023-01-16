@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "shareinterest.app",
     "userInterfaceStyle": "dark",
-    "sdkVersion": "46.0.0",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
