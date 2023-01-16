@@ -103,7 +103,7 @@ export const add_interest_query = async (interest) => {
         formData.append("caption", interest.caption);
         formData.append("link_text", interest.link_text);
         formData.append("type", interest.type);
-        formData.append("share_list", interest.shareList);
+        formData.append("share_list", interest.share_list);
        
         const response = await fetch(`${SERVER_URL}/interest/`, {
             method: 'POST',
