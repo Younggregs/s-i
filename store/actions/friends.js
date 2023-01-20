@@ -247,7 +247,7 @@ export const toggleNotification = (friend, toggle) => {
         user = JSON.parse(user)
 
         const formData = new FormData();
-        formData.append("phone_id", friend.phone_id);
+        formData.append("phone_id", friend.phone);
         formData.append("toggle", toggle);
 
         const response = await fetch(`${SERVER_URL}/toggle_notification/`, {
@@ -262,11 +262,18 @@ export const toggleNotification = (friend, toggle) => {
         if(resData.error){
             throw new Error(resData.error);
         }
-    
-        dispatch({
-            type: TOGGLE_NOTIFICATION,
-            id: friend.id
-        })
+        
+        try {
+            dispatch({
+                type: TOGGLE_NOTIFICATION,
+                id: friend.id
+            })
+        } catch (error) {
+            
+        }
+        
+
+        return resData
     }
 };
 

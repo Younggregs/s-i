@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesome } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { StyleSheet, TouchableOpacity, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';  
 import { FloatingAction } from "react-native-floating-action";
@@ -127,7 +128,8 @@ export default function AddInterest({ path }: { path: string }) {
       try {
         const interestCategory = categories.find((item: { name: any; }) => item.name === category);
         let shareList = selected.map((friend) => { return friend.id })
-        if(checked){
+        if(checked &&
+           selected.length < 1){
           shareList = []
         }
         const interestObject = {
@@ -149,7 +151,7 @@ export default function AddInterest({ path }: { path: string }) {
           'interesting': false,
           'created_at': new Date(),
           'mine': true,
-          'share_list': shareList
+          'share_list': JSON.stringify(shareList)
         }
         //const res = await dispatch(interests.addInterest(interestObject));
         mutation.mutate(interestObject)
@@ -231,7 +233,7 @@ export default function AddInterest({ path }: { path: string }) {
 
   const shareList = () => {
     let list = "All My Friends";
-    if(!checked){
+    if(!checked || selected.length > 0){
       let select = selected.length;
       list = `${select} Friend${select > 1 ? 's': ''}`
     } 
@@ -409,6 +411,11 @@ export default function AddInterest({ path }: { path: string }) {
       <FloatingAction
         showBackground={false}
         onPressMain={() => setModalVisible(true)}
+        floatingIcon={<FontAwesome
+          name="plus"
+          color={'#fff'}
+          size={25}
+      />}
       />
     </TouchableOpacity>
     </View>
@@ -570,12 +577,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#36454F',
     color: '#fff',
     paddingHorizontal: 20,
     borderWidth: 1,
     borderStyle: 'solid',
-    borderColor: '#fff',
+    borderColor: '#36454F',
   },
   preview: {
     flexDirection: 'column',

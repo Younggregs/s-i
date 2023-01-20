@@ -466,6 +466,7 @@ export const fetch_tweet_query = async (id) => {
         if(resData.error){
             throw new Error(resData.error);
         }
+
         return resData.tweet
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { StyleSheet, Animated, View, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, Animated, View, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { useQuery, useMutation, useQueryClient } from 'react-query'
@@ -23,6 +23,8 @@ const HEADER_HEIGHT = 200;
 const AnimatedHeader = ({animatedValue, friend}) => {
     const colorScheme = useColorScheme();
     const queryClient = useQueryClient()
+
+    const [loading, setIsLoading] = useState(false)
 
     const insets = useSafeAreaInsets();
     const headerHeight = animatedValue.interpolate({
@@ -79,12 +81,12 @@ const AnimatedHeader = ({animatedValue, friend}) => {
       }
 
     const toggleNotification = async () => {
-        try {
-            await dispatch(friends.toggleNotification(friend));
-            setToggle(!toggle)
-        } catch (err) {
-            
-        }
+        setIsLoading(true)
+        const toggle_status = !toggle ? 1 : 0;
+        const res = await dispatch(friends.toggleNotification(friend, toggle_status));
+        setToggle(!toggle)
+        setIsLoading(false)
+        
     }
 
     return (
@@ -116,11 +118,15 @@ const AnimatedHeader = ({animatedValue, friend}) => {
                             <Text style={styles.text}>Untag</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => toggleNotification()} style={styles.notification}>
+                            {loading ? (
+                                <ActivityIndicator color="#fff" />
+                            ): ( 
                             <FontAwesome
                                 name="bell"
                                 size={20}
                                 color={`${toggle ? '#4169E1' : '#fff'}`}
                             />
+                            )}
                         </TouchableOpacity>
                         <View style={styles.menuContainer}>
                             <Menu

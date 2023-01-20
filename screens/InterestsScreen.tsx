@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, FlatList, ActivityIndicator, Linking, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -32,7 +32,6 @@ export default function InterestsScreen({ navigation }: RootTabScreenProps<'Inte
 
   useEffect(() => {
     checkNetworkConnection()
-
   }, [])
 
   const checkNetworkConnection = async () => {
