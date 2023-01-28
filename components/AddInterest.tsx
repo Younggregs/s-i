@@ -22,7 +22,6 @@ import pinterestRegex from './category_regexes/PinterestRegex';
 
 import * as interests from '../store/actions/interests';
 import * as friends from '../store/actions/friends';
-import { setNotificationChannelGroupAsync } from "expo-notifications";
 
 var linkify = require('linkifyjs');
 
