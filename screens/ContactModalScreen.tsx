@@ -5,7 +5,8 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  TextInput
+  TextInput,
+  Alert
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { FontAwesome } from '@expo/vector-icons';
@@ -146,9 +147,25 @@ export default function ContactModalScreen() {
   const searchList2 = bufferList.filter((friend) => friend.name.toUpperCase().indexOf(text.toUpperCase()) > -1)
   const searchList = searchList1.concat(searchList2)
 
+  const contactListAlert = () =>
+    Alert.alert('Contact List', 'This app uses your contact list to show you your contacts so you can invite or tag them accordingly', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {text: 'OK'},
+    ]);
 
   useEffect(() => {
     (async () => {
+
+      if(Platform.OS === "android"){
+        const { granted } = await Contacts.getPermissionsAsync()
+        if(!granted){
+          contactListAlert()
+        }
+      }
+
       const { status } = await Contacts.requestPermissionsAsync();
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({

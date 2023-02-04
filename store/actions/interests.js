@@ -341,8 +341,6 @@ export const fetch_interests_query = async () => {
             throw new Error(resData.error);
         }
 
-        console.log('resData: ', resData)
-
         const resP = []
         const date = moment().subtract(20, 'hours');
         await resData.map(interest => {
