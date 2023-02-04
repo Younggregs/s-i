@@ -20,7 +20,7 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "13",
+      "buildNumber": "14",
       "userInterfaceStyle": "dark",
       "supportsTablet": true,
       "bundleIdentifier": "com.shareinterest.app",
@@ -29,7 +29,7 @@
       }
     },
     "android": {
-      "versionCode": 24,
+      "versionCode": 25,
       "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
